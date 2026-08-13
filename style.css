@@ -58,8 +58,7 @@ body {
 
     height: 30px;
 
-    padding:
-        0 12px;
+    padding: 0 12px;
 
     font-family:
         Tahoma,
@@ -105,6 +104,21 @@ body {
 
     border-bottom:
         2px solid white;
+}
+
+
+.toolbar-divider {
+
+    width: 1px;
+
+    height: 26px;
+
+    margin: 0 4px;
+
+    background: #808080;
+
+    border-right:
+        1px solid white;
 }
 
 
@@ -183,6 +197,20 @@ body {
 
 
 /* =========================
+   OBJECT SELECTION
+========================= */
+
+.board-object.selected {
+
+    outline:
+        2px dotted #316ac5;
+
+    outline-offset: 3px;
+}
+
+
+
+/* =========================
    NOTES
 ========================= */
 
@@ -226,11 +254,15 @@ body {
 
     outline: none;
 
-    user-select: text;
+    user-select: none;
 }
 
 
-.note-title:focus {
+.note-title.editing {
+
+    cursor: text;
+
+    user-select: text;
 
     background: #2457a6;
 }
@@ -249,6 +281,14 @@ body {
     font-size: 14px;
 
     outline: none;
+
+    cursor: default;
+
+    user-select: none;
+}
+
+
+.note-content.editing {
 
     cursor: text;
 
@@ -301,11 +341,15 @@ body {
 
     outline: none;
 
-    user-select: text;
+    user-select: none;
 }
 
 
-.image-title:focus {
+.image-title.editing {
+
+    cursor: text;
+
+    user-select: text;
 
     background: #2457a6;
 }
@@ -327,9 +371,13 @@ body {
 
     max-width: 100%;
 
-    max-height: 300px;
+    width: 100%;
+
+    height: auto;
 
     margin: auto;
+
+    pointer-events: none;
 }
 
 
@@ -357,6 +405,44 @@ body {
     height: auto;
 
     pointer-events: none;
+}
+
+
+
+/* =========================
+   RESIZE HANDLE
+========================= */
+
+.resize-handle {
+
+    position: absolute;
+
+    right: -6px;
+
+    bottom: -6px;
+
+    width: 12px;
+
+    height: 12px;
+
+    background: white;
+
+    border:
+        2px solid #316ac5;
+
+    cursor:
+        nwse-resize;
+
+    display: none;
+
+    z-index: 20;
+}
+
+
+.board-object.selected
+.resize-handle {
+
+    display: block;
 }
 
 
