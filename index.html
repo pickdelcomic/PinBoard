@@ -23,7 +23,9 @@
 <body>
 
 
-    <!-- TOP TOOLBAR -->
+    <!-- =========================
+         TOOLBAR
+    ========================== -->
 
     <div id="toolbar">
 
@@ -51,6 +53,38 @@
             ERASER
         </button>
 
+        <button id="pageButton">
+            PAGE
+        </button>
+
+        <div class="toolbar-divider"></div>
+
+        <label class="color-control">
+
+            PEN
+
+            <input
+                type="color"
+                id="penColor"
+                value="#000000"
+            >
+
+        </label>
+
+
+        <label class="color-control">
+
+            BG
+
+            <input
+                type="color"
+                id="backgroundColor"
+                value="#ffffff"
+            >
+
+        </label>
+
+
         <div class="toolbar-divider"></div>
 
         <button id="newButton">
@@ -69,11 +103,14 @@
             LOAD
         </button>
 
+
         <div class="toolbar-spacer"></div>
+
 
         <div id="pickdel">
             PICKDEL
         </div>
+
 
         <span id="zoomDisplay">
             100%
@@ -82,17 +119,21 @@
     </div>
 
 
-    <!-- BOARD -->
+
+    <!-- =========================
+         BOARD
+    ========================== -->
 
     <div id="board">
 
         <div id="workspace"></div>
 
-        <!-- DRAWING CANVAS -->
-
-        <canvas id="drawingCanvas"></canvas>
+        <canvas
+            id="drawingCanvas"
+        ></canvas>
 
     </div>
+
 
 
     <!-- IMAGE INPUT -->
@@ -105,7 +146,7 @@
     >
 
 
-    <!-- BOARD INPUT -->
+    <!-- BOARD LOAD INPUT -->
 
     <input
         type="file"
@@ -115,7 +156,10 @@
     >
 
 
-    <!-- RIGHT CLICK MENU -->
+
+    <!-- =========================
+         RIGHT CLICK MENU
+    ========================== -->
 
     <div id="contextMenu">
 
@@ -128,6 +172,50 @@
         </button>
 
     </div>
+
+
+
+    <!-- =========================
+         PAGE DIALOG
+    ========================== -->
+
+    <div
+        id="pageDialog"
+        class="dialog"
+    >
+
+        <div class="dialog-box">
+
+            <div class="dialog-title">
+                CREATE PAGE
+            </div>
+
+
+            <div class="dialog-content">
+
+                <p>
+                    What should this page button look like?
+                </p>
+
+
+                <button id="pageTextOption">
+                    TEXT
+                </button>
+
+                <button id="pageImageOption">
+                    IMAGE
+                </button>
+
+                <button id="pageCancelOption">
+                    CANCEL
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
 
 
     <script src="app.js"></script>
