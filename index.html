@@ -1,26 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Board</title>
+
+    <title>Visual Notes</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div id="board">
-</div>
+    <!-- TOP MENU -->
 
-    <div id="toolbar">
-        <button>SELECT</button>
-        <button>TEXT</button>
-        <button>IMAGE</button>
-        <button>PEN</button>
-        <button>LINE</button>
-        <button>ERASER</button>
+    <div id="topbar">
+
+        <div class="program-title">
+            Visual Notes
+        </div>
+
+        <button>File</button>
+        <button>Edit</button>
+        <button>View</button>
+        <button>Insert</button>
+        <button>Board</button>
+        <button>Help</button>
+
     </div>
 
+
+    <!-- BOARD -->
+
+    <div id="board">
+
+        <div id="workspace">
+
+        </div>
+
+    </div>
+
+
+    <!-- BOTTOM TOOLBAR -->
+
+    <div id="toolbar">
+
+        <button id="selectButton">SELECT</button>
+        <button id="textButton">TEXT</button>
+        <button id="imageButton">IMAGE</button>
+        <button id="penButton">PEN</button>
+        <button id="lineButton">LINE</button>
+        <button id="eraserButton">ERASER</button>
+
+        <div class="toolbar-spacer"></div>
+
+        <span id="zoomDisplay">100%</span>
+
+    </div>
+
+
+    <!-- RIGHT CLICK MENU -->
+
+    <div id="contextMenu">
+
+        <button id="deleteObject">
+            Delete
+        </button>
+
+        <button id="duplicateObject">
+            Duplicate
+        </button>
+
+    </div>
+
+
     <script src="app.js"></script>
+
 </body>
+
 </html>
