@@ -15,10 +15,11 @@
         <button id="textButton">TEXT</button>
         <button id="imageButton">IMAGE</button>
         <button id="stickerButton">STICKER</button>
-        <button id="drawButton">DRAW</button>
-        <button id="eraserButton">ERASER</button>
 
         <div class="toolbar-divider"></div>
+
+        <button id="drawButton">DRAW</button>
+        <button id="eraserButton">ERASER</button>
 
         <label class="color-control">
             PEN
@@ -29,6 +30,8 @@
             BG
             <input type="color" id="backgroundColor" value="#ffffff">
         </label>
+
+        <button id="pixelButton">PIXEL</button>
 
         <div class="toolbar-divider"></div>
 
@@ -49,9 +52,11 @@
 
 
     <div id="board">
+
         <div id="workspace"></div>
 
         <canvas id="drawingCanvas"></canvas>
+
     </div>
 
 
@@ -80,6 +85,24 @@
             Duplicate
         </button>
 
+        <div class="menu-divider"></div>
+
+        <button id="bringFront">
+            Bring to Front
+        </button>
+
+        <button id="bringForward">
+            Bring Forward
+        </button>
+
+        <button id="sendBackward">
+            Send Backward
+        </button>
+
+        <button id="sendBack">
+            Send to Back
+        </button>
+
     </div>
 
 
@@ -88,8 +111,13 @@
         <div class="help-box">
 
             <div class="help-title">
+
                 PICKDEL BOARD HELP
-                <button id="closeHelp">X</button>
+
+                <button id="closeHelp">
+                    X
+                </button>
+
             </div>
 
             <div class="help-content">
@@ -98,37 +126,42 @@
 
                 <p>
                     <b>SELECT</b><br>
-                    Click and drag objects to move them.
+                    Select and move objects.
                 </p>
 
                 <p>
                     <b>TEXT</b><br>
-                    Creates a new note. Double-click the blue title to rename it and double-click the text to edit it.
+                    Creates a new note.
                 </p>
 
                 <p>
                     <b>IMAGE</b><br>
-                    Add an image with a title.
+                    Adds an image with a title.
                 </p>
 
                 <p>
                     <b>STICKER</b><br>
-                    Add an image without a box or title.
+                    Adds an image without a box or title.
+                </p>
+
+                <p>
+                    <b>PIXEL</b><br>
+                    Makes images use hard nearest-neighbor pixels instead of smooth scaling.
                 </p>
 
                 <p>
                     <b>DRAW</b><br>
-                    Draw anywhere on the board. Press SELECT when finished.
+                    Draw on the board.
                 </p>
 
                 <p>
                     <b>ERASER</b><br>
-                    Erase drawings. Press SELECT when finished.
+                    Erase drawings.
                 </p>
 
                 <p>
                     <b>SHIFT + DRAG</b><br>
-                    Move the board around.
+                    Move around the board.
                 </p>
 
                 <p>
@@ -138,22 +171,27 @@
 
                 <p>
                     <b>RIGHT CLICK</b><br>
-                    Delete or duplicate an object.
+                    Open object options.
+                </p>
+
+                <p>
+                    <b>RIGHT CLICK → LAYER</b><br>
+                    Move objects in front of or behind other objects.
                 </p>
 
                 <p>
                     <b>DELETE</b><br>
-                    Deletes the selected object.
+                    Delete the selected object.
                 </p>
 
                 <p>
                     <b>SAVE AS</b><br>
-                    Creates a new board file.
+                    Save the board as a new file.
                 </p>
 
                 <p>
                     <b>LOAD</b><br>
-                    Opens another board file.
+                    Load another board.
                 </p>
 
             </div>
