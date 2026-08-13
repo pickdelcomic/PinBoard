@@ -43,6 +43,10 @@
             STICKER
         </button>
 
+        <button id="pageButton">
+            PAGE
+        </button>
+
         <button id="drawButton">
             DRAW
         </button>
@@ -65,11 +69,53 @@
             SAVE AS
         </button>
 
+        <button id="folderButton">
+            FOLDER
+        </button>
+
         <button id="loadButton">
             LOAD
         </button>
 
+        <div class="toolbar-divider"></div>
+
+        <label class="tool-label">
+            PEN
+            <input
+                type="color"
+                id="penColor"
+                value="#000000"
+            >
+        </label>
+
+        <label class="tool-label">
+            SIZE
+            <input
+                type="number"
+                id="penSize"
+                value="4"
+                min="1"
+                max="50"
+            >
+        </label>
+
+        <label class="tool-label">
+            BG
+            <input
+                type="color"
+                id="backgroundColor"
+                value="#ffffff"
+            >
+        </label>
+
         <div class="toolbar-spacer"></div>
+
+        <button
+            id="backButton"
+            style="display:none"
+        >
+            BACK
+        </button>
 
         <div id="pickdel">
             PICKDEL
@@ -87,8 +133,6 @@
     <div id="board">
 
         <div id="workspace"></div>
-
-        <!-- DRAWING CANVAS -->
 
         <canvas id="drawingCanvas"></canvas>
 
@@ -125,6 +169,10 @@
 
         <button id="duplicateObject">
             Duplicate
+        </button>
+
+        <button id="openPage">
+            Open Page
         </button>
 
     </div>
