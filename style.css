@@ -5,9 +5,12 @@
 
 html,
 body {
+
     margin: 0;
+
     width: 100%;
     height: 100%;
+
     overflow: hidden;
 
     font-family:
@@ -146,7 +149,7 @@ body {
 
 
 /* =========================
-   COLOR CONTROLS
+   COLORS
 ========================= */
 
 .color-control {
@@ -439,12 +442,20 @@ body {
 
     pointer-events: none;
 
+    /*
+       NORMAL IMAGES
+       stay smooth.
+    */
+
     image-rendering: auto;
 }
 
 
 /*
-   THIS IS THE PIXEL ART MODE.
+   PIXEL MODE
+
+   ONLY images with this class
+   become crisp pixel art.
 */
 
 .image-object.pixel-mode img,
@@ -475,6 +486,7 @@ body {
     display: block;
 
     width: 180px;
+
     height: auto;
 
     pointer-events: none;
@@ -528,7 +540,7 @@ body {
 
     display: none;
 
-    width: 170px;
+    width: 175px;
 
     padding: 3px;
 
@@ -583,7 +595,7 @@ body {
 
 
 /* =========================
-   HELP WINDOW
+   HELP
 ========================= */
 
 .help-window {
@@ -611,6 +623,7 @@ body {
 .help-box {
 
     width: 430px;
+
     max-height: 80vh;
 
     background: #d4d0c8;
@@ -649,7 +662,6 @@ body {
 .help-title button {
 
     margin-left: auto;
-
     margin-right: 4px;
 
     width: 22px;
