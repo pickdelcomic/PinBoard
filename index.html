@@ -3,205 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Pickdel Board</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div id="toolbar">
+<div id="toolbar">
 
-        <button id="selectButton">SELECT</button>
-        <button id="textButton">TEXT</button>
-        <button id="imageButton">IMAGE</button>
-        <button id="stickerButton">STICKER</button>
+    <button id="selectButton">SELECT</button>
+    <button id="textButton">TEXT</button>
+    <button id="imageButton">IMAGE</button>
+    <button id="stickerButton">STICKER</button>
 
-        <div class="toolbar-divider"></div>
+    <div class="toolbar-divider"></div>
 
-        <button id="drawButton">DRAW</button>
-        <button id="eraserButton">ERASER</button>
+    <button id="drawButton">DRAW</button>
+    <button id="eraserButton">ERASER</button>
 
-        <label class="color-control">
-            PEN
-            <input type="color" id="penColor" value="#000000">
-        </label>
+    <label class="color-control">
+        PEN
+        <input type="color" id="penColor" value="#000000">
+    </label>
 
-        <label class="color-control">
-            BG
-            <input type="color" id="backgroundColor" value="#ffffff">
-        </label>
+    <label class="color-control">
+        BG
+        <input type="color" id="backgroundColor" value="#ffffff">
+    </label>
 
-        <button id="pixelButton">PIXEL</button>
+    <div class="toolbar-divider"></div>
 
-        <div class="toolbar-divider"></div>
+    <button id="newButton">NEW</button>
+    <button id="saveButton">SAVE</button>
+    <button id="saveAsButton">SAVE AS</button>
+    <button id="loadButton">LOAD</button>
 
-        <button id="newButton">NEW</button>
-        <button id="saveButton">SAVE</button>
-        <button id="saveAsButton">SAVE AS</button>
-        <button id="loadButton">LOAD</button>
+    <button id="helpButton" class="help-button">?</button>
 
-        <button id="helpButton" class="help-button">?</button>
+    <div class="toolbar-spacer"></div>
 
-        <div class="toolbar-spacer"></div>
-
-        <div id="pickdel">PICKDEL</div>
-
-        <span id="zoomDisplay">100%</span>
-
+    <div id="pickdel">
+        PICKDEL
     </div>
 
+    <span id="zoomDisplay">
+        100%
+    </span>
 
-    <div id="board">
-
-        <div id="workspace"></div>
-
-        <canvas id="drawingCanvas"></canvas>
-
-    </div>
+</div>
 
 
-    <input
-        type="file"
-        id="imageInput"
-        accept="image/*"
-        hidden
-    >
+<div id="board">
 
-    <input
-        type="file"
-        id="boardInput"
-        accept=".json"
-        hidden
-    >
+    <div id="workspace"></div>
+
+    <canvas id="drawingCanvas"></canvas>
+
+</div>
 
 
-    <div id="contextMenu">
+<input
+    type="file"
+    id="imageInput"
+    accept="image/*"
+    hidden
+>
 
-        <button id="deleteObject">
-            Delete
-        </button>
-
-        <button id="duplicateObject">
-            Duplicate
-        </button>
-
-        <div class="menu-divider"></div>
-
-        <button id="bringFront">
-            Bring to Front
-        </button>
-
-        <button id="bringForward">
-            Bring Forward
-        </button>
-
-        <button id="sendBackward">
-            Send Backward
-        </button>
-
-        <button id="sendBack">
-            Send to Back
-        </button>
-
-    </div>
+<input
+    type="file"
+    id="boardInput"
+    accept=".json"
+    hidden
+>
 
 
-    <div id="helpWindow" class="help-window">
+<!-- RIGHT CLICK MENU -->
 
-        <div class="help-box">
+<div id="contextMenu">
 
-            <div class="help-title">
+    <button id="deleteObject">
+        Delete
+    </button>
 
-                PICKDEL BOARD HELP
+    <button id="duplicateObject">
+        Duplicate
+    </button>
 
-                <button id="closeHelp">
-                    X
-                </button>
+    <div class="menu-divider"></div>
 
-            </div>
+    <button id="pixelObject">
+        Pixel Mode
+    </button>
 
-            <div class="help-content">
+    <div class="menu-divider"></div>
 
-                <h3>Controls</h3>
+    <button id="bringFront">
+        Bring to Front
+    </button>
 
-                <p>
-                    <b>SELECT</b><br>
-                    Select and move objects.
-                </p>
+    <button id="bringForward">
+        Bring Forward
+    </button>
 
-                <p>
-                    <b>TEXT</b><br>
-                    Creates a new note.
-                </p>
+    <button id="sendBackward">
+        Send Backward
+    </button>
 
-                <p>
-                    <b>IMAGE</b><br>
-                    Adds an image with a title.
-                </p>
+    <button id="sendBack">
+        Send to Back
+    </button>
 
-                <p>
-                    <b>STICKER</b><br>
-                    Adds an image without a box or title.
-                </p>
+</div>
 
-                <p>
-                    <b>PIXEL</b><br>
-                    Makes images use hard nearest-neighbor pixels instead of smooth scaling.
-                </p>
 
-                <p>
-                    <b>DRAW</b><br>
-                    Draw on the board.
-                </p>
+<!-- HELP -->
 
-                <p>
-                    <b>ERASER</b><br>
-                    Erase drawings.
-                </p>
+<div id="helpWindow" class="help-window">
 
-                <p>
-                    <b>SHIFT + DRAG</b><br>
-                    Move around the board.
-                </p>
+    <div class="help-box">
 
-                <p>
-                    <b>MOUSE WHEEL</b><br>
-                    Zoom in and out.
-                </p>
+        <div class="help-title">
 
-                <p>
-                    <b>RIGHT CLICK</b><br>
-                    Open object options.
-                </p>
+            PICKDEL BOARD
 
-                <p>
-                    <b>RIGHT CLICK → LAYER</b><br>
-                    Move objects in front of or behind other objects.
-                </p>
+            <button id="closeHelp">
+                X
+            </button>
 
-                <p>
-                    <b>DELETE</b><br>
-                    Delete the selected object.
-                </p>
+        </div>
 
-                <p>
-                    <b>SAVE AS</b><br>
-                    Save the board as a new file.
-                </p>
+        <div class="help-content">
 
-                <p>
-                    <b>LOAD</b><br>
-                    Load another board.
-                </p>
+            <h3>Controls</h3>
 
-            </div>
+            <p>
+                <b>SELECT</b><br>
+                Select and move objects.
+            </p>
+
+            <p>
+                <b>TEXT</b><br>
+                Creates a new note.
+            </p>
+
+            <p>
+                <b>IMAGE</b><br>
+                Adds an image with a title.
+            </p>
+
+            <p>
+                <b>STICKER</b><br>
+                Adds an image without a title or border.
+            </p>
+
+            <p>
+                <b>DRAW</b><br>
+                Draw on the board.
+            </p>
+
+            <p>
+                <b>ERASER</b><br>
+                Erase drawings.
+            </p>
+
+            <p>
+                <b>SHIFT + DRAG</b><br>
+                Move around the board.
+            </p>
+
+            <p>
+                <b>MOUSE WHEEL</b><br>
+                Zoom in and out.
+            </p>
+
+            <p>
+                <b>RIGHT CLICK</b><br>
+                Open object options.
+            </p>
+
+            <p>
+                <b>PIXEL MODE</b><br>
+                Makes pixel-art images use crisp nearest-neighbor scaling.
+            </p>
+
+            <p>
+                <b>DELETE</b><br>
+                Delete the selected object.
+            </p>
 
         </div>
 
     </div>
 
+</div>
 
-    <script src="app.js"></script>
+
+<script src="app.js"></script>
 
 </body>
 </html>
