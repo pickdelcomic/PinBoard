@@ -55,16 +55,23 @@
             ERASER
         </button>
 
+        <div class="toolbar-divider"></div>
+
+        <button id="saveButton">
+            SAVE
+        </button>
+
+        <button id="loadButton">
+            LOAD
+        </button>
 
         <div class="toolbar-spacer"></div>
-
 
         <span id="zoomDisplay">
             100%
         </span>
 
     </div>
-
 
 
     <!-- BOARD -->
@@ -76,7 +83,6 @@
     </div>
 
 
-
     <!-- IMAGE FILE INPUT -->
 
     <input
@@ -86,6 +92,15 @@
         hidden
     >
 
+
+    <!-- BOARD FILE INPUT -->
+
+    <input
+        type="file"
+        id="boardInput"
+        accept=".json"
+        hidden
+    >
 
 
     <!-- RIGHT CLICK MENU -->
@@ -101,7 +116,6 @@
         </button>
 
     </div>
-
 
 
     <script src="app.js"></script>
