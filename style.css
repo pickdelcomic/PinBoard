@@ -24,7 +24,7 @@ body {
 
 
 /* =========================
-   TOP TOOLBAR
+   TOOLBAR
 ========================= */
 
 #toolbar {
@@ -35,7 +35,7 @@ body {
     top: 0;
 
     width: 100%;
-    height: 42px;
+    height: 46px;
 
     display: flex;
 
@@ -58,7 +58,7 @@ body {
 
     height: 30px;
 
-    padding: 0 12px;
+    padding: 0 10px;
 
     font-family:
         Tahoma,
@@ -111,7 +111,7 @@ body {
 
     width: 1px;
 
-    height: 26px;
+    height: 27px;
 
     margin: 0 4px;
 
@@ -128,6 +128,60 @@ body {
 }
 
 
+
+/* =========================
+   COLOR CONTROLS
+========================= */
+
+.tool-label {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 3px;
+
+    height: 30px;
+
+    padding:
+        0 5px;
+
+    font-size: 11px;
+
+    color: #222;
+}
+
+
+.tool-label input[type="color"] {
+
+    width: 25px;
+
+    height: 23px;
+
+    padding: 0;
+
+    border: 1px solid #808080;
+
+    cursor: pointer;
+}
+
+
+#penSize {
+
+    width: 45px;
+
+    height: 23px;
+
+    border:
+        1px solid #808080;
+
+    background: white;
+
+    font-size: 11px;
+}
+
+
+
 /* =========================
    PICKDEL
 ========================= */
@@ -135,9 +189,9 @@ body {
 #pickdel {
 
     padding:
-        3px 10px;
+        4px 9px;
 
-    margin-right: 8px;
+    margin-right: 5px;
 
     color: white;
 
@@ -157,7 +211,7 @@ body {
 #zoomDisplay {
 
     padding:
-        5px 8px;
+        5px 6px;
 
     font-size: 12px;
 
@@ -175,7 +229,7 @@ body {
     position: fixed;
 
     left: 0;
-    top: 42px;
+    top: 46px;
 
     right: 0;
     bottom: 0;
@@ -183,8 +237,6 @@ body {
     overflow: hidden;
 
     background: white;
-
-    cursor: default;
 }
 
 
@@ -223,7 +275,7 @@ body {
 
 
 /* =========================
-   DRAWING CANVAS
+   DRAWING
 ========================= */
 
 #drawingCanvas {
@@ -247,7 +299,7 @@ body {
 
 
 /* =========================
-   OBJECT SELECTION
+   OBJECTS
 ========================= */
 
 .board-object.selected {
@@ -303,16 +355,12 @@ body {
     cursor: move;
 
     outline: none;
-
-    user-select: none;
 }
 
 
 .note-title.editing {
 
     cursor: text;
-
-    user-select: text;
 
     background: #2457a6;
 }
@@ -331,10 +379,6 @@ body {
     font-size: 14px;
 
     outline: none;
-
-    cursor: default;
-
-    user-select: none;
 }
 
 
@@ -348,7 +392,7 @@ body {
 
 
 /* =========================
-   IMAGE
+   IMAGES
 ========================= */
 
 .image-object {
@@ -364,8 +408,6 @@ body {
 
     box-shadow:
         4px 4px 0 #9aa7b2;
-
-    user-select: none;
 }
 
 
@@ -390,16 +432,12 @@ body {
     cursor: move;
 
     outline: none;
-
-    user-select: none;
 }
 
 
 .image-title.editing {
 
     cursor: text;
-
-    user-select: text;
 
     background: #2457a6;
 }
@@ -425,15 +463,13 @@ body {
 
     height: auto;
 
-    margin: auto;
-
     pointer-events: none;
 }
 
 
 
 /* =========================
-   STICKER
+   STICKERS
 ========================= */
 
 .sticker {
@@ -460,7 +496,68 @@ body {
 
 
 /* =========================
-   RESIZE HANDLE
+   PAGE BUTTON
+========================= */
+
+.page-object {
+
+    position: absolute;
+
+    width: 240px;
+
+    min-height: 90px;
+
+    padding: 10px;
+
+    background: #f7f7f7;
+
+    border:
+        3px double #316ac5;
+
+    box-shadow:
+        4px 4px 0 #9aa7b2;
+
+    cursor: move;
+
+    user-select: none;
+}
+
+
+.page-object:hover {
+
+    background: #edf4ff;
+}
+
+
+.page-text {
+
+    font-weight: bold;
+
+    color: #234a8c;
+
+    font-size: 15px;
+
+    text-align: center;
+}
+
+
+.page-image {
+
+    display: block;
+
+    max-width: 100%;
+
+    max-height: 180px;
+
+    margin: auto;
+
+    pointer-events: none;
+}
+
+
+
+/* =========================
+   RESIZE
 ========================= */
 
 .resize-handle {
@@ -484,8 +581,6 @@ body {
         nwse-resize;
 
     display: none;
-
-    z-index: 20;
 }
 
 
