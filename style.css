@@ -5,12 +5,9 @@
 
 html,
 body {
-
     margin: 0;
-
     width: 100%;
     height: 100%;
-
     overflow: hidden;
 
     font-family:
@@ -22,13 +19,11 @@ body {
 }
 
 
-
 /* =========================
    TOOLBAR
 ========================= */
 
 #toolbar {
-
     position: fixed;
 
     left: 0;
@@ -38,7 +33,6 @@ body {
     height: 44px;
 
     display: flex;
-
     align-items: center;
 
     gap: 4px;
@@ -55,7 +49,6 @@ body {
 
 
 #toolbar button {
-
     height: 30px;
 
     padding:
@@ -87,12 +80,12 @@ body {
 
 
 #toolbar button:hover {
-
     background: #eeeeee;
 }
 
 
-#toolbar button:active {
+#toolbar button:active,
+#toolbar button.active {
 
     border-top:
         2px solid #808080;
@@ -105,29 +98,16 @@ body {
 
     border-bottom:
         2px solid white;
-}
 
-
-#toolbar button.active {
-
-    background: #bfc9d5;
-
-    border-top:
-        2px solid #808080;
-
-    border-left:
-        2px solid #808080;
+    background: #c3ccd7;
 }
 
 
 .toolbar-divider {
-
     width: 1px;
-
     height: 27px;
 
-    margin:
-        0 4px;
+    margin: 0 4px;
 
     background: #808080;
 
@@ -137,14 +117,12 @@ body {
 
 
 .toolbar-spacer {
-
     flex: 1;
 }
 
 
-
 /* =========================
-   COLOR PICKERS
+   COLORS
 ========================= */
 
 .color-control {
@@ -152,7 +130,6 @@ body {
     height: 30px;
 
     display: flex;
-
     align-items: center;
 
     gap: 4px;
@@ -188,9 +165,23 @@ body {
     border: 0;
 
     cursor: pointer;
-
 }
 
+
+/* =========================
+   HELP BUTTON
+========================= */
+
+.help-button {
+
+    width: 30px;
+
+    padding: 0 !important;
+
+    font-size: 18px !important;
+
+    font-weight: bold;
+}
 
 
 /* =========================
@@ -228,7 +219,6 @@ body {
 }
 
 
-
 /* =========================
    BOARD
 ========================= */
@@ -263,31 +253,12 @@ body {
 
     background-color: white;
 
-    background-image:
-
-        linear-gradient(
-            #eeeeee 1px,
-            transparent 1px
-        ),
-
-        linear-gradient(
-            90deg,
-            #eeeeee 1px,
-            transparent 1px
-        );
-
-    background-size:
-        20px 20px;
+    /* NO GRID */
 
     transform-origin:
         0 0;
 }
 
-
-
-/* =========================
-   DRAWING
-========================= */
 
 #drawingCanvas {
 
@@ -308,9 +279,8 @@ body {
 }
 
 
-
 /* =========================
-   OBJECTS
+   OBJECT SELECTION
 ========================= */
 
 .board-object.selected {
@@ -320,7 +290,6 @@ body {
 
     outline-offset: 3px;
 }
-
 
 
 /* =========================
@@ -407,7 +376,6 @@ body {
 }
 
 
-
 /* =========================
    IMAGES
 ========================= */
@@ -445,12 +413,10 @@ body {
     display: block;
 
     width: 100%;
-
     height: auto;
 
     pointer-events: none;
 }
-
 
 
 /* =========================
@@ -472,101 +438,10 @@ body {
     display: block;
 
     width: 180px;
-
     height: auto;
 
     pointer-events: none;
 }
-
-
-
-/* =========================
-   PAGE OBJECT
-========================= */
-
-.page-object {
-
-    position: absolute;
-
-    min-width: 180px;
-
-    min-height: 70px;
-
-    background: #f4f4f4;
-
-    border:
-        3px double #316ac5;
-
-    box-shadow:
-        5px 5px 0 #9aa7b2;
-
-    user-select: none;
-
-    cursor: pointer;
-}
-
-
-.page-object::before {
-
-    content: "";
-
-    position: absolute;
-
-    left: 7px;
-    top: 7px;
-
-    right: 7px;
-    bottom: 7px;
-
-    border:
-        1px dashed #6d8fc4;
-
-    pointer-events: none;
-}
-
-
-.page-text {
-
-    position: relative;
-
-    z-index: 2;
-
-    padding:
-        20px 15px;
-
-    text-align: center;
-
-    font-weight: bold;
-
-    color: #234a8c;
-
-    cursor: move;
-}
-
-
-.page-image {
-
-    position: relative;
-
-    z-index: 2;
-
-    width: 100%;
-
-    padding: 12px;
-
-    text-align: center;
-}
-
-
-.page-image img {
-
-    max-width: 100%;
-
-    max-height: 220px;
-
-    pointer-events: none;
-}
-
 
 
 /* =========================
@@ -604,9 +479,8 @@ body {
 }
 
 
-
 /* =========================
-   RIGHT CLICK
+   RIGHT CLICK MENU
 ========================= */
 
 #contextMenu {
@@ -669,12 +543,11 @@ body {
 }
 
 
-
 /* =========================
-   PAGE DIALOG
+   HELP WINDOW
 ========================= */
 
-.dialog {
+.help-window {
 
     position: fixed;
 
@@ -696,9 +569,10 @@ body {
 }
 
 
-.dialog-box {
+.help-box {
 
-    width: 330px;
+    width: 430px;
+    max-height: 80vh;
 
     background: #d4d0c8;
 
@@ -716,10 +590,14 @@ body {
 }
 
 
-.dialog-title {
+.help-title {
 
-    padding:
-        6px 9px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+
+    padding-left: 8px;
 
     color: white;
 
@@ -729,27 +607,18 @@ body {
 }
 
 
-.dialog-content {
+.help-title button {
 
-    padding: 18px;
+    margin-left: auto;
 
-    text-align: center;
-}
+    margin-right: 4px;
 
+    width: 22px;
+    height: 22px;
 
-.dialog-content p {
+    padding: 0;
 
-    margin-top: 0;
-}
-
-
-.dialog-content button {
-
-    min-width: 80px;
-
-    margin: 4px;
-
-    padding: 7px;
+    font-weight: bold;
 
     background: #d4d0c8;
 
@@ -760,10 +629,36 @@ body {
         2px solid white;
 
     border-right:
-        2px solid #808080;
+        2px solid #404040;
 
     border-bottom:
-        2px solid #808080;
+        2px solid #404040;
 
     cursor: pointer;
+}
+
+
+.help-content {
+
+    padding:
+        10px 18px;
+
+    max-height: calc(80vh - 30px);
+
+    overflow-y: auto;
+
+    font-size: 13px;
+}
+
+
+.help-content h3 {
+
+    margin-top: 5px;
+}
+
+
+.help-content p {
+
+    margin:
+        12px 0;
 }
