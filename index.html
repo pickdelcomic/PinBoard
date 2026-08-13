@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Board</title>
+    <title>Pickdel Board</title>
 
     <link
         rel="stylesheet"
@@ -23,7 +23,7 @@
 <body>
 
 
-    <!-- TOOLBAR -->
+    <!-- TOP TOOLBAR -->
 
     <div id="toolbar">
 
@@ -43,12 +43,8 @@
             STICKER
         </button>
 
-        <button id="penButton">
-            PEN
-        </button>
-
-        <button id="lineButton">
-            LINE
+        <button id="drawButton">
+            DRAW
         </button>
 
         <button id="eraserButton">
@@ -57,8 +53,16 @@
 
         <div class="toolbar-divider"></div>
 
+        <button id="newButton">
+            NEW
+        </button>
+
         <button id="saveButton">
             SAVE
+        </button>
+
+        <button id="saveAsButton">
+            SAVE AS
         </button>
 
         <button id="loadButton">
@@ -66,6 +70,10 @@
         </button>
 
         <div class="toolbar-spacer"></div>
+
+        <div id="pickdel">
+            PICKDEL
+        </div>
 
         <span id="zoomDisplay">
             100%
@@ -80,10 +88,14 @@
 
         <div id="workspace"></div>
 
+        <!-- DRAWING CANVAS -->
+
+        <canvas id="drawingCanvas"></canvas>
+
     </div>
 
 
-    <!-- IMAGE FILE INPUT -->
+    <!-- IMAGE INPUT -->
 
     <input
         type="file"
@@ -93,7 +105,7 @@
     >
 
 
-    <!-- BOARD FILE INPUT -->
+    <!-- BOARD INPUT -->
 
     <input
         type="file"
