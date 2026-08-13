@@ -2,32 +2,69 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Board</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
 
+
 <body>
+
 
     <!-- TOOLBAR -->
 
     <div id="toolbar">
 
-        <button id="selectButton">SELECT</button>
-        <button id="textButton">TEXT</button>
-        <button id="imageButton">IMAGE</button>
-        <button id="penButton">PEN</button>
-        <button id="lineButton">LINE</button>
-        <button id="eraserButton">ERASER</button>
+        <button id="selectButton">
+            SELECT
+        </button>
+
+        <button id="textButton">
+            TEXT
+        </button>
+
+        <button id="imageButton">
+            IMAGE
+        </button>
+
+        <button id="stickerButton">
+            STICKER
+        </button>
+
+        <button id="penButton">
+            PEN
+        </button>
+
+        <button id="lineButton">
+            LINE
+        </button>
+
+        <button id="eraserButton">
+            ERASER
+        </button>
+
 
         <div class="toolbar-spacer"></div>
 
-        <span id="zoomDisplay">100%</span>
+
+        <span id="zoomDisplay">
+            100%
+        </span>
 
     </div>
+
 
 
     <!-- BOARD -->
@@ -37,6 +74,18 @@
         <div id="workspace"></div>
 
     </div>
+
+
+
+    <!-- IMAGE FILE INPUT -->
+
+    <input
+        type="file"
+        id="imageInput"
+        accept="image/*"
+        hidden
+    >
+
 
 
     <!-- RIGHT CLICK MENU -->
@@ -52,6 +101,7 @@
         </button>
 
     </div>
+
 
 
     <script src="app.js"></script>
