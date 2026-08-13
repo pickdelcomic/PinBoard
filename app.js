@@ -5,13 +5,10 @@ const workspace =
     document.getElementById("workspace");
 
 const drawingCanvas =
-    document.getElementById(
-        "drawingCanvas"
-    );
+    document.getElementById("drawingCanvas");
 
 const drawingContext =
     drawingCanvas.getContext("2d");
-
 
 
 /* =========================
@@ -19,60 +16,48 @@ const drawingContext =
 ========================= */
 
 const selectButton =
-    document.getElementById(
-        "selectButton"
-    );
+    document.getElementById("selectButton");
 
 const textButton =
-    document.getElementById(
-        "textButton"
-    );
+    document.getElementById("textButton");
 
 const imageButton =
-    document.getElementById(
-        "imageButton"
-    );
+    document.getElementById("imageButton");
 
 const stickerButton =
-    document.getElementById(
-        "stickerButton"
-    );
+    document.getElementById("stickerButton");
 
 const drawButton =
-    document.getElementById(
-        "drawButton"
-    );
+    document.getElementById("drawButton");
 
 const eraserButton =
-    document.getElementById(
-        "eraserButton"
-    );
-
-const pageButton =
-    document.getElementById(
-        "pageButton"
-    );
+    document.getElementById("eraserButton");
 
 const newButton =
-    document.getElementById(
-        "newButton"
-    );
+    document.getElementById("newButton");
 
 const saveButton =
-    document.getElementById(
-        "saveButton"
-    );
+    document.getElementById("saveButton");
 
 const saveAsButton =
-    document.getElementById(
-        "saveAsButton"
-    );
+    document.getElementById("saveAsButton");
 
 const loadButton =
-    document.getElementById(
-        "loadButton"
-    );
+    document.getElementById("loadButton");
 
+
+/* =========================
+   HELP
+========================= */
+
+const helpButton =
+    document.getElementById("helpButton");
+
+const helpWindow =
+    document.getElementById("helpWindow");
+
+const closeHelp =
+    document.getElementById("closeHelp");
 
 
 /* =========================
@@ -80,15 +65,10 @@ const loadButton =
 ========================= */
 
 const penColor =
-    document.getElementById(
-        "penColor"
-    );
+    document.getElementById("penColor");
 
 const backgroundColor =
-    document.getElementById(
-        "backgroundColor"
-    );
-
+    document.getElementById("backgroundColor");
 
 
 /* =========================
@@ -96,136 +76,64 @@ const backgroundColor =
 ========================= */
 
 const imageInput =
-    document.getElementById(
-        "imageInput"
-    );
+    document.getElementById("imageInput");
 
 const boardInput =
-    document.getElementById(
-        "boardInput"
-    );
-
+    document.getElementById("boardInput");
 
 
 /* =========================
-   MENUS
+   CONTEXT MENU
 ========================= */
 
 const contextMenu =
-    document.getElementById(
-        "contextMenu"
-    );
+    document.getElementById("contextMenu");
 
 const deleteObject =
-    document.getElementById(
-        "deleteObject"
-    );
+    document.getElementById("deleteObject");
 
 const duplicateObject =
-    document.getElementById(
-        "duplicateObject"
-    );
-
-
-
-/* =========================
-   PAGE DIALOG
-========================= */
-
-const pageDialog =
-    document.getElementById(
-        "pageDialog"
-    );
-
-const pageTextOption =
-    document.getElementById(
-        "pageTextOption"
-    );
-
-const pageImageOption =
-    document.getElementById(
-        "pageImageOption"
-    );
-
-const pageCancelOption =
-    document.getElementById(
-        "pageCancelOption"
-    );
-
+    document.getElementById("duplicateObject");
 
 
 /* =========================
    STATE
 ========================= */
 
-let selectedObject =
-    null;
+let selectedObject = null;
 
-let objectNumber =
-    1;
+let objectNumber = 1;
 
-let boardName =
-    "Untitled Board";
+let boardName = "Untitled Board";
 
-let currentFileHandle =
-    null;
+let currentFileHandle = null;
 
-let currentImageType =
-    "image";
+let currentImageType = "image";
 
+let drawingMode = "select";
 
+let drawing = false;
 
-/* =========================
-   CAMERA
-========================= */
+let cameraX = 0;
 
-let cameraX =
-    0;
+let cameraY = 0;
 
-let cameraY =
-    0;
-
-let zoom =
-    1;
-
+let zoom = 1;
 
 
 /* =========================
-   DRAWING
+   CANVAS
 ========================= */
 
-let drawingMode =
-    "select";
-
-let drawing =
-    false;
-
-
-
-drawingCanvas.width =
-    10000;
-
-drawingCanvas.height =
-    10000;
-
+drawingCanvas.width = 10000;
+drawingCanvas.height = 10000;
 
 
 /* =========================
-   PAGE DATA
+   SELECT OBJECT
 ========================= */
 
-let pageCounter =
-    1;
-
-
-
-/* =========================
-   SELECTION
-========================= */
-
-function selectObject(
-    object
-) {
+function selectObject(object) {
 
     if (selectedObject) {
 
@@ -235,10 +143,7 @@ function selectObject(
 
     }
 
-
-    selectedObject =
-        object;
-
+    selectedObject = object;
 
     if (selectedObject) {
 
@@ -247,36 +152,28 @@ function selectObject(
         );
 
     }
-
 }
-
 
 
 /* =========================
    TOOL MODE
 ========================= */
 
-function setTool(
-    tool
-) {
+function setTool(tool) {
 
-    drawingMode =
-        tool;
-
+    drawingMode = tool;
 
     [
         selectButton,
         drawButton,
         eraserButton
-    ].forEach(
-        button => {
+    ].forEach(button => {
 
-            button.classList.remove(
-                "active"
-            );
+        button.classList.remove(
+            "active"
+        );
 
-        }
-    );
+    });
 
 
     if (tool === "select") {
@@ -326,81 +223,90 @@ function setTool(
 }
 
 
-
 /* =========================
-   SELECT BUTTON
+   SELECT
 ========================= */
 
 selectButton.addEventListener(
     "click",
-    function() {
+    () => {
 
-        setTool(
-            "select"
-        );
+        setTool("select");
 
     }
 );
 
 
+/* =========================
+   TEXT
+========================= */
+
+textButton.addEventListener(
+    "click",
+    () => {
+
+        /*
+         * THIS IS THE IMPORTANT FIX.
+         * Clicking TEXT immediately
+         * creates a note.
+         */
+
+        const x =
+            200 -
+            cameraX / zoom;
+
+        const y =
+            150 -
+            cameraY / zoom;
+
+
+        createNote(
+            x,
+            y
+        );
+
+
+        setTool("select");
+
+    }
+);
+
 
 /* =========================
-   DRAW BUTTON
+   DRAW
 ========================= */
 
 drawButton.addEventListener(
     "click",
-    function() {
+    () => {
 
-        setTool(
-            "draw"
-        );
+        setTool("draw");
 
     }
 );
 
 
-
 /* =========================
-   ERASER BUTTON
+   ERASER
 ========================= */
 
 eraserButton.addEventListener(
     "click",
-    function() {
+    () => {
 
-        setTool(
-            "erase"
-        );
+        setTool("erase");
 
     }
 );
 
 
-
 /* =========================
-   PEN COLOR
-========================= */
-
-penColor.addEventListener(
-    "input",
-    function() {
-
-        drawingContext.strokeStyle =
-            penColor.value;
-
-    }
-);
-
-
-
-/* =========================
-   BACKGROUND COLOR
+   BACKGROUND
 ========================= */
 
 backgroundColor.addEventListener(
     "input",
-    function() {
+    () => {
 
         workspace.style.backgroundColor =
             backgroundColor.value;
@@ -412,14 +318,13 @@ backgroundColor.addEventListener(
 );
 
 
-
 /* =========================
    DRAWING
 ========================= */
 
 drawingCanvas.addEventListener(
     "mousedown",
-    function(event) {
+    event => {
 
         if (
             drawingMode !== "draw" &&
@@ -431,14 +336,11 @@ drawingCanvas.addEventListener(
         }
 
 
-        drawing =
-            true;
+        drawing = true;
 
 
         const position =
-            getCanvasPosition(
-                event
-            );
+            getCanvasPosition(event);
 
 
         drawingContext.beginPath();
@@ -471,9 +373,7 @@ drawingCanvas.addEventListener(
             drawingContext.globalCompositeOperation =
                 "destination-out";
 
-        }
-
-        else {
+        } else {
 
             drawingContext.globalCompositeOperation =
                 "source-over";
@@ -487,10 +387,9 @@ drawingCanvas.addEventListener(
 );
 
 
-
 drawingCanvas.addEventListener(
     "mousemove",
-    function(event) {
+    event => {
 
         if (!drawing) {
 
@@ -500,9 +399,7 @@ drawingCanvas.addEventListener(
 
 
         const position =
-            getCanvasPosition(
-                event
-            );
+            getCanvasPosition(event);
 
 
         drawingContext.lineTo(
@@ -517,22 +414,17 @@ drawingCanvas.addEventListener(
 );
 
 
-
 document.addEventListener(
     "mouseup",
-    function() {
+    () => {
 
-        drawing =
-            false;
+        drawing = false;
 
     }
 );
 
 
-
-function getCanvasPosition(
-    event
-) {
+function getCanvasPosition(event) {
 
     const rect =
         board.getBoundingClientRect();
@@ -559,7 +451,6 @@ function getCanvasPosition(
 }
 
 
-
 /* =========================
    CREATE NOTE
 ========================= */
@@ -572,9 +463,7 @@ function createNote(
 ) {
 
     const note =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
 
     note.className =
@@ -592,44 +481,143 @@ function createNote(
     note.innerHTML = `
 
         <div class="note-title">
-
             ${escapeHTML(
                 title ||
                 "Note " +
                 objectNumber
             )}
-
         </div>
-
 
         <div class="note-content">
-
-            ${escapeHTML(
-                content
-            )}
-
+            ${escapeHTML(content)}
         </div>
-
 
         <div class="resize-handle"></div>
 
     `;
 
 
-    workspace.appendChild(
-        note
-    );
+    workspace.appendChild(note);
 
 
     objectNumber++;
 
 
-    setupObject(
-        note
-    );
+    setupObject(note);
+
+
+    selectObject(note);
 
 }
 
+
+/* =========================
+   IMAGE BUTTON
+========================= */
+
+imageButton.addEventListener(
+    "click",
+    () => {
+
+        currentImageType =
+            "image";
+
+        imageInput.click();
+
+    }
+);
+
+
+/* =========================
+   STICKER BUTTON
+========================= */
+
+stickerButton.addEventListener(
+    "click",
+    () => {
+
+        currentImageType =
+            "sticker";
+
+        imageInput.click();
+
+    }
+);
+
+
+/* =========================
+   IMAGE LOADING
+========================= */
+
+imageInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            imageInput.files[0];
+
+
+        if (!file) {
+
+            return;
+
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            event => {
+
+                const x =
+                    200 -
+                    cameraX / zoom;
+
+
+                const y =
+                    150 -
+                    cameraY / zoom;
+
+
+                if (
+                    currentImageType ===
+                    "image"
+                ) {
+
+                    createImage(
+                        event.target.result,
+                        x,
+                        y
+                    );
+
+                }
+
+
+                if (
+                    currentImageType ===
+                    "sticker"
+                ) {
+
+                    createSticker(
+                        event.target.result,
+                        x,
+                        y
+                    );
+
+                }
+
+            };
+
+
+        reader.readAsDataURL(file);
+
+
+        imageInput.value = "";
+
+    }
+);
 
 
 /* =========================
@@ -645,9 +633,7 @@ function createImage(
 ) {
 
     const object =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
 
     object.className =
@@ -669,42 +655,34 @@ function createImage(
     object.innerHTML = `
 
         <div class="image-title">
-
             ${escapeHTML(
                 title ||
                 "Image " +
                 objectNumber
             )}
-
         </div>
-
 
         <div class="image-content">
-
             <img src="${imageData}">
-
         </div>
-
 
         <div class="resize-handle"></div>
 
     `;
 
 
-    workspace.appendChild(
-        object
-    );
+    workspace.appendChild(object);
 
 
     objectNumber++;
 
 
-    setupObject(
-        object
-    );
+    setupObject(object);
+
+
+    selectObject(object);
 
 }
-
 
 
 /* =========================
@@ -719,9 +697,7 @@ function createSticker(
 ) {
 
     const object =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
 
     object.className =
@@ -748,413 +724,32 @@ function createSticker(
     `;
 
 
-    workspace.appendChild(
-        object
-    );
+    workspace.appendChild(object);
 
 
-    setupObject(
-        object
-    );
-
-}
+    setupObject(object);
 
 
-
-/* =========================
-   CREATE PAGE
-========================= */
-
-function createPage(
-    type,
-    x,
-    y,
-    title = null,
-    imageData = null
-) {
-
-    const page =
-        document.createElement(
-            "div"
-        );
-
-
-    page.className =
-        "page-object board-object";
-
-
-    page.dataset.pageId =
-        "page-" +
-        Date.now() +
-        "-" +
-        pageCounter;
-
-
-    page.dataset.pageName =
-        title ||
-        "New Page";
-
-
-    page.style.left =
-        x + "px";
-
-
-    page.style.top =
-        y + "px";
-
-
-    if (type === "text") {
-
-        page.innerHTML = `
-
-            <div class="page-text">
-
-                ${escapeHTML(
-                    title ||
-                    "New Page"
-                )}
-
-            </div>
-
-            <div class="resize-handle"></div>
-
-        `;
-
-    }
-
-    else {
-
-        page.innerHTML = `
-
-            <div class="page-image">
-
-                <img
-                    src="${imageData}"
-                >
-
-            </div>
-
-            <div class="resize-handle"></div>
-
-        `;
-
-    }
-
-
-    workspace.appendChild(
-        page
-    );
-
-
-    pageCounter++;
-
-
-    setupObject(
-        page
-    );
-
-
-    /*
-       Double click a page
-       to open it.
-    */
-
-    page.addEventListener(
-        "dblclick",
-        function(event) {
-
-            if (
-                event.target.classList.contains(
-                    "resize-handle"
-                )
-            ) {
-
-                return;
-
-            }
-
-
-            openPage(
-                page
-            );
-
-        }
-    );
+    selectObject(object);
 
 }
-
-
-
-/* =========================
-   PAGE BUTTON
-========================= */
-
-pageButton.addEventListener(
-    "click",
-    function() {
-
-        pageDialog.style.display =
-            "flex";
-
-    }
-);
-
-
-
-/* =========================
-   PAGE TEXT
-========================= */
-
-pageTextOption.addEventListener(
-    "click",
-    function() {
-
-        pageDialog.style.display =
-            "none";
-
-
-        const title =
-            prompt(
-                "Name this page:"
-            );
-
-
-        if (!title) {
-
-            return;
-
-        }
-
-
-        createPage(
-
-            "text",
-
-            200 -
-                cameraX / zoom,
-
-            150 -
-                cameraY / zoom,
-
-            title
-
-        );
-
-    }
-);
-
-
-
-/* =========================
-   PAGE IMAGE
-========================= */
-
-pageImageOption.addEventListener(
-    "click",
-    function() {
-
-        pageDialog.style.display =
-            "none";
-
-
-        currentImageType =
-            "page";
-
-
-        imageInput.click();
-
-    }
-);
-
-
-
-/* =========================
-   PAGE CANCEL
-========================= */
-
-pageCancelOption.addEventListener(
-    "click",
-    function() {
-
-        pageDialog.style.display =
-            "none";
-
-    }
-);
-
-
-
-/* =========================
-   IMAGE BUTTON
-========================= */
-
-imageButton.addEventListener(
-    "click",
-    function() {
-
-        currentImageType =
-            "image";
-
-
-        imageInput.click();
-
-    }
-);
-
-
-
-/* =========================
-   STICKER BUTTON
-========================= */
-
-stickerButton.addEventListener(
-    "click",
-    function() {
-
-        currentImageType =
-            "sticker";
-
-
-        imageInput.click();
-
-    }
-);
-
-
-
-/* =========================
-   IMAGE LOADING
-========================= */
-
-imageInput.addEventListener(
-    "change",
-    function() {
-
-        const file =
-            imageInput.files[0];
-
-
-        if (!file) {
-
-            return;
-
-        }
-
-
-        const reader =
-            new FileReader();
-
-
-        reader.onload =
-            function(event) {
-
-                const x =
-                    200 -
-                    cameraX / zoom;
-
-
-                const y =
-                    150 -
-                    cameraY / zoom;
-
-
-                if (
-                    currentImageType ===
-                    "image"
-                ) {
-
-                    createImage(
-                        event.target.result,
-                        x,
-                        y
-                    );
-
-                }
-
-
-                else if (
-                    currentImageType ===
-                    "sticker"
-                ) {
-
-                    createSticker(
-                        event.target.result,
-                        x,
-                        y
-                    );
-
-                }
-
-
-                else if (
-                    currentImageType ===
-                    "page"
-                ) {
-
-                    const title =
-                        prompt(
-                            "Name this page:"
-                        );
-
-
-                    if (!title) {
-
-                        return;
-
-                    }
-
-
-                    createPage(
-
-                        "image",
-
-                        x,
-                        y,
-
-                        title,
-
-                        event.target.result
-
-                    );
-
-                }
-
-            };
-
-
-        reader.readAsDataURL(
-            file
-        );
-
-
-        imageInput.value =
-            "";
-
-    }
-);
-
 
 
 /* =========================
    OBJECT SETUP
 ========================= */
 
-function setupObject(
-    object
-) {
+function setupObject(object) {
 
     object.addEventListener(
         "mousedown",
-        function() {
+        () => {
 
             if (
-                drawingMode ===
-                "select"
+                drawingMode === "select"
             ) {
 
-                selectObject(
-                    object
-                );
+                selectObject(object);
 
             }
 
@@ -1164,14 +759,12 @@ function setupObject(
 
     object.addEventListener(
         "contextmenu",
-        function(event) {
+        event => {
 
             event.preventDefault();
 
 
-            selectObject(
-                object
-            );
+            selectObject(object);
 
 
             contextMenu.style.display =
@@ -1189,35 +782,24 @@ function setupObject(
     );
 
 
-    setupEditing(
-        object
-    );
+    setupEditing(object);
 
+    setupDragging(object);
 
-    setupDragging(
-        object
-    );
-
-
-    setupResizing(
-        object
-    );
+    setupResizing(object);
 
 }
-
 
 
 /* =========================
    EDITING
 ========================= */
 
-function setupEditing(
-    object
-) {
+function setupEditing(object) {
 
     const title =
         object.querySelector(
-            ".note-title, .image-title, .page-text"
+            ".note-title, .image-title"
         );
 
 
@@ -1231,38 +813,7 @@ function setupEditing(
 
         title.addEventListener(
             "dblclick",
-            function(event) {
-
-                if (
-                    object.classList.contains(
-                        "page-object"
-                    )
-                ) {
-
-                    event.stopPropagation();
-
-                    const newName =
-                        prompt(
-                            "Rename page:",
-                            title.textContent
-                        );
-
-
-                    if (newName) {
-
-                        title.textContent =
-                            newName;
-
-                        object.dataset.pageName =
-                            newName;
-
-                    }
-
-
-                    return;
-
-                }
-
+            event => {
 
                 event.stopPropagation();
 
@@ -1279,9 +830,7 @@ function setupEditing(
                 title.focus();
 
 
-                placeCursorAtEnd(
-                    title
-                );
+                placeCursorAtEnd(title);
 
             }
         );
@@ -1289,7 +838,7 @@ function setupEditing(
 
         title.addEventListener(
             "blur",
-            function() {
+            () => {
 
                 title.contentEditable =
                     "false";
@@ -1309,7 +858,7 @@ function setupEditing(
 
         content.addEventListener(
             "dblclick",
-            function(event) {
+            event => {
 
                 event.stopPropagation();
 
@@ -1331,7 +880,7 @@ function setupEditing(
 
         content.addEventListener(
             "blur",
-            function() {
+            () => {
 
                 content.contentEditable =
                     "false";
@@ -1349,36 +898,31 @@ function setupEditing(
 }
 
 
-
 /* =========================
    DRAGGING
 ========================= */
 
-function setupDragging(
-    object
-) {
+function setupDragging(object) {
 
     let handle =
         object.querySelector(
-            ".note-title, .image-title, .page-text"
+            ".note-title, .image-title"
         );
 
 
     if (!handle) {
 
-        handle =
-            object;
+        handle = object;
 
     }
 
 
     handle.addEventListener(
         "mousedown",
-        function(event) {
+        event => {
 
             if (
-                drawingMode !==
-                "select"
+                drawingMode !== "select"
             ) {
 
                 return;
@@ -1406,14 +950,11 @@ function setupDragging(
             }
 
 
-            selectObject(
-                object
-            );
+            selectObject(object);
 
 
             const startX =
                 event.clientX;
-
 
             const startY =
                 event.clientY;
@@ -1421,7 +962,6 @@ function setupDragging(
 
             const originalX =
                 object.offsetLeft;
-
 
             const originalY =
                 object.offsetTop;
@@ -1495,14 +1035,11 @@ function setupDragging(
 }
 
 
-
 /* =========================
-   RESIZE
+   RESIZING
 ========================= */
 
-function setupResizing(
-    object
-) {
+function setupResizing(object) {
 
     const handle =
         object.querySelector(
@@ -1519,7 +1056,7 @@ function setupResizing(
 
     handle.addEventListener(
         "mousedown",
-        function(event) {
+        event => {
 
             event.preventDefault();
 
@@ -1527,8 +1064,7 @@ function setupResizing(
 
 
             if (
-                drawingMode !==
-                "select"
+                drawingMode !== "select"
             ) {
 
                 return;
@@ -1536,9 +1072,7 @@ function setupResizing(
             }
 
 
-            selectObject(
-                object
-            );
+            selectObject(object);
 
 
             const startX =
@@ -1563,24 +1097,14 @@ function setupResizing(
                     change;
 
 
-                if (
-                    newWidth < 80
-                ) {
-
-                    newWidth =
-                        80;
-
-                }
-
-
-                if (
-                    newWidth > 1000
-                ) {
-
-                    newWidth =
-                        1000;
-
-                }
+                newWidth =
+                    Math.max(
+                        80,
+                        Math.min(
+                            1000,
+                            newWidth
+                        )
+                    );
 
 
                 if (
@@ -1594,9 +1118,7 @@ function setupResizing(
                     ).style.width =
                         newWidth + "px";
 
-                }
-
-                else {
+                } else {
 
                     object.style.width =
                         newWidth + "px";
@@ -1639,14 +1161,11 @@ function setupResizing(
 }
 
 
-
 /* =========================
-   PLACE CURSOR
+   CURSOR
 ========================= */
 
-function placeCursorAtEnd(
-    element
-) {
+function placeCursorAtEnd(element) {
 
     const range =
         document.createRange();
@@ -1661,35 +1180,29 @@ function placeCursorAtEnd(
     );
 
 
-    range.collapse(
-        false
-    );
+    range.collapse(false);
 
 
     selection.removeAllRanges();
 
-    selection.addRange(
-        range
-    );
+
+    selection.addRange(range);
 
 }
 
 
-
 /* =========================
-   RIGHT CLICK DELETE
+   DELETE
 ========================= */
 
 deleteObject.addEventListener(
     "click",
-    function(event) {
+    event => {
 
         event.stopPropagation();
 
 
-        if (
-            selectedObject
-        ) {
+        if (selectedObject) {
 
             selectedObject.remove();
 
@@ -1702,21 +1215,18 @@ deleteObject.addEventListener(
 );
 
 
-
 /* =========================
    DUPLICATE
 ========================= */
 
 duplicateObject.addEventListener(
     "click",
-    function(event) {
+    event => {
 
         event.stopPropagation();
 
 
-        if (
-            !selectedObject
-        ) {
+        if (!selectedObject) {
 
             return;
 
@@ -1727,11 +1237,6 @@ duplicateObject.addEventListener(
             selectedObject.cloneNode(
                 true
             );
-
-
-        copy.classList.remove(
-            "selected"
-        );
 
 
         copy.style.left =
@@ -1748,28 +1253,30 @@ duplicateObject.addEventListener(
             ) + "px";
 
 
-        workspace.appendChild(
-            copy
+        copy.classList.remove(
+            "selected"
         );
 
 
-        setupObject(
-            copy
-        );
+        workspace.appendChild(copy);
 
 
-        selectObject(
-            copy
-        );
+        setupObject(copy);
+
+
+        selectObject(copy);
 
     }
 );
 
 
+/* =========================
+   CLOSE MENU
+========================= */
 
 document.addEventListener(
     "click",
-    function() {
+    () => {
 
         contextMenu.style.display =
             "none";
@@ -1778,14 +1285,59 @@ document.addEventListener(
 );
 
 
+/* =========================
+   HELP
+========================= */
+
+helpButton.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+        helpWindow.style.display =
+            "flex";
+
+    }
+);
+
+
+closeHelp.addEventListener(
+    "click",
+    () => {
+
+        helpWindow.style.display =
+            "none";
+
+    }
+);
+
+
+helpWindow.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target ===
+            helpWindow
+        ) {
+
+            helpWindow.style.display =
+                "none";
+
+        }
+
+    }
+);
+
 
 /* =========================
-   NEW BOARD
+   NEW
 ========================= */
 
 newButton.addEventListener(
     "click",
-    function() {
+    () => {
 
         if (
             !confirm(
@@ -1818,10 +1370,6 @@ newButton.addEventListener(
             1;
 
 
-        pageCounter =
-            1;
-
-
         boardName =
             "Untitled Board";
 
@@ -1831,196 +1379,6 @@ newButton.addEventListener(
 
     }
 );
-
-
-
-/* =========================
-   GET BOARD DATA
-========================= */
-
-function getBoardData() {
-
-    const objects =
-        [];
-
-
-    workspace
-        .querySelectorAll(
-            ".board-object"
-        )
-        .forEach(
-            function(object) {
-
-                const data = {
-
-                    type:
-                        getObjectType(
-                            object
-                        ),
-
-                    x:
-                        object.offsetLeft,
-
-                    y:
-                        object.offsetTop,
-
-                    width:
-                        object.offsetWidth
-
-                };
-
-
-                const title =
-                    object.querySelector(
-                        ".note-title, .image-title, .page-text"
-                    );
-
-
-                const content =
-                    object.querySelector(
-                        ".note-content"
-                    );
-
-
-                const image =
-                    object.querySelector(
-                        "img"
-                    );
-
-
-                if (title) {
-
-                    data.title =
-                        title.textContent;
-
-                }
-
-
-                if (content) {
-
-                    data.content =
-                        content.textContent;
-
-                }
-
-
-                if (image) {
-
-                    data.image =
-                        image.src;
-
-                }
-
-
-                if (
-                    object.classList.contains(
-                        "page-object"
-                    )
-                ) {
-
-                    data.pageName =
-                        object.dataset.pageName;
-
-                }
-
-
-                objects.push(
-                    data
-                );
-
-            }
-        );
-
-
-    return {
-
-        version: 3,
-
-        name:
-            boardName,
-
-        background:
-            backgroundColor.value,
-
-        penColor:
-            penColor.value,
-
-        objects:
-            objects,
-
-        drawing:
-            drawingCanvas.toDataURL()
-
-    };
-
-}
-
-
-
-/* =========================
-   OBJECT TYPE
-========================= */
-
-function getObjectType(
-    object
-) {
-
-    if (
-        object.classList.contains(
-            "note"
-        )
-    ) {
-
-        return "note";
-
-    }
-
-
-    if (
-        object.classList.contains(
-            "image-object"
-        )
-    ) {
-
-        return "image";
-
-    }
-
-
-    if (
-        object.classList.contains(
-            "sticker"
-        )
-    ) {
-
-        return "sticker";
-
-    }
-
-
-    if (
-        object.classList.contains(
-            "page-object"
-        )
-    ) {
-
-        if (
-            object.querySelector(
-                ".page-image"
-            )
-        ) {
-
-            return "page-image";
-
-        }
-
-
-        return "page-text";
-
-    }
-
-}
-
 
 
 /* =========================
@@ -2046,11 +1404,6 @@ async function saveAsBoard() {
     boardName =
         name;
 
-
-    /*
-       Modern Chrome / Edge
-       file picker.
-    */
 
     if (
         window.showSaveFilePicker
@@ -2109,15 +1462,9 @@ async function saveAsBoard() {
     }
 
 
-    /*
-       Fallback for browsers
-       without the picker.
-    */
-
     downloadBoard();
 
 }
-
 
 
 /* =========================
@@ -2126,56 +1473,29 @@ async function saveAsBoard() {
 
 async function saveBoard() {
 
-    /*
-       If a file has already
-       been selected, write
-       directly to it.
-    */
-
     if (
         currentFileHandle
     ) {
 
-        try {
+        await writeToFile(
+            currentFileHandle
+        );
 
-            await writeToFile(
-                currentFileHandle
-            );
-
-
-            return;
-
-        }
-
-        catch (error) {
-
-            console.log(
-                error
-            );
-
-        }
+        return;
 
     }
 
-
-    /*
-       No file yet.
-       Use Save As.
-    */
 
     await saveAsBoard();
 
 }
 
 
-
 /* =========================
    WRITE FILE
 ========================= */
 
-async function writeToFile(
-    handle
-) {
+async function writeToFile(handle) {
 
     const data =
         getBoardData();
@@ -2189,63 +1509,19 @@ async function writeToFile(
         );
 
 
-    /*
-       Ask for permission
-       if needed.
-    */
-
-    if (
-        handle.queryPermission
-    ) {
-
-        const permission =
-            await handle.queryPermission({
-                mode: "readwrite"
-            });
-
-
-        if (
-            permission !==
-            "granted"
-        ) {
-
-            const request =
-                await handle.requestPermission({
-                    mode: "readwrite"
-                });
-
-
-            if (
-                request !==
-                "granted"
-            ) {
-
-                return;
-
-            }
-
-        }
-
-    }
-
-
     const writable =
         await handle.createWritable();
 
 
-    await writable.write(
-        json
-    );
-
+    await writable.write(json);
 
     await writable.close();
 
 }
 
 
-
 /* =========================
-   FALLBACK DOWNLOAD
+   SAVE FALLBACK
 ========================= */
 
 function downloadBoard() {
@@ -2273,15 +1549,11 @@ function downloadBoard() {
 
 
     const url =
-        URL.createObjectURL(
-            blob
-        );
+        URL.createObjectURL(blob);
 
 
     const link =
-        document.createElement(
-            "a"
-        );
+        document.createElement("a");
 
 
     link.href =
@@ -2296,12 +1568,21 @@ function downloadBoard() {
     link.click();
 
 
-    URL.revokeObjectURL(
-        url
-    );
+    URL.revokeObjectURL(url);
 
 }
 
+
+saveButton.addEventListener(
+    "click",
+    saveBoard
+);
+
+
+saveAsButton.addEventListener(
+    "click",
+    saveAsBoard
+);
 
 
 /* =========================
@@ -2310,89 +1591,7 @@ function downloadBoard() {
 
 loadButton.addEventListener(
     "click",
-    async function() {
-
-        /*
-           Modern browser picker.
-        */
-
-        if (
-            window.showOpenFilePicker
-        ) {
-
-            try {
-
-                const handles =
-                    await window.showOpenFilePicker({
-
-                        multiple:
-                            false,
-
-                        types: [
-                            {
-                                description:
-                                    "Pickdel Board",
-
-                                accept: {
-                                    "application/json":
-                                        [".json"]
-                                }
-                            }
-                        ]
-
-                    });
-
-
-                const handle =
-                    handles[0];
-
-
-                currentFileHandle =
-                    handle;
-
-
-                const file =
-                    await handle.getFile();
-
-
-                const text =
-                    await file.text();
-
-
-                const data =
-                    JSON.parse(
-                        text
-                    );
-
-
-                loadBoard(
-                    data
-                );
-
-
-                return;
-
-            }
-
-            catch (error) {
-
-                if (
-                    error.name ===
-                    "AbortError"
-                ) {
-
-                    return;
-
-                }
-
-            }
-
-        }
-
-
-        /*
-           Browser fallback.
-        */
+    () => {
 
         boardInput.click();
 
@@ -2400,10 +1599,9 @@ loadButton.addEventListener(
 );
 
 
-
 boardInput.addEventListener(
     "change",
-    function() {
+    () => {
 
         const file =
             boardInput.files[0];
@@ -2421,7 +1619,7 @@ boardInput.addEventListener(
 
 
         reader.onload =
-            function(event) {
+            event => {
 
                 try {
 
@@ -2431,13 +1629,7 @@ boardInput.addEventListener(
                         );
 
 
-                    currentFileHandle =
-                        null;
-
-
-                    loadBoard(
-                        data
-                    );
+                    loadBoard(data);
 
                 }
 
@@ -2452,9 +1644,7 @@ boardInput.addEventListener(
             };
 
 
-        reader.readAsText(
-            file
-        );
+        reader.readAsText(file);
 
 
         boardInput.value =
@@ -2464,14 +1654,154 @@ boardInput.addEventListener(
 );
 
 
+/* =========================
+   BOARD DATA
+========================= */
+
+function getBoardData() {
+
+    const objects = [];
+
+
+    workspace
+        .querySelectorAll(
+            ".board-object"
+        )
+        .forEach(
+            object => {
+
+                const data = {
+
+                    type:
+                        getObjectType(object),
+
+                    x:
+                        object.offsetLeft,
+
+                    y:
+                        object.offsetTop,
+
+                    width:
+                        object.offsetWidth
+
+                };
+
+
+                const title =
+                    object.querySelector(
+                        ".note-title, .image-title"
+                    );
+
+
+                const content =
+                    object.querySelector(
+                        ".note-content"
+                    );
+
+
+                const image =
+                    object.querySelector("img");
+
+
+                if (title) {
+
+                    data.title =
+                        title.textContent;
+
+                }
+
+
+                if (content) {
+
+                    data.content =
+                        content.textContent;
+
+                }
+
+
+                if (image) {
+
+                    data.image =
+                        image.src;
+
+                }
+
+
+                objects.push(data);
+
+            }
+        );
+
+
+    return {
+
+        version: 4,
+
+        name:
+            boardName,
+
+        background:
+            backgroundColor.value,
+
+        penColor:
+            penColor.value,
+
+        objects,
+
+        drawing:
+            drawingCanvas.toDataURL()
+
+    };
+
+}
+
+
+/* =========================
+   OBJECT TYPE
+========================= */
+
+function getObjectType(object) {
+
+    if (
+        object.classList.contains(
+            "note"
+        )
+    ) {
+
+        return "note";
+
+    }
+
+
+    if (
+        object.classList.contains(
+            "image-object"
+        )
+    ) {
+
+        return "image";
+
+    }
+
+
+    if (
+        object.classList.contains(
+            "sticker"
+        )
+    ) {
+
+        return "sticker";
+
+    }
+
+}
+
 
 /* =========================
    LOAD BOARD
 ========================= */
 
-function loadBoard(
-    data
-) {
+function loadBoard(data) {
 
     workspace.innerHTML =
         "";
@@ -2486,9 +1816,7 @@ function loadBoard(
         "Untitled Board";
 
 
-    if (
-        data.background
-    ) {
+    if (data.background) {
 
         backgroundColor.value =
             data.background;
@@ -2504,9 +1832,7 @@ function loadBoard(
     }
 
 
-    if (
-        data.penColor
-    ) {
+    if (data.penColor) {
 
         penColor.value =
             data.penColor;
@@ -2515,119 +1841,73 @@ function loadBoard(
 
 
     if (
-        !Array.isArray(
+        Array.isArray(
             data.objects
         )
     ) {
 
-        alert(
-            "Invalid board."
-        );
+        data.objects.forEach(
+            object => {
 
-        return;
+                if (
+                    object.type ===
+                    "note"
+                ) {
+
+                    createNote(
+                        object.x,
+                        object.y,
+                        object.title,
+                        object.content
+                    );
+
+                }
+
+
+                if (
+                    object.type ===
+                    "image"
+                ) {
+
+                    createImage(
+                        object.image,
+                        object.x,
+                        object.y,
+                        object.title,
+                        object.width
+                    );
+
+                }
+
+
+                if (
+                    object.type ===
+                    "sticker"
+                ) {
+
+                    createSticker(
+                        object.image,
+                        object.x,
+                        object.y,
+                        object.width
+                    );
+
+                }
+
+            }
+        );
 
     }
 
 
-    data.objects.forEach(
-        function(object) {
-
-            if (
-                object.type ===
-                "note"
-            ) {
-
-                createNote(
-                    object.x,
-                    object.y,
-                    object.title,
-                    object.content
-                );
-
-            }
-
-
-            else if (
-                object.type ===
-                "image"
-            ) {
-
-                createImage(
-                    object.image,
-                    object.x,
-                    object.y,
-                    object.title,
-                    object.width
-                );
-
-            }
-
-
-            else if (
-                object.type ===
-                "sticker"
-            ) {
-
-                createSticker(
-                    object.image,
-                    object.x,
-                    object.y,
-                    object.width
-                );
-
-            }
-
-
-            else if (
-                object.type ===
-                "page-text"
-            ) {
-
-                createPage(
-                    "text",
-                    object.x,
-                    object.y,
-                    object.pageName ||
-                    object.title
-                );
-
-            }
-
-
-            else if (
-                object.type ===
-                "page-image"
-            ) {
-
-                createPage(
-                    "image",
-                    object.x,
-                    object.y,
-                    object.pageName ||
-                    object.title,
-                    object.image
-                );
-
-            }
-
-        }
-    );
-
-
-    /*
-       Restore drawing.
-    */
-
-    if (
-        data.drawing
-    ) {
+    if (data.drawing) {
 
         const image =
             new Image();
 
 
         image.onload =
-            function() {
+            () => {
 
                 drawingContext.clearRect(
                     0,
@@ -2654,107 +1934,13 @@ function loadBoard(
 }
 
 
-
-/* =========================
-   PAGE OPEN
-========================= */
-
-function openPage(
-    page
-) {
-
-    /*
-       For now we create
-       a separate board name
-       for the page.
-
-       This gives us the
-       foundation for the
-       multi-page system.
-    */
-
-    const name =
-        page.dataset.pageName ||
-        "New Page";
-
-
-    const existing =
-        localStorage.getItem(
-            "pickdel-page-" +
-            name
-        );
-
-
-    if (existing) {
-
-        try {
-
-            loadBoard(
-                JSON.parse(
-                    existing
-                )
-            );
-
-
-            boardName =
-                name;
-
-
-            return;
-
-        }
-
-        catch {
-
-            console.log(
-                "Page could not be loaded."
-            );
-
-        }
-
-    }
-
-
-    /*
-       New page.
-    */
-
-    workspace.innerHTML =
-        "";
-
-
-    drawingContext.clearRect(
-        0,
-        0,
-        drawingCanvas.width,
-        drawingCanvas.height
-    );
-
-
-    selectedObject =
-        null;
-
-
-    boardName =
-        name;
-
-
-    alert(
-        "Opened page: " +
-        name
-    );
-
-}
-
-
-
 /* =========================
    KEYBOARD
 ========================= */
 
 document.addEventListener(
     "keydown",
-    function(event) {
+    event => {
 
         if (
             event.ctrlKey &&
@@ -2784,11 +1970,9 @@ document.addEventListener(
             event.key === "Escape"
         ) {
 
-            setTool(
-                "select"
-            );
+            setTool("select");
 
-            pageDialog.style.display =
+            helpWindow.style.display =
                 "none";
 
         }
@@ -2811,35 +1995,27 @@ document.addEventListener(
 );
 
 
-
 /* =========================
    PAN
 ========================= */
 
-let panning =
-    false;
+let panning = false;
 
-let panStartX =
-    0;
+let panStartX = 0;
 
-let panStartY =
-    0;
+let panStartY = 0;
 
-let cameraStartX =
-    0;
+let cameraStartX = 0;
 
-let cameraStartY =
-    0;
-
+let cameraStartY = 0;
 
 
 board.addEventListener(
     "mousedown",
-    function(event) {
+    event => {
 
         if (
-            drawingMode !==
-            "select"
+            drawingMode !== "select"
         ) {
 
             return;
@@ -2855,8 +2031,7 @@ board.addEventListener(
             )
         ) {
 
-            panning =
-                true;
+            panning = true;
 
 
             panStartX =
@@ -2887,10 +2062,9 @@ board.addEventListener(
 );
 
 
-
 document.addEventListener(
     "mousemove",
-    function(event) {
+    event => {
 
         if (!panning) {
 
@@ -2921,18 +2095,15 @@ document.addEventListener(
 );
 
 
-
 document.addEventListener(
     "mouseup",
-    function() {
+    () => {
 
-        panning =
-            false;
+        panning = false;
 
 
         if (
-            drawingMode ===
-            "select"
+            drawingMode === "select"
         ) {
 
             board.style.cursor =
@@ -2944,18 +2115,16 @@ document.addEventListener(
 );
 
 
-
 /* =========================
    ZOOM
 ========================= */
 
 board.addEventListener(
     "wheel",
-    function(event) {
+    event => {
 
         if (
-            drawingMode !==
-            "select"
+            drawingMode !== "select"
         ) {
 
             return;
@@ -2970,37 +2139,23 @@ board.addEventListener(
             event.deltaY < 0
         ) {
 
-            zoom +=
-                0.1;
+            zoom += 0.1;
 
-        }
+        } else {
 
-        else {
-
-            zoom -=
-                0.1;
+            zoom -= 0.1;
 
         }
 
 
-        if (
-            zoom < 0.3
-        ) {
-
-            zoom =
-                0.3;
-
-        }
-
-
-        if (
-            zoom > 3
-        ) {
-
-            zoom =
-                3;
-
-        }
+        zoom =
+            Math.max(
+                0.3,
+                Math.min(
+                    3,
+                    zoom
+                )
+            );
 
 
         updateCamera();
@@ -3010,7 +2165,6 @@ board.addEventListener(
         passive: false
     }
 );
-
 
 
 /* =========================
@@ -3041,19 +2195,14 @@ function updateCamera() {
 }
 
 
-
 /* =========================
    HTML SAFETY
 ========================= */
 
-function escapeHTML(
-    text
-) {
+function escapeHTML(text) {
 
     const div =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
 
     div.textContent =
@@ -3065,14 +2214,10 @@ function escapeHTML(
 }
 
 
-
 /* =========================
    START
 ========================= */
 
-setTool(
-    "select"
-);
-
+setTool("select");
 
 updateCamera();
