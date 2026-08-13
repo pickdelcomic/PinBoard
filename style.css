@@ -45,16 +45,18 @@ body {
     cursor: move;
 }
 
-.note-title {
-    padding: 5px 7px;
+.note-content {
+    padding: 12px;
 
-    color: white;
-    background: #316ac5;
+    color: #222;
+    background: #fffff0;
 
-    font-weight: bold;
-    font-size: 13px;
+    min-height: 80px;
 
-    border-bottom: 2px solid #234a8c;
+    font-size: 14px;
+
+    outline: none;
+    cursor: text;
 }
 
 .note-content {
@@ -66,6 +68,9 @@ body {
     min-height: 80px;
 
     font-size: 14px;
+    
+    outline: none;
+    cursor: text;
 }
 
 /* Bottom toolbar */
