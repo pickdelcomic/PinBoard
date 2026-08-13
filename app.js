@@ -33,9 +33,6 @@ const drawButton =
 const eraserButton =
     document.getElementById("eraserButton");
 
-const pixelButton =
-    document.getElementById("pixelButton");
-
 const newButton =
     document.getElementById("newButton");
 
@@ -98,6 +95,9 @@ const deleteObject =
 const duplicateObject =
     document.getElementById("duplicateObject");
 
+const pixelObject =
+    document.getElementById("pixelObject");
+
 const bringFront =
     document.getElementById("bringFront");
 
@@ -115,14 +115,17 @@ const sendBack =
    STATE
 ========================= */
 
-let selectedObject = null;
+let selectedObject =
+    null;
 
-let objectNumber = 1;
+let objectNumber =
+    1;
 
 let boardName =
     "Untitled Board";
 
-let currentFileHandle = null;
+let currentFileHandle =
+    null;
 
 let currentImageType =
     "image";
@@ -130,15 +133,17 @@ let currentImageType =
 let drawingMode =
     "select";
 
-let drawing = false;
+let drawing =
+    false;
 
-let cameraX = 0;
+let cameraX =
+    0;
 
-let cameraY = 0;
+let cameraY =
+    0;
 
-let zoom = 1;
-
-let pixelMode = false;
+let zoom =
+    1;
 
 
 /* =========================
@@ -342,41 +347,6 @@ backgroundColor.addEventListener(
 
 
 /* =========================
-   PIXEL MODE
-========================= */
-
-pixelButton.addEventListener(
-    "click",
-    () => {
-
-        pixelMode =
-            !pixelMode;
-
-
-        pixelButton.classList.toggle(
-            "active",
-            pixelMode
-        );
-
-
-        document
-            .querySelectorAll(
-                ".image-object, .sticker"
-            )
-            .forEach(object => {
-
-                object.classList.toggle(
-                    "pixel-mode",
-                    pixelMode
-                );
-
-            });
-
-    }
-);
-
-
-/* =========================
    DRAWING
 ========================= */
 
@@ -394,7 +364,8 @@ drawingCanvas.addEventListener(
         }
 
 
-        drawing = true;
+        drawing =
+            true;
 
 
         const position =
@@ -476,7 +447,8 @@ document.addEventListener(
     "mouseup",
     () => {
 
-        drawing = false;
+        drawing =
+            false;
 
     }
 );
@@ -570,7 +542,7 @@ function createNote(
 
 
 /* =========================
-   IMAGE
+   IMAGE BUTTON
 ========================= */
 
 imageButton.addEventListener(
@@ -587,7 +559,7 @@ imageButton.addEventListener(
 
 
 /* =========================
-   STICKER
+   STICKER BUTTON
 ========================= */
 
 stickerButton.addEventListener(
@@ -689,7 +661,7 @@ function createImage(
     y,
     title = null,
     width = 260,
-    isPixel = pixelMode
+    pixel = false
 ) {
 
     const object =
@@ -712,7 +684,7 @@ function createImage(
         width + "px";
 
 
-    if (isPixel) {
+    if (pixel) {
 
         object.classList.add(
             "pixel-mode"
@@ -765,7 +737,7 @@ function createSticker(
     x,
     y,
     width = 180,
-    isPixel = pixelMode
+    pixel = false
 ) {
 
     const object =
@@ -784,7 +756,7 @@ function createSticker(
         y + "px";
 
 
-    if (isPixel) {
+    if (pixel) {
 
         object.classList.add(
             "pixel-mode"
@@ -849,6 +821,9 @@ function setupObject(object) {
             selectObject(object);
 
 
+            updatePixelMenu();
+
+
             contextMenu.style.display =
                 "block";
 
@@ -871,6 +846,123 @@ function setupObject(object) {
     setupResizing(object);
 
 }
+
+
+/* =========================
+   PIXEL MODE MENU
+========================= */
+
+function updatePixelMenu() {
+
+    if (!selectedObject) {
+
+        return;
+
+    }
+
+
+    const isImage =
+        selectedObject.classList.contains(
+            "image-object"
+        );
+
+
+    const isSticker =
+        selectedObject.classList.contains(
+            "sticker"
+        );
+
+
+    if (
+        !isImage &&
+        !isSticker
+    ) {
+
+        pixelObject.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    pixelObject.style.display =
+        "block";
+
+
+    if (
+        selectedObject.classList.contains(
+            "pixel-mode"
+        )
+    ) {
+
+        pixelObject.textContent =
+            "Pixel Mode: ON";
+
+    } else {
+
+        pixelObject.textContent =
+            "Pixel Mode: OFF";
+
+    }
+
+}
+
+
+/* =========================
+   TOGGLE PIXEL MODE
+========================= */
+
+pixelObject.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        const isImage =
+            selectedObject.classList.contains(
+                "image-object"
+            );
+
+
+        const isSticker =
+            selectedObject.classList.contains(
+                "sticker"
+            );
+
+
+        if (
+            !isImage &&
+            !isSticker
+        ) {
+
+            closeContextMenu();
+
+            return;
+
+        }
+
+
+        selectedObject.classList.toggle(
+            "pixel-mode"
+        );
+
+
+        updatePixelMenu();
+
+
+        closeContextMenu();
+
+    }
+);
 
 
 /* =========================
@@ -912,7 +1004,9 @@ function setupEditing(object) {
                 title.focus();
 
 
-                placeCursorAtEnd(title);
+                placeCursorAtEnd(
+                    title
+                );
 
             }
         );
@@ -981,7 +1075,7 @@ function setupEditing(object) {
 
 
 /* =========================
-   DRAG
+   DRAGGING
 ========================= */
 
 function setupDragging(object) {
@@ -1120,7 +1214,7 @@ function setupDragging(object) {
 
 
 /* =========================
-   RESIZE
+   RESIZING
 ========================= */
 
 function setupResizing(object) {
@@ -1247,7 +1341,93 @@ function setupResizing(object) {
 
 
 /* =========================
-   RIGHT CLICK:
+   DELETE
+========================= */
+
+deleteObject.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (selectedObject) {
+
+            selectedObject.remove();
+
+            selectedObject =
+                null;
+
+        }
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+/* =========================
+   DUPLICATE
+========================= */
+
+duplicateObject.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        const copy =
+            selectedObject.cloneNode(
+                true
+            );
+
+
+        copy.style.left =
+            (
+                selectedObject.offsetLeft +
+                30
+            ) + "px";
+
+
+        copy.style.top =
+            (
+                selectedObject.offsetTop +
+                30
+            ) + "px";
+
+
+        copy.classList.remove(
+            "selected"
+        );
+
+
+        workspace.appendChild(
+            copy
+        );
+
+
+        setupObject(copy);
+
+
+        selectObject(copy);
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+/* =========================
    BRING TO FRONT
 ========================= */
 
@@ -1396,94 +1576,7 @@ sendBack.addEventListener(
 
 
 /* =========================
-   DELETE
-========================= */
-
-deleteObject.addEventListener(
-    "click",
-    event => {
-
-        event.stopPropagation();
-
-
-        if (selectedObject) {
-
-            selectedObject.remove();
-
-            selectedObject =
-                null;
-
-        }
-
-
-        closeContextMenu();
-
-    }
-);
-
-
-/* =========================
-   DUPLICATE
-========================= */
-
-duplicateObject.addEventListener(
-    "click",
-    event => {
-
-        event.stopPropagation();
-
-
-        if (!selectedObject) {
-
-            return;
-
-        }
-
-
-        const copy =
-            selectedObject.cloneNode(
-                true
-            );
-
-
-        copy.style.left =
-            (
-                selectedObject.offsetLeft +
-                30
-            ) + "px";
-
-
-        copy.style.top =
-            (
-                selectedObject.offsetTop +
-                30
-            ) + "px";
-
-
-        copy.classList.remove(
-            "selected"
-        );
-
-
-        workspace.appendChild(
-            copy
-        );
-
-
-        setupObject(copy);
-
-
-        selectObject(copy);
-
-
-        closeContextMenu();
-
-    }
-);
-
-
-/* =========================
-   CLOSE CONTEXT MENU
+   CLOSE MENU
 ========================= */
 
 function closeContextMenu() {
@@ -1502,36 +1595,6 @@ document.addEventListener(
 
     }
 );
-
-
-/* =========================
-   CURSOR
-========================= */
-
-function placeCursorAtEnd(element) {
-
-    const range =
-        document.createRange();
-
-
-    const selection =
-        window.getSelection();
-
-
-    range.selectNodeContents(
-        element
-    );
-
-
-    range.collapse(false);
-
-
-    selection.removeAllRanges();
-
-
-    selection.addRange(range);
-
-}
 
 
 /* =========================
@@ -2034,7 +2097,7 @@ function getBoardData() {
     return {
 
         version:
-            5,
+            6,
 
         name:
             boardName,
@@ -2044,9 +2107,6 @@ function getBoardData() {
 
         penColor:
             penColor.value,
-
-        pixelMode:
-            pixelMode,
 
         objects,
 
@@ -2140,17 +2200,6 @@ function loadBoard(data) {
             data.penColor;
 
     }
-
-
-    pixelMode =
-        data.pixelMode ||
-        false;
-
-
-    pixelButton.classList.toggle(
-        "active",
-        pixelMode
-    );
 
 
     if (
@@ -2336,15 +2385,20 @@ document.addEventListener(
    PAN
 ========================= */
 
-let panning = false;
+let panning =
+    false;
 
-let panStartX = 0;
+let panStartX =
+    0;
 
-let panStartY = 0;
+let panStartY =
+    0;
 
-let cameraStartX = 0;
+let cameraStartX =
+    0;
 
-let cameraStartY = 0;
+let cameraStartY =
+    0;
 
 
 board.addEventListener(
@@ -2369,7 +2423,8 @@ board.addEventListener(
             )
         ) {
 
-            panning = true;
+            panning =
+                true;
 
 
             panStartX =
@@ -2437,7 +2492,8 @@ document.addEventListener(
     "mouseup",
     () => {
 
-        panning = false;
+        panning =
+            false;
 
 
         if (
@@ -2479,11 +2535,13 @@ board.addEventListener(
             event.deltaY < 0
         ) {
 
-            zoom += 0.1;
+            zoom +=
+                0.1;
 
         } else {
 
-            zoom -= 0.1;
+            zoom -=
+                0.1;
 
         }
 
@@ -2531,6 +2589,40 @@ function updateCamera() {
         Math.round(
             zoom * 100
         ) + "%";
+
+}
+
+
+/* =========================
+   CURSOR
+========================= */
+
+function placeCursorAtEnd(element) {
+
+    const range =
+        document.createRange();
+
+
+    const selection =
+        window.getSelection();
+
+
+    range.selectNodeContents(
+        element
+    );
+
+
+    range.collapse(
+        false
+    );
+
+
+    selection.removeAllRanges();
+
+
+    selection.addRange(
+        range
+    );
 
 }
 
