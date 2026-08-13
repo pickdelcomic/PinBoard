@@ -24,7 +24,7 @@ body {
 
 
 /* =========================
-   TOOLBAR
+   TOP TOOLBAR
 ========================= */
 
 #toolbar {
@@ -128,10 +128,36 @@ body {
 }
 
 
+/* =========================
+   PICKDEL
+========================= */
+
+#pickdel {
+
+    padding:
+        3px 10px;
+
+    margin-right: 8px;
+
+    color: white;
+
+    background: #316ac5;
+
+    border:
+        2px solid #234a8c;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+}
+
+
 #zoomDisplay {
 
     padding:
-        5px 12px;
+        5px 8px;
 
     font-size: 12px;
 
@@ -192,6 +218,30 @@ body {
 
     transform-origin:
         0 0;
+}
+
+
+
+/* =========================
+   DRAWING CANVAS
+========================= */
+
+#drawingCanvas {
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 10000px;
+    height: 10000px;
+
+    pointer-events: none;
+
+    transform-origin:
+        0 0;
+
+    z-index: 500;
 }
 
 
@@ -298,7 +348,7 @@ body {
 
 
 /* =========================
-   IMAGE OBJECT
+   IMAGE
 ========================= */
 
 .image-object {
@@ -383,7 +433,7 @@ body {
 
 
 /* =========================
-   STICKERS
+   STICKER
 ========================= */
 
 .sticker {
@@ -448,7 +498,7 @@ body {
 
 
 /* =========================
-   RIGHT CLICK MENU
+   CONTEXT MENU
 ========================= */
 
 #contextMenu {
