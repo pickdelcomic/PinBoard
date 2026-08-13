@@ -1,27 +1,64 @@
-const board = document.getElementById("board");
-const workspace = document.getElementById("workspace");
+const board =
+    document.getElementById("board");
 
-const textButton = document.getElementById("textButton");
+const workspace =
+    document.getElementById("workspace");
 
-const contextMenu = document.getElementById("contextMenu");
-const deleteObject = document.getElementById("deleteObject");
 
-const zoomDisplay = document.getElementById("zoomDisplay");
+const textButton =
+    document.getElementById("textButton");
 
+const imageButton =
+    document.getElementById("imageButton");
+
+const stickerButton =
+    document.getElementById("stickerButton");
+
+
+const imageInput =
+    document.getElementById("imageInput");
+
+
+const contextMenu =
+    document.getElementById("contextMenu");
+
+const deleteObject =
+    document.getElementById("deleteObject");
+
+const duplicateObject =
+    document.getElementById("duplicateObject");
+
+
+const zoomDisplay =
+    document.getElementById("zoomDisplay");
+
+
+
+/* =========================
+   OBJECT COUNTER
+========================= */
 
 let noteNumber = 1;
+
+
+/* =========================
+   SELECTED OBJECT
+========================= */
 
 let selectedObject = null;
 
 
+
 /* =========================
-   BOARD CAMERA
+   CAMERA
 ========================= */
 
 let cameraX = 0;
+
 let cameraY = 0;
 
 let zoom = 1;
+
 
 
 /* =========================
@@ -31,69 +68,98 @@ let zoom = 1;
 let panning = false;
 
 let panStartX = 0;
+
 let panStartY = 0;
 
 let cameraStartX = 0;
+
 let cameraStartY = 0;
 
 
-board.addEventListener("mousedown", function(event) {
 
-    /*
-       Middle mouse button
-       OR
-       Space + left mouse
-    */
+board.addEventListener(
+    "mousedown",
+    function(event) {
 
-    if (
-        event.button === 1 ||
-        (event.button === 0 && event.shiftKey)
-    ) {
+        if (
+            event.button === 1 ||
+            (
+                event.button === 0 &&
+                event.shiftKey
+            )
+        ) {
 
-        panning = true;
+            panning = true;
 
-        panStartX = event.clientX;
-        panStartY = event.clientY;
+            panStartX =
+                event.clientX;
 
-        cameraStartX = cameraX;
-        cameraStartY = cameraY;
+            panStartY =
+                event.clientY;
 
-        board.style.cursor = "grabbing";
+            cameraStartX =
+                cameraX;
 
-        event.preventDefault();
+            cameraStartY =
+                cameraY;
+
+            board.style.cursor =
+                "grabbing";
+
+            event.preventDefault();
+        }
+
     }
-
-});
-
-
-document.addEventListener("mousemove", function(event) {
-
-    if (!panning) return;
-
-    cameraX =
-        cameraStartX +
-        (event.clientX - panStartX);
-
-    cameraY =
-        cameraStartY +
-        (event.clientY - panStartY);
-
-    updateCamera();
-
-});
+);
 
 
-document.addEventListener("mouseup", function() {
 
-    panning = false;
+document.addEventListener(
+    "mousemove",
+    function(event) {
 
-    board.style.cursor = "default";
+        if (!panning) return;
 
-});
+
+        cameraX =
+            cameraStartX +
+            (
+                event.clientX -
+                panStartX
+            );
+
+
+        cameraY =
+            cameraStartY +
+            (
+                event.clientY -
+                panStartY
+            );
+
+
+        updateCamera();
+
+    }
+);
+
+
+
+document.addEventListener(
+    "mouseup",
+    function() {
+
+        panning = false;
+
+        board.style.cursor =
+            "default";
+
+    }
+);
+
 
 
 /* =========================
-   CAMERA UPDATE
+   CAMERA
 ========================= */
 
 function updateCamera() {
@@ -101,44 +167,59 @@ function updateCamera() {
     workspace.style.transform =
         `translate(${cameraX}px, ${cameraY}px) scale(${zoom})`;
 
+
     zoomDisplay.textContent =
-        Math.round(zoom * 100) + "%";
+        Math.round(
+            zoom * 100
+        ) + "%";
 }
+
 
 
 /* =========================
    ZOOM
 ========================= */
 
-board.addEventListener("wheel", function(event) {
+board.addEventListener(
+    "wheel",
+    function(event) {
 
-    event.preventDefault();
+        event.preventDefault();
 
-    if (event.deltaY < 0) {
 
-        zoom += 0.1;
+        if (event.deltaY < 0) {
 
-    } else {
+            zoom += 0.1;
 
-        zoom -= 0.1;
+        } else {
 
+            zoom -= 0.1;
+
+        }
+
+
+        if (zoom < 0.3) {
+
+            zoom = 0.3;
+
+        }
+
+
+        if (zoom > 3) {
+
+            zoom = 3;
+
+        }
+
+
+        updateCamera();
+
+    },
+    {
+        passive: false
     }
+);
 
-
-    /* Limits */
-
-    if (zoom < 0.3) {
-        zoom = 0.3;
-    }
-
-    if (zoom > 3) {
-        zoom = 3;
-    }
-
-
-    updateCamera();
-
-}, { passive: false });
 
 
 /* =========================
@@ -147,12 +228,22 @@ board.addEventListener("wheel", function(event) {
 
 function createNote(x, y) {
 
-    const note = document.createElement("div");
+    const note =
+        document.createElement(
+            "div"
+        );
 
-    note.className = "note";
 
-    note.style.left = x + "px";
-    note.style.top = y + "px";
+    note.className =
+        "note";
+
+
+    note.style.left =
+        x + "px";
+
+
+    note.style.top =
+        y + "px";
 
 
     note.innerHTML = `
@@ -180,132 +271,358 @@ function createNote(x, y) {
     noteNumber++;
 
 
-    makeDraggable(note);
+    setupObject(note);
 
 
-    /* Select note */
-
-    note.addEventListener("mousedown", function(event) {
-
-        selectedObject = note;
-
-    });
-
-
-    /* Right click */
-
-    note.addEventListener("contextmenu", function(event) {
-
-        event.preventDefault();
-
-        selectedObject = note;
-
-        showContextMenu(
-            event.clientX,
-            event.clientY
-        );
-
-    });
-
-
-    /* Automatically select title */
-
-    note.querySelector(".note-title").focus();
+    note.querySelector(
+        ".note-title"
+    ).focus();
 
 }
 
 
+
 /* =========================
-   DRAG NOTE
+   CREATE IMAGE
 ========================= */
 
-function makeDraggable(note) {
+function createImage(
+    file,
+    x,
+    y
+) {
 
-    const title =
-        note.querySelector(".note-title");
+    const reader =
+        new FileReader();
 
 
-    title.addEventListener("mousedown", function(event) {
+    reader.onload =
+        function(event) {
 
-        if (event.button !== 0) return;
+            const imageObject =
+                document.createElement(
+                    "div"
+                );
 
 
-        /*
-           Don't drag while editing
-        */
+            imageObject.className =
+                "image-object";
 
-        if (
-            document.activeElement === title
-        ) {
 
-            return;
+            imageObject.style.left =
+                x + "px";
+
+
+            imageObject.style.top =
+                y + "px";
+
+
+            imageObject.innerHTML = `
+
+                <div
+                    class="image-title"
+                    contenteditable="true"
+                >
+                    Image ${noteNumber}
+                </div>
+
+                <div class="image-content">
+
+                    <img
+                        src="${event.target.result}"
+                    >
+
+                </div>
+
+            `;
+
+
+            workspace.appendChild(
+                imageObject
+            );
+
+
+            noteNumber++;
+
+
+            setupObject(
+                imageObject
+            );
+
+
+            imageObject.querySelector(
+                ".image-title"
+            ).focus();
+
+        };
+
+
+    reader.readAsDataURL(file);
+
+}
+
+
+
+/* =========================
+   CREATE STICKER
+========================= */
+
+function createSticker(
+    file,
+    x,
+    y
+) {
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(event) {
+
+            const sticker =
+                document.createElement(
+                    "div"
+                );
+
+
+            sticker.className =
+                "sticker";
+
+
+            sticker.style.left =
+                x + "px";
+
+
+            sticker.style.top =
+                y + "px";
+
+
+            sticker.innerHTML = `
+
+                <img
+                    src="${event.target.result}"
+                >
+
+            `;
+
+
+            workspace.appendChild(
+                sticker
+            );
+
+
+            setupObject(
+                sticker
+            );
+
+        };
+
+
+    reader.readAsDataURL(file);
+
+}
+
+
+
+/* =========================
+   OBJECT SETUP
+========================= */
+
+function setupObject(object) {
+
+
+    object.addEventListener(
+        "mousedown",
+        function() {
+
+            selectedObject =
+                object;
 
         }
+    );
 
 
-        selectedObject = note;
+    object.addEventListener(
+        "contextmenu",
+        function(event) {
+
+            event.preventDefault();
 
 
-        const startX = event.clientX;
-        const startY = event.clientY;
+            selectedObject =
+                object;
 
 
-        const originalX =
-            note.offsetLeft;
-
-        const originalY =
-            note.offsetTop;
-
-
-        function move(event) {
-
-            const dx =
-                (event.clientX - startX) / zoom;
-
-            const dy =
-                (event.clientY - startY) / zoom;
-
-
-            note.style.left =
-                (originalX + dx) + "px";
-
-            note.style.top =
-                (originalY + dy) + "px";
+            showContextMenu(
+                event.clientX,
+                event.clientY
+            );
 
         }
+    );
 
 
-        function stop() {
+    makeDraggable(object);
 
-            document.removeEventListener(
+}
+
+
+
+/* =========================
+   DRAG OBJECT
+========================= */
+
+function makeDraggable(object) {
+
+
+    let handle;
+
+
+    if (
+        object.classList.contains(
+            "note"
+        )
+    ) {
+
+        handle =
+            object.querySelector(
+                ".note-title"
+            );
+
+    }
+
+
+    else if (
+        object.classList.contains(
+            "image-object"
+        )
+    ) {
+
+        handle =
+            object.querySelector(
+                ".image-title"
+            );
+
+    }
+
+
+    else {
+
+        handle =
+            object;
+
+    }
+
+
+    handle.addEventListener(
+        "mousedown",
+        function(event) {
+
+            if (
+                event.button !== 0
+            ) return;
+
+
+            /*
+               Don't drag while
+               editing a title.
+            */
+
+            if (
+                handle.isContentEditable &&
+                document.activeElement ===
+                handle
+            ) {
+
+                return;
+
+            }
+
+
+            selectedObject =
+                object;
+
+
+            const startX =
+                event.clientX;
+
+            const startY =
+                event.clientY;
+
+
+            const originalX =
+                object.offsetLeft;
+
+            const originalY =
+                object.offsetTop;
+
+
+            function move(event) {
+
+                const dx =
+                    (
+                        event.clientX -
+                        startX
+                    ) / zoom;
+
+
+                const dy =
+                    (
+                        event.clientY -
+                        startY
+                    ) / zoom;
+
+
+                object.style.left =
+                    (
+                        originalX + dx
+                    ) + "px";
+
+
+                object.style.top =
+                    (
+                        originalY + dy
+                    ) + "px";
+
+            }
+
+
+            function stop() {
+
+                document.removeEventListener(
+                    "mousemove",
+                    move
+                );
+
+
+                document.removeEventListener(
+                    "mouseup",
+                    stop
+                );
+
+            }
+
+
+            document.addEventListener(
                 "mousemove",
                 move
             );
 
-            document.removeEventListener(
+
+            document.addEventListener(
                 "mouseup",
                 stop
             );
 
+
+            event.preventDefault();
+
         }
-
-
-        document.addEventListener(
-            "mousemove",
-            move
-        );
-
-        document.addEventListener(
-            "mouseup",
-            stop
-        );
-
-
-        event.preventDefault();
-
-    });
+    );
 
 }
+
 
 
 /* =========================
@@ -318,9 +635,11 @@ textButton.addEventListener(
 
         createNote(
 
-            200 - cameraX / zoom,
+            200 -
+            cameraX / zoom,
 
-            150 - cameraY / zoom
+            150 -
+            cameraY / zoom
 
         );
 
@@ -328,22 +647,131 @@ textButton.addEventListener(
 );
 
 
+
 /* =========================
-   RIGHT CLICK MENU
+   IMAGE BUTTON
 ========================= */
 
-function showContextMenu(x, y) {
+let currentImageType =
+    "image";
+
+
+imageButton.addEventListener(
+    "click",
+    function() {
+
+        currentImageType =
+            "image";
+
+        imageInput.click();
+
+    }
+);
+
+
+
+/* =========================
+   STICKER BUTTON
+========================= */
+
+stickerButton.addEventListener(
+    "click",
+    function() {
+
+        currentImageType =
+            "sticker";
+
+        imageInput.click();
+
+    }
+);
+
+
+
+/* =========================
+   IMAGE SELECTED
+========================= */
+
+imageInput.addEventListener(
+    "change",
+    function() {
+
+        const file =
+            imageInput.files[0];
+
+
+        if (!file) return;
+
+
+        const x =
+            200 -
+            cameraX / zoom;
+
+
+        const y =
+            150 -
+            cameraY / zoom;
+
+
+        if (
+            currentImageType ===
+            "image"
+        ) {
+
+            createImage(
+                file,
+                x,
+                y
+            );
+
+        }
+
+
+        else {
+
+            createSticker(
+                file,
+                x,
+                y
+            );
+
+        }
+
+
+        /*
+           Allow selecting
+           the same image again.
+        */
+
+        imageInput.value = "";
+
+    }
+);
+
+
+
+/* =========================
+   CONTEXT MENU
+========================= */
+
+function showContextMenu(
+    x,
+    y
+) {
 
     contextMenu.style.display =
         "block";
 
+
     contextMenu.style.left =
         x + "px";
+
 
     contextMenu.style.top =
         y + "px";
 
 }
+
 
 
 document.addEventListener(
@@ -355,6 +783,7 @@ document.addEventListener(
 
     }
 );
+
 
 
 /* =========================
@@ -372,7 +801,8 @@ deleteObject.addEventListener(
 
             selectedObject.remove();
 
-            selectedObject = null;
+            selectedObject =
+                null;
 
         }
 
@@ -384,8 +814,65 @@ deleteObject.addEventListener(
 );
 
 
+
 /* =========================
-   START CAMERA
+   DUPLICATE
+========================= */
+
+duplicateObject.addEventListener(
+    "click",
+    function(event) {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+            return;
+        }
+
+
+        const copy =
+            selectedObject.cloneNode(
+                true
+            );
+
+
+        copy.style.left =
+            (
+                selectedObject.offsetLeft +
+                30
+            ) + "px";
+
+
+        copy.style.top =
+            (
+                selectedObject.offsetTop +
+                30
+            ) + "px";
+
+
+        workspace.appendChild(
+            copy
+        );
+
+
+        setupObject(copy);
+
+
+        selectedObject =
+            copy;
+
+
+        contextMenu.style.display =
+            "none";
+
+    }
+);
+
+
+
+/* =========================
+   START
 ========================= */
 
 updateCamera();
