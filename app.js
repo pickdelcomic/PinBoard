@@ -1,276 +1,138 @@
-* {
-    box-sizing: border-box;
-}
+const board =
+    document.getElementById("board");
 
+const workspace =
+    document.getElementById("workspace");
 
-html,
-body {
+const drawingCanvas =
+    document.getElementById("drawingCanvas");
 
-    margin: 0;
-
-    width: 100%;
-    height: 100%;
-
-    overflow: hidden;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    background: #d6e4f0;
-}
+const drawingContext =
+    drawingCanvas.getContext("2d");
 
 
 
 /* =========================
-   TOOLBAR
+   BUTTONS
 ========================= */
 
-#toolbar {
+const selectButton =
+    document.getElementById("selectButton");
 
-    position: fixed;
+const textButton =
+    document.getElementById("textButton");
 
-    left: 0;
-    top: 0;
+const imageButton =
+    document.getElementById("imageButton");
 
-    width: 100%;
-    height: 46px;
+const stickerButton =
+    document.getElementById("stickerButton");
 
-    display: flex;
+const pageButton =
+    document.getElementById("pageButton");
 
-    align-items: center;
+const drawButton =
+    document.getElementById("drawButton");
 
-    gap: 4px;
+const eraserButton =
+    document.getElementById("eraserButton");
 
-    padding: 5px;
+const newButton =
+    document.getElementById("newButton");
 
-    background: #d4d0c8;
+const saveButton =
+    document.getElementById("saveButton");
 
-    border-bottom:
-        2px solid #808080;
+const saveAsButton =
+    document.getElementById("saveAsButton");
 
-    z-index: 1000;
-}
+const folderButton =
+    document.getElementById("folderButton");
 
+const loadButton =
+    document.getElementById("loadButton");
 
-#toolbar button {
-
-    height: 30px;
-
-    padding: 0 10px;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    font-size: 12px;
-
-    background: #d4d0c8;
-
-    border-top:
-        2px solid white;
-
-    border-left:
-        2px solid white;
-
-    border-right:
-        2px solid #808080;
-
-    border-bottom:
-        2px solid #808080;
-
-    cursor: pointer;
-}
-
-
-#toolbar button:hover {
-
-    background: #e8e8e8;
-}
-
-
-#toolbar button:active {
-
-    border-top:
-        2px solid #808080;
-
-    border-left:
-        2px solid #808080;
-
-    border-right:
-        2px solid white;
-
-    border-bottom:
-        2px solid white;
-}
-
-
-.toolbar-divider {
-
-    width: 1px;
-
-    height: 27px;
-
-    margin: 0 4px;
-
-    background: #808080;
-
-    border-right:
-        1px solid white;
-}
-
-
-.toolbar-spacer {
-
-    flex: 1;
-}
+const backButton =
+    document.getElementById("backButton");
 
 
 
 /* =========================
-   COLOR CONTROLS
+   INPUTS
 ========================= */
 
-.tool-label {
+const imageInput =
+    document.getElementById("imageInput");
 
-    display: flex;
+const boardInput =
+    document.getElementById("boardInput");
 
-    align-items: center;
+const penColor =
+    document.getElementById("penColor");
 
-    gap: 3px;
+const penSize =
+    document.getElementById("penSize");
 
-    height: 30px;
-
-    padding:
-        0 5px;
-
-    font-size: 11px;
-
-    color: #222;
-}
-
-
-.tool-label input[type="color"] {
-
-    width: 25px;
-
-    height: 23px;
-
-    padding: 0;
-
-    border: 1px solid #808080;
-
-    cursor: pointer;
-}
-
-
-#penSize {
-
-    width: 45px;
-
-    height: 23px;
-
-    border:
-        1px solid #808080;
-
-    background: white;
-
-    font-size: 11px;
-}
+const backgroundColor =
+    document.getElementById(
+        "backgroundColor"
+    );
 
 
 
 /* =========================
-   PICKDEL
+   CONTEXT MENU
 ========================= */
 
-#pickdel {
+const contextMenu =
+    document.getElementById(
+        "contextMenu"
+    );
 
-    padding:
-        4px 9px;
+const deleteObject =
+    document.getElementById(
+        "deleteObject"
+    );
 
-    margin-right: 5px;
+const duplicateObject =
+    document.getElementById(
+        "duplicateObject"
+    );
 
-    color: white;
-
-    background: #316ac5;
-
-    border:
-        2px solid #234a8c;
-
-    font-size: 13px;
-
-    font-weight: bold;
-
-    letter-spacing: 1px;
-}
-
-
-#zoomDisplay {
-
-    padding:
-        5px 6px;
-
-    font-size: 12px;
-
-    color: #222;
-}
+const openPage =
+    document.getElementById(
+        "openPage"
+    );
 
 
 
 /* =========================
-   BOARD
+   VARIABLES
 ========================= */
 
-#board {
+let selectedObject = null;
 
-    position: fixed;
+let objectNumber = 1;
 
-    left: 0;
-    top: 46px;
+let boardName =
+    "Untitled Board";
 
-    right: 0;
-    bottom: 0;
-
-    overflow: hidden;
-
-    background: white;
-}
+let currentImageType =
+    "image";
 
 
-#workspace {
 
-    position: absolute;
+/* =========================
+   CAMERA
+========================= */
 
-    left: 0;
-    top: 0;
+let cameraX = 0;
 
-    width: 10000px;
-    height: 10000px;
+let cameraY = 0;
 
-    background-color: white;
+let zoom = 1;
 
-    background-image:
-
-        linear-gradient(
-            #eeeeee 1px,
-            transparent 1px
-        ),
-
-        linear-gradient(
-            90deg,
-            #eeeeee 1px,
-            transparent 1px
-        );
-
-    background-size:
-        20px 20px;
-
-    transform-origin:
-        0 0;
-}
+let panning = false;
 
 
 
@@ -278,219 +140,594 @@ body {
    DRAWING
 ========================= */
 
-#drawingCanvas {
+let drawingMode = false;
 
-    position: absolute;
+let eraserMode = false;
 
-    left: 0;
-    top: 0;
+let drawing = false;
 
-    width: 10000px;
-    height: 10000px;
 
-    pointer-events: none;
 
-    transform-origin:
-        0 0;
+drawingCanvas.width = 10000;
 
-    z-index: 500;
+drawingCanvas.height = 10000;
+
+
+
+/* =========================
+   PAGES
+========================= */
+
+let currentPage = null;
+
+let pages = {};
+
+
+
+/* =========================
+   FOLDER
+========================= */
+
+let saveDirectory = null;
+
+let currentFileHandle = null;
+
+
+
+/* =========================
+   BACKGROUND
+========================= */
+
+function changeBackground(
+    color
+) {
+
+    workspace.style.backgroundColor =
+        color;
+}
+
+
+backgroundColor.addEventListener(
+    "input",
+    function() {
+
+        changeBackground(
+            backgroundColor.value
+        );
+
+    }
+);
+
+
+
+/* =========================
+   DRAWING MODE
+========================= */
+
+function setTool(
+    tool
+) {
+
+    drawingMode =
+        tool === "draw";
+
+    eraserMode =
+        tool === "eraser";
+
+
+    if (
+        drawingMode ||
+        eraserMode
+    ) {
+
+        drawingCanvas.style.pointerEvents =
+            "auto";
+
+        board.style.cursor =
+            "crosshair";
+
+    }
+
+    else {
+
+        drawingCanvas.style.pointerEvents =
+            "none";
+
+        board.style.cursor =
+            "default";
+
+    }
+
 }
 
 
 
 /* =========================
-   OBJECTS
+   SELECT
 ========================= */
 
-.board-object.selected {
+selectButton.addEventListener(
+    "click",
+    function() {
 
-    outline:
-        2px dotted #316ac5;
+        setTool("select");
 
-    outline-offset: 3px;
+    }
+);
+
+
+
+drawButton.addEventListener(
+    "click",
+    function() {
+
+        setTool("draw");
+
+    }
+);
+
+
+
+eraserButton.addEventListener(
+    "click",
+    function() {
+
+        setTool("eraser");
+
+    }
+);
+
+
+
+/* =========================
+   DRAWING
+========================= */
+
+drawingCanvas.addEventListener(
+    "mousedown",
+    function(event) {
+
+        if (
+            !drawingMode &&
+            !eraserMode
+        ) {
+            return;
+        }
+
+
+        drawing = true;
+
+
+        const p =
+            getCanvasPosition(
+                event
+            );
+
+
+        drawingContext.beginPath();
+
+        drawingContext.moveTo(
+            p.x,
+            p.y
+        );
+
+
+        drawingContext.lineWidth =
+            Number(
+                penSize.value
+            );
+
+
+        drawingContext.lineCap =
+            "round";
+
+        drawingContext.lineJoin =
+            "round";
+
+
+        if (eraserMode) {
+
+            drawingContext.globalCompositeOperation =
+                "destination-out";
+
+        }
+
+        else {
+
+            drawingContext.globalCompositeOperation =
+                "source-over";
+
+
+            drawingContext.strokeStyle =
+                penColor.value;
+
+        }
+
+    }
+);
+
+
+
+drawingCanvas.addEventListener(
+    "mousemove",
+    function(event) {
+
+        if (!drawing) {
+            return;
+        }
+
+
+        const p =
+            getCanvasPosition(
+                event
+            );
+
+
+        drawingContext.lineTo(
+            p.x,
+            p.y
+        );
+
+
+        drawingContext.stroke();
+
+    }
+);
+
+
+
+document.addEventListener(
+    "mouseup",
+    function() {
+
+        drawing = false;
+
+    }
+);
+
+
+
+function getCanvasPosition(
+    event
+) {
+
+    return {
+
+        x:
+            (
+                event.clientX -
+                board.getBoundingClientRect().left -
+                cameraX
+            ) / zoom,
+
+        y:
+            (
+                event.clientY -
+                board.getBoundingClientRect().top -
+                cameraY
+            ) / zoom
+
+    };
+
 }
 
 
 
 /* =========================
-   NOTES
+   SELECTION
 ========================= */
 
-.note {
+function selectObject(
+    object
+) {
 
-    position: absolute;
+    if (selectedObject) {
 
-    width: 230px;
+        selectedObject.classList.remove(
+            "selected"
+        );
 
-    background: #fffff0;
-
-    border:
-        2px solid #6b7c8c;
-
-    box-shadow:
-        4px 4px 0 #9aa7b2;
-
-    user-select: none;
-}
+    }
 
 
-.note-title {
-
-    height: 27px;
-
-    padding:
-        5px 8px;
-
-    color: white;
-
-    background: #316ac5;
-
-    border-bottom:
-        2px solid #234a8c;
-
-    font-weight: bold;
-
-    font-size: 13px;
-
-    cursor: move;
-
-    outline: none;
-}
+    selectedObject =
+        object;
 
 
-.note-title.editing {
+    if (object) {
 
-    cursor: text;
+        object.classList.add(
+            "selected"
+        );
 
-    background: #2457a6;
-}
+    }
 
-
-.note-content {
-
-    min-height: 100px;
-
-    padding: 12px;
-
-    color: #222;
-
-    background: #fffff0;
-
-    font-size: 14px;
-
-    outline: none;
-}
-
-
-.note-content.editing {
-
-    cursor: text;
-
-    user-select: text;
 }
 
 
 
 /* =========================
-   IMAGES
+   CREATE NOTE
 ========================= */
 
-.image-object {
+function createNote(
+    x,
+    y,
+    title = null,
+    content = "Type something..."
+) {
 
-    position: absolute;
-
-    width: 260px;
-
-    background: #fffff0;
-
-    border:
-        2px solid #6b7c8c;
-
-    box-shadow:
-        4px 4px 0 #9aa7b2;
-}
+    const note =
+        document.createElement(
+            "div"
+        );
 
 
-.image-title {
-
-    height: 27px;
-
-    padding:
-        5px 8px;
-
-    color: white;
-
-    background: #316ac5;
-
-    border-bottom:
-        2px solid #234a8c;
-
-    font-weight: bold;
-
-    font-size: 13px;
-
-    cursor: move;
-
-    outline: none;
-}
+    note.className =
+        "note board-object";
 
 
-.image-title.editing {
+    note.style.left =
+        x + "px";
 
-    cursor: text;
-
-    background: #2457a6;
-}
-
-
-.image-content {
-
-    padding: 8px;
-
-    background: #fffff0;
-
-    text-align: center;
-}
+    note.style.top =
+        y + "px";
 
 
-.image-content img {
+    note.innerHTML = `
 
-    display: block;
+        <div class="note-title">
 
-    max-width: 100%;
+            ${escapeHTML(
+                title ||
+                "Note " +
+                objectNumber
+            )}
 
-    width: 100%;
+        </div>
 
-    height: auto;
+        <div class="note-content">
 
-    pointer-events: none;
+            ${escapeHTML(content)}
+
+        </div>
+
+        <div class="resize-handle"></div>
+
+    `;
+
+
+    workspace.appendChild(
+        note
+    );
+
+
+    objectNumber++;
+
+
+    setupObject(note);
+
 }
 
 
 
 /* =========================
-   STICKERS
+   CREATE IMAGE
 ========================= */
 
-.sticker {
+function createImage(
+    imageData,
+    x,
+    y,
+    title = null,
+    width = 260
+) {
 
-    position: absolute;
+    const object =
+        document.createElement(
+            "div"
+        );
 
-    user-select: none;
 
-    cursor: move;
+    object.className =
+        "image-object board-object";
+
+
+    object.style.left =
+        x + "px";
+
+    object.style.top =
+        y + "px";
+
+    object.style.width =
+        width + "px";
+
+
+    object.innerHTML = `
+
+        <div class="image-title">
+
+            ${escapeHTML(
+                title ||
+                "Image " +
+                objectNumber
+            )}
+
+        </div>
+
+        <div class="image-content">
+
+            <img src="${imageData}">
+
+        </div>
+
+        <div class="resize-handle"></div>
+
+    `;
+
+
+    workspace.appendChild(
+        object
+    );
+
+
+    objectNumber++;
+
+
+    setupObject(object);
+
 }
 
 
-.sticker img {
 
-    display: block;
+/* =========================
+   CREATE STICKER
+========================= */
 
-    width: 180px;
+function createSticker(
+    imageData,
+    x,
+    y,
+    width = 180
+) {
 
-    height: auto;
+    const object =
+        document.createElement(
+            "div"
+        );
 
-    pointer-events: none;
+
+    object.className =
+        "sticker board-object";
+
+
+    object.style.left =
+        x + "px";
+
+    object.style.top =
+        y + "px";
+
+
+    object.innerHTML = `
+
+        <img
+            src="${imageData}"
+            style="width:${width}px"
+        >
+
+        <div class="resize-handle"></div>
+
+    `;
+
+
+    workspace.appendChild(
+        object
+    );
+
+
+    setupObject(object);
+
+}
+
+
+
+/* =========================
+   CREATE PAGE
+========================= */
+
+function createPage(
+    x,
+    y,
+    type,
+    value,
+    title = null
+) {
+
+    const id =
+        "page_" +
+        Date.now() +
+        "_" +
+        Math.floor(
+            Math.random() * 10000
+        );
+
+
+    pages[id] = {
+
+        name:
+            title ||
+            "New Page",
+
+        objects: [],
+
+        drawing: null,
+
+        background:
+            "#ffffff"
+
+    };
+
+
+    const object =
+        document.createElement(
+            "div"
+        );
+
+
+    object.className =
+        "page-object board-object";
+
+
+    object.dataset.pageId =
+        id;
+
+
+    object.style.left =
+        x + "px";
+
+    object.style.top =
+        y + "px";
+
+
+    if (type === "text") {
+
+        object.innerHTML = `
+
+            <div class="page-text">
+
+                ${escapeHTML(value)}
+
+            </div>
+
+            <div class="resize-handle"></div>
+
+        `;
+
+    }
+
+    else {
+
+        object.innerHTML = `
+
+            <img
+                class="page-image"
+                src="${value}"
+            >
+
+            <div class="resize-handle"></div>
+
+        `;
+
+    }
+
+
+    workspace.appendChild(
+        object
+    );
+
+
+    setupObject(object);
+
 }
 
 
@@ -499,158 +736,2006 @@ body {
    PAGE BUTTON
 ========================= */
 
-.page-object {
+pageButton.addEventListener(
+    "click",
+    function() {
 
-    position: absolute;
-
-    width: 240px;
-
-    min-height: 90px;
-
-    padding: 10px;
-
-    background: #f7f7f7;
-
-    border:
-        3px double #316ac5;
-
-    box-shadow:
-        4px 4px 0 #9aa7b2;
-
-    cursor: move;
-
-    user-select: none;
-}
+        const type =
+            prompt(
+                "PAGE BUTTON\n\nType TEXT or IMAGE:"
+            );
 
 
-.page-object:hover {
-
-    background: #edf4ff;
-}
-
-
-.page-text {
-
-    font-weight: bold;
-
-    color: #234a8c;
-
-    font-size: 15px;
-
-    text-align: center;
-}
+        if (!type) {
+            return;
+        }
 
 
-.page-image {
+        if (
+            type.toLowerCase() ===
+            "text"
+        ) {
 
-    display: block;
+            const value =
+                prompt(
+                    "What should the page button say?"
+                );
 
-    max-width: 100%;
 
-    max-height: 180px;
+            if (!value) {
+                return;
+            }
 
-    margin: auto;
 
-    pointer-events: none;
+            createPage(
+                200 - cameraX / zoom,
+                150 - cameraY / zoom,
+                "text",
+                value,
+                value
+            );
+
+        }
+
+        else if (
+            type.toLowerCase() ===
+            "image"
+        ) {
+
+            currentImageType =
+                "page";
+
+
+            imageInput.click();
+
+        }
+
+        else {
+
+            alert(
+                "Please type TEXT or IMAGE."
+            );
+
+        }
+
+    }
+);
+
+
+
+/* =========================
+   IMAGE PICKER
+========================= */
+
+imageInput.addEventListener(
+    "change",
+    function() {
+
+        const file =
+            imageInput.files[0];
+
+
+        if (!file) {
+            return;
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            function(event) {
+
+                const x =
+                    200 -
+                    cameraX / zoom;
+
+                const y =
+                    150 -
+                    cameraY / zoom;
+
+
+                if (
+                    currentImageType ===
+                    "image"
+                ) {
+
+                    createImage(
+                        event.target.result,
+                        x,
+                        y
+                    );
+
+                }
+
+                else if (
+                    currentImageType ===
+                    "sticker"
+                ) {
+
+                    createSticker(
+                        event.target.result,
+                        x,
+                        y
+                    );
+
+                }
+
+                else if (
+                    currentImageType ===
+                    "page"
+                ) {
+
+                    createPage(
+                        x,
+                        y,
+                        "image",
+                        event.target.result,
+                        "Image Page"
+                    );
+
+                }
+
+            };
+
+
+        reader.readAsDataURL(file);
+
+
+        imageInput.value = "";
+
+    }
+);
+
+
+
+/* =========================
+   OBJECT SETUP
+========================= */
+
+function setupObject(
+    object
+) {
+
+    object.addEventListener(
+        "mousedown",
+        function() {
+
+            selectObject(
+                object
+            );
+
+        }
+    );
+
+
+    object.addEventListener(
+        "contextmenu",
+        function(event) {
+
+            event.preventDefault();
+
+            selectObject(
+                object
+            );
+
+            showContextMenu(
+                event.clientX,
+                event.clientY
+            );
+
+        }
+    );
+
+
+    setupEditing(object);
+
+    setupDragging(object);
+
+    setupResizing(object);
+
 }
 
 
 
 /* =========================
-   RESIZE
+   EDITING
 ========================= */
 
-.resize-handle {
+function setupEditing(
+    object
+) {
 
-    position: absolute;
-
-    right: -6px;
-
-    bottom: -6px;
-
-    width: 12px;
-
-    height: 12px;
-
-    background: white;
-
-    border:
-        2px solid #316ac5;
-
-    cursor:
-        nwse-resize;
-
-    display: none;
-}
+    const title =
+        object.querySelector(
+            ".note-title, .image-title"
+        );
 
 
-.board-object.selected
-.resize-handle {
+    const content =
+        object.querySelector(
+            ".note-content"
+        );
 
-    display: block;
+
+    if (title) {
+
+        title.addEventListener(
+            "dblclick",
+            function(event) {
+
+                event.stopPropagation();
+
+
+                title.contentEditable =
+                    "true";
+
+
+                title.classList.add(
+                    "editing"
+                );
+
+
+                title.focus();
+
+
+                placeCursorAtEnd(
+                    title
+                );
+
+            }
+        );
+
+
+        title.addEventListener(
+            "blur",
+            function() {
+
+                title.contentEditable =
+                    "false";
+
+                title.classList.remove(
+                    "editing"
+                );
+
+            }
+        );
+
+    }
+
+
+    if (content) {
+
+        content.addEventListener(
+            "dblclick",
+            function(event) {
+
+                event.stopPropagation();
+
+
+                content.contentEditable =
+                    "true";
+
+
+                content.classList.add(
+                    "editing"
+                );
+
+
+                content.focus();
+
+            }
+        );
+
+
+        content.addEventListener(
+            "blur",
+            function() {
+
+                content.contentEditable =
+                    "false";
+
+                content.classList.remove(
+                    "editing"
+                );
+
+            }
+        );
+
+    }
+
 }
 
 
 
 /* =========================
-   CONTEXT MENU
+   DRAGGING
 ========================= */
 
-#contextMenu {
+function setupDragging(
+    object
+) {
 
-    position: fixed;
+    let handle =
+        object.querySelector(
+            ".note-title, .image-title"
+        );
 
-    display: none;
 
-    width: 150px;
+    if (!handle) {
 
-    padding: 3px;
+        handle =
+            object;
 
-    background: #d4d0c8;
+    }
 
-    border-top:
-        2px solid white;
 
-    border-left:
-        2px solid white;
+    handle.addEventListener(
+        "mousedown",
+        function(event) {
 
-    border-right:
-        2px solid #404040;
+            if (
+                event.button !== 0
+            ) {
+                return;
+            }
 
-    border-bottom:
-        2px solid #404040;
 
-    z-index: 2000;
+            if (
+                handle.classList.contains(
+                    "editing"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            selectObject(object);
+
+
+            const startX =
+                event.clientX;
+
+            const startY =
+                event.clientY;
+
+
+            const originalX =
+                object.offsetLeft;
+
+            const originalY =
+                object.offsetTop;
+
+
+            function move(event) {
+
+                const dx =
+                    (
+                        event.clientX -
+                        startX
+                    ) / zoom;
+
+
+                const dy =
+                    (
+                        event.clientY -
+                        startY
+                    ) / zoom;
+
+
+                object.style.left =
+                    originalX +
+                    dx +
+                    "px";
+
+
+                object.style.top =
+                    originalY +
+                    dy +
+                    "px";
+
+            }
+
+
+            function stop() {
+
+                document.removeEventListener(
+                    "mousemove",
+                    move
+                );
+
+
+                document.removeEventListener(
+                    "mouseup",
+                    stop
+                );
+
+            }
+
+
+            document.addEventListener(
+                "mousemove",
+                move
+            );
+
+
+            document.addEventListener(
+                "mouseup",
+                stop
+            );
+
+
+            event.preventDefault();
+
+        }
+    );
+
 }
 
 
-#contextMenu button {
 
-    display: block;
+/* =========================
+   RESIZING
+========================= */
 
-    width: 100%;
+function setupResizing(
+    object
+) {
 
-    padding:
-        6px 10px;
+    const handle =
+        object.querySelector(
+            ".resize-handle"
+        );
 
-    text-align: left;
 
-    border: 0;
+    if (!handle) {
+        return;
+    }
 
-    background: #d4d0c8;
 
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
+    handle.addEventListener(
+        "mousedown",
+        function(event) {
 
-    cursor: pointer;
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            selectObject(object);
+
+
+            const startX =
+                event.clientX;
+
+
+            const startWidth =
+                object.offsetWidth;
+
+
+            function resize(event) {
+
+                let width =
+                    startWidth +
+                    (
+                        event.clientX -
+                        startX
+                    ) / zoom;
+
+
+                if (width < 80) {
+                    width = 80;
+                }
+
+
+                if (width > 1000) {
+                    width = 1000;
+                }
+
+
+                if (
+                    object.classList.contains(
+                        "sticker"
+                    )
+                ) {
+
+                    object.querySelector(
+                        "img"
+                    ).style.width =
+                        width + "px";
+
+                }
+
+                else {
+
+                    object.style.width =
+                        width + "px";
+
+                }
+
+            }
+
+
+            function stop() {
+
+                document.removeEventListener(
+                    "mousemove",
+                    resize
+                );
+
+                document.removeEventListener(
+                    "mouseup",
+                    stop
+                );
+
+            }
+
+
+            document.addEventListener(
+                "mousemove",
+                resize
+            );
+
+
+            document.addEventListener(
+                "mouseup",
+                stop
+            );
+
+        }
+    );
+
 }
 
 
-#contextMenu button:hover {
 
-    color: white;
+/* =========================
+   OPEN PAGE
+========================= */
 
-    background: #316ac5;
+function openPageObject(
+    object
+) {
+
+    const id =
+        object.dataset.pageId;
+
+
+    if (!id || !pages[id]) {
+        return;
+    }
+
+
+    saveCurrentPage();
+
+
+    currentPage =
+        id;
+
+
+    workspace.innerHTML = "";
+
+
+    drawingContext.clearRect(
+        0,
+        0,
+        drawingCanvas.width,
+        drawingCanvas.height
+    );
+
+
+    const page =
+        pages[id];
+
+
+    boardName =
+        page.name;
+
+
+    backgroundColor.value =
+        page.background ||
+        "#ffffff";
+
+
+    changeBackground(
+        backgroundColor.value
+    );
+
+
+    loadObjects(
+        page.objects
+    );
+
+
+    if (page.drawing) {
+
+        const image =
+            new Image();
+
+
+        image.onload =
+            function() {
+
+                drawingContext.drawImage(
+                    image,
+                    0,
+                    0
+                );
+
+            };
+
+
+        image.src =
+            page.drawing;
+
+    }
+
+
+    backButton.style.display =
+        "block";
+
 }
+
+
+
+/* =========================
+   PAGE CONTEXT MENU
+========================= */
+
+openPage.addEventListener(
+    "click",
+    function() {
+
+        if (
+            selectedObject &&
+            selectedObject.dataset.pageId
+        ) {
+
+            openPageObject(
+                selectedObject
+            );
+
+        }
+
+    }
+);
+
+
+
+/* =========================
+   BACK
+========================= */
+
+backButton.addEventListener(
+    "click",
+    function() {
+
+        saveCurrentPage();
+
+
+        if (!currentPage) {
+            return;
+        }
+
+
+        currentPage = null;
+
+
+        workspace.innerHTML = "";
+
+
+        drawingContext.clearRect(
+            0,
+            0,
+            drawingCanvas.width,
+            drawingCanvas.height
+        );
+
+
+        boardName =
+            "Main Board";
+
+
+        backgroundColor.value =
+            "#ffffff";
+
+
+        changeBackground(
+            "#ffffff"
+        );
+
+
+        loadMainBoard();
+
+
+        backButton.style.display =
+            "none";
+
+    }
+);
+
+
+
+/* =========================
+   SAVE CURRENT PAGE
+========================= */
+
+function saveCurrentPage() {
+
+    if (!currentPage) {
+        return;
+    }
+
+
+    pages[currentPage].objects =
+        getObjects();
+
+
+    pages[currentPage].drawing =
+        drawingCanvas.toDataURL();
+
+
+    pages[currentPage].background =
+        backgroundColor.value;
+
+}
+
+
+
+/* =========================
+   GET OBJECTS
+========================= */
+
+function getObjects() {
+
+    const objects = [];
+
+
+    workspace
+        .querySelectorAll(
+            ".board-object"
+        )
+        .forEach(
+            function(object) {
+
+                const data = {
+
+                    type:
+                        getObjectType(
+                            object
+                        ),
+
+                    x:
+                        object.offsetLeft,
+
+                    y:
+                        object.offsetTop,
+
+                    width:
+                        object.offsetWidth
+
+                };
+
+
+                const title =
+                    object.querySelector(
+                        ".note-title, .image-title"
+                    );
+
+
+                const content =
+                    object.querySelector(
+                        ".note-content"
+                    );
+
+
+                const image =
+                    object.querySelector(
+                        "img"
+                    );
+
+
+                if (title) {
+
+                    data.title =
+                        title.textContent;
+
+                }
+
+
+                if (content) {
+
+                    data.content =
+                        content.textContent;
+
+                }
+
+
+                if (image) {
+
+                    data.image =
+                        image.src;
+
+                }
+
+
+                if (
+                    object.dataset.pageId
+                ) {
+
+                    data.pageId =
+                        object.dataset.pageId;
+
+                }
+
+
+                if (
+                    object.classList.contains(
+                        "page-object"
+                    )
+                ) {
+
+                    data.pageType =
+                        object.querySelector(
+                            ".page-text"
+                        )
+                            ? "text"
+                            : "image";
+
+                }
+
+
+                objects.push(
+                    data
+                );
+
+            }
+        );
+
+
+    return objects;
+
+}
+
+
+
+/* =========================
+   OBJECT TYPE
+========================= */
+
+function getObjectType(
+    object
+) {
+
+    if (
+        object.classList.contains(
+            "note"
+        )
+    ) {
+
+        return "note";
+
+    }
+
+
+    if (
+        object.classList.contains(
+            "image-object"
+        )
+    ) {
+
+        return "image";
+
+    }
+
+
+    if (
+        object.classList.contains(
+            "sticker"
+        )
+    ) {
+
+        return "sticker";
+
+    }
+
+
+    if (
+        object.classList.contains(
+            "page-object"
+        )
+    ) {
+
+        return "page";
+
+    }
+
+}
+
+
+
+/* =========================
+   LOAD OBJECTS
+========================= */
+
+function loadObjects(
+    objects
+) {
+
+    if (!objects) {
+        return;
+    }
+
+
+    objects.forEach(
+        function(object) {
+
+            if (
+                object.type ===
+                "note"
+            ) {
+
+                createNote(
+                    object.x,
+                    object.y,
+                    object.title,
+                    object.content
+                );
+
+            }
+
+
+            else if (
+                object.type ===
+                "image"
+            ) {
+
+                createImage(
+                    object.image,
+                    object.x,
+                    object.y,
+                    object.title,
+                    object.width
+                );
+
+            }
+
+
+            else if (
+                object.type ===
+                "sticker"
+            ) {
+
+                createSticker(
+                    object.image,
+                    object.x,
+                    object.y,
+                    object.width
+                );
+
+            }
+
+
+            else if (
+                object.type ===
+                "page"
+            ) {
+
+                const page =
+                    pages[
+                        object.pageId
+                    ];
+
+
+                if (!page) {
+                    return;
+                }
+
+
+                const pageObject =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                pageObject.className =
+                    "page-object board-object";
+
+
+                pageObject.dataset.pageId =
+                    object.pageId;
+
+
+                pageObject.style.left =
+                    object.x + "px";
+
+
+                pageObject.style.top =
+                    object.y + "px";
+
+
+                if (
+                    object.pageType ===
+                    "image"
+                ) {
+
+                    pageObject.innerHTML = `
+
+                        <img
+                            class="page-image"
+                            src="${object.image}"
+                        >
+
+                        <div
+                            class="resize-handle"
+                        ></div>
+
+                    `;
+
+                }
+
+                else {
+
+                    pageObject.innerHTML = `
+
+                        <div class="page-text">
+
+                            ${escapeHTML(
+                                object.title
+                            )}
+
+                        </div>
+
+                        <div
+                            class="resize-handle"
+                        ></div>
+
+                    `;
+
+                }
+
+
+                workspace.appendChild(
+                    pageObject
+                );
+
+
+                setupObject(
+                    pageObject
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+
+/* =========================
+   SAVE BOARD DATA
+========================= */
+
+function getBoardData() {
+
+    saveCurrentPage();
+
+
+    return {
+
+        version: 3,
+
+        name:
+            boardName,
+
+        objects:
+            getObjects(),
+
+        drawing:
+            drawingCanvas.toDataURL(),
+
+        background:
+            backgroundColor.value,
+
+        pages:
+            pages
+
+    };
+
+}
+
+
+
+/* =========================
+   SAVE TO FOLDER
+========================= */
+
+async function saveToFolder() {
+
+    const data =
+        getBoardData();
+
+
+    const json =
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+
+    /*
+       Modern browsers can save
+       directly into a selected
+       folder.
+    */
+
+    if (
+        saveDirectory &&
+        currentFileHandle
+    ) {
+
+        const writable =
+            await currentFileHandle.createWritable();
+
+
+        await writable.write(
+            json
+        );
+
+
+        await writable.close();
+
+
+        return;
+
+    }
+
+
+    /*
+       If no folder has been
+       selected, ask for one.
+    */
+
+    if (
+        window.showDirectoryPicker
+    ) {
+
+        saveDirectory =
+            await window.showDirectoryPicker();
+
+
+        await writeBoardFile(
+            saveDirectory,
+            json
+        );
+
+    }
+
+    else {
+
+        downloadBoard(
+            json
+        );
+
+    }
+
+}
+
+
+
+/* =========================
+   WRITE FILE
+========================= */
+
+async function writeBoardFile(
+    directory,
+    json
+) {
+
+    const fileName =
+        boardName
+            .replace(
+                /[\\/:*?"<>|]/g,
+                "_"
+            ) +
+        ".json";
+
+
+    currentFileHandle =
+        await directory.getFileHandle(
+            fileName,
+            {
+                create: true
+            }
+        );
+
+
+    const writable =
+        await currentFileHandle.createWritable();
+
+
+    await writable.write(
+        json
+    );
+
+
+    await writable.close();
+
+
+    alert(
+        "Saved to your selected folder."
+    );
+
+}
+
+
+
+/* =========================
+   SAVE
+========================= */
+
+saveButton.addEventListener(
+    "click",
+    async function() {
+
+        try {
+
+            await saveToFolder();
+
+        }
+
+        catch (error) {
+
+            console.log(error);
+
+        }
+
+    }
+);
+
+
+
+/* =========================
+   SAVE AS
+========================= */
+
+saveAsButton.addEventListener(
+    "click",
+    async function() {
+
+        const name =
+            prompt(
+                "Save board as:",
+                boardName
+            );
+
+
+        if (!name) {
+            return;
+        }
+
+
+        boardName =
+            name;
+
+
+        currentFileHandle =
+            null;
+
+
+        try {
+
+            await saveToFolder();
+
+        }
+
+        catch (error) {
+
+            console.log(error);
+
+        }
+
+    }
+);
+
+
+
+/* =========================
+   CHOOSE FOLDER
+========================= */
+
+folderButton.addEventListener(
+    "click",
+    async function() {
+
+        if (
+            !window.showDirectoryPicker
+        ) {
+
+            alert(
+                "Your browser does not support folder saving. Chrome or Edge is recommended."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            saveDirectory =
+                await window.showDirectoryPicker();
+
+
+            currentFileHandle =
+                null;
+
+
+            alert(
+                "Folder selected."
+            );
+
+        }
+
+        catch (error) {
+
+            console.log(error);
+
+        }
+
+    }
+);
+
+
+
+/* =========================
+   DOWNLOAD FALLBACK
+========================= */
+
+function downloadBoard(
+    json
+) {
+
+    const blob =
+        new Blob(
+            [json],
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        boardName +
+        ".json";
+
+
+    link.click();
+
+
+    URL.revokeObjectURL(
+        url
+    );
+
+}
+
+
+
+/* =========================
+   LOAD FILE
+========================= */
+
+loadButton.addEventListener(
+    "click",
+    function() {
+
+        boardInput.click();
+
+    }
+);
+
+
+
+boardInput.addEventListener(
+    "change",
+    function() {
+
+        const file =
+            boardInput.files[0];
+
+
+        if (!file) {
+            return;
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            function(event) {
+
+                try {
+
+                    const data =
+                        JSON.parse(
+                            event.target.result
+                        );
+
+
+                    loadBoard(
+                        data
+                    );
+
+                }
+
+                catch {
+
+                    alert(
+                        "Could not load this board."
+                    );
+
+                }
+
+            };
+
+
+        reader.readAsText(
+            file
+        );
+
+
+        boardInput.value = "";
+
+    }
+);
+
+
+
+/* =========================
+   LOAD BOARD
+========================= */
+
+function loadBoard(
+    data
+) {
+
+    workspace.innerHTML = "";
+
+
+    drawingContext.clearRect(
+        0,
+        0,
+        drawingCanvas.width,
+        drawingCanvas.height
+    );
+
+
+    selectedObject =
+        null;
+
+
+    boardName =
+        data.name ||
+        "Untitled Board";
+
+
+    pages =
+        data.pages ||
+        {};
+
+
+    currentPage =
+        null;
+
+
+    backgroundColor.value =
+        data.background ||
+        "#ffffff";
+
+
+    changeBackground(
+        backgroundColor.value
+    );
+
+
+    loadObjects(
+        data.objects
+    );
+
+
+    if (data.drawing) {
+
+        const image =
+            new Image();
+
+
+        image.onload =
+            function() {
+
+                drawingContext.drawImage(
+                    image,
+                    0,
+                    0
+                );
+
+            };
+
+
+        image.src =
+            data.drawing;
+
+    }
+
+
+    backButton.style.display =
+        "none";
+
+}
+
+
+
+/* =========================
+   NEW BOARD
+========================= */
+
+newButton.addEventListener(
+    "click",
+    function() {
+
+        if (
+            !confirm(
+                "Start a new board? Unsaved changes will be lost."
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        workspace.innerHTML = "";
+
+
+        drawingContext.clearRect(
+            0,
+            0,
+            drawingCanvas.width,
+            drawingCanvas.height
+        );
+
+
+        selectedObject =
+            null;
+
+
+        pages = {};
+
+
+        currentPage =
+            null;
+
+
+        objectNumber =
+            1;
+
+
+        boardName =
+            "Untitled Board";
+
+
+        backgroundColor.value =
+            "#ffffff";
+
+
+        changeBackground(
+            "#ffffff"
+        );
+
+
+        backButton.style.display =
+            "none";
+
+    }
+);
+
+
+
+/* =========================
+   RIGHT CLICK
+========================= */
+
+function showContextMenu(
+    x,
+    y
+) {
+
+    contextMenu.style.display =
+        "block";
+
+
+    contextMenu.style.left =
+        x + "px";
+
+
+    contextMenu.style.top =
+        y + "px";
+
+
+    if (
+        selectedObject &&
+        selectedObject.dataset.pageId
+    ) {
+
+        openPage.style.display =
+            "block";
+
+    }
+
+    else {
+
+        openPage.style.display =
+            "none";
+
+    }
+
+}
+
+
+
+document.addEventListener(
+    "click",
+    function() {
+
+        contextMenu.style.display =
+            "none";
+
+    }
+);
+
+
+
+/* =========================
+   DELETE
+========================= */
+
+deleteObject.addEventListener(
+    "click",
+    function(event) {
+
+        event.stopPropagation();
+
+
+        if (selectedObject) {
+
+            selectedObject.remove();
+
+            selectedObject =
+                null;
+
+        }
+
+    }
+);
+
+
+
+/* =========================
+   DUPLICATE
+========================= */
+
+duplicateObject.addEventListener(
+    "click",
+    function(event) {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+            return;
+        }
+
+
+        const copy =
+            selectedObject.cloneNode(
+                true
+            );
+
+
+        copy.classList.remove(
+            "selected"
+        );
+
+
+        copy.style.left =
+            selectedObject.offsetLeft +
+            30 +
+            "px";
+
+
+        copy.style.top =
+            selectedObject.offsetTop +
+            30 +
+            "px";
+
+
+        workspace.appendChild(
+            copy
+        );
+
+
+        setupObject(
+            copy
+        );
+
+
+        selectObject(
+            copy
+        );
+
+    }
+);
+
+
+
+/* =========================
+   PAN
+========================= */
+
+board.addEventListener(
+    "mousedown",
+    function(event) {
+
+        if (
+            event.button === 1 ||
+            (
+                event.button === 0 &&
+                event.shiftKey &&
+                !drawingMode &&
+                !eraserMode
+            )
+        ) {
+
+            panning = true;
+
+
+            const startX =
+                event.clientX;
+
+            const startY =
+                event.clientY;
+
+
+            const startCameraX =
+                cameraX;
+
+            const startCameraY =
+                cameraY;
+
+
+            function move(event) {
+
+                cameraX =
+                    startCameraX +
+                    event.clientX -
+                    startX;
+
+
+                cameraY =
+                    startCameraY +
+                    event.clientY -
+                    startY;
+
+
+                updateCamera();
+
+            }
+
+
+            function stop() {
+
+                document.removeEventListener(
+                    "mousemove",
+                    move
+                );
+
+
+                document.removeEventListener(
+                    "mouseup",
+                    stop
+                );
+
+
+                panning = false;
+
+            }
+
+
+            document.addEventListener(
+                "mousemove",
+                move
+            );
+
+
+            document.addEventListener(
+                "mouseup",
+                stop
+            );
+
+
+            event.preventDefault();
+
+        }
+
+    }
+);
+
+
+
+/* =========================
+   ZOOM
+========================= */
+
+board.addEventListener(
+    "wheel",
+    function(event) {
+
+        if (
+            drawingMode ||
+            eraserMode
+        ) {
+
+            return;
+
+        }
+
+
+        event.preventDefault();
+
+
+        if (event.deltaY < 0) {
+
+            zoom += 0.1;
+
+        }
+
+        else {
+
+            zoom -= 0.1;
+
+        }
+
+
+        if (zoom < 0.3) {
+            zoom = 0.3;
+        }
+
+
+        if (zoom > 3) {
+            zoom = 3;
+        }
+
+
+        updateCamera();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+
+/* =========================
+   CAMERA
+========================= */
+
+function updateCamera() {
+
+    const transform =
+        `translate(${cameraX}px, ${cameraY}px) scale(${zoom})`;
+
+
+    workspace.style.transform =
+        transform;
+
+
+    drawingCanvas.style.transform =
+        transform;
+
+
+    document.getElementById(
+        "zoomDisplay"
+    ).textContent =
+        Math.round(
+            zoom * 100
+        ) + "%";
+
+}
+
+
+
+/* =========================
+   MAIN BOARD
+========================= */
+
+function loadMainBoard() {
+
+    const data = {
+
+        objects: [],
+
+        drawing: null,
+
+        background:
+            "#ffffff"
+
+    };
+
+
+    loadObjects(
+        data.objects
+    );
+
+}
+
+
+
+/* =========================
+   HTML ESCAPE
+========================= */
+
+function escapeHTML(
+    text
+) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        text || "";
+
+
+    return div.innerHTML;
+
+}
+
+
+
+/* =========================
+   START
+========================= */
+
+setTool("select");
+
+updateCamera();
+
+changeBackground(
+    "#ffffff"
+);
