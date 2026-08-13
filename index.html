@@ -1,142 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pickdel Board</title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
-
-    <!-- =========================
-         TOOLBAR
-    ========================== -->
-
     <div id="toolbar">
 
-        <button id="selectButton">
-            SELECT
-        </button>
-
-        <button id="textButton">
-            TEXT
-        </button>
-
-        <button id="imageButton">
-            IMAGE
-        </button>
-
-        <button id="stickerButton">
-            STICKER
-        </button>
-
-        <button id="drawButton">
-            DRAW
-        </button>
-
-        <button id="eraserButton">
-            ERASER
-        </button>
-
-        <button id="pageButton">
-            PAGE
-        </button>
+        <button id="selectButton">SELECT</button>
+        <button id="textButton">TEXT</button>
+        <button id="imageButton">IMAGE</button>
+        <button id="stickerButton">STICKER</button>
+        <button id="drawButton">DRAW</button>
+        <button id="eraserButton">ERASER</button>
 
         <div class="toolbar-divider"></div>
 
         <label class="color-control">
-
             PEN
-
-            <input
-                type="color"
-                id="penColor"
-                value="#000000"
-            >
-
+            <input type="color" id="penColor" value="#000000">
         </label>
-
 
         <label class="color-control">
-
             BG
-
-            <input
-                type="color"
-                id="backgroundColor"
-                value="#ffffff"
-            >
-
+            <input type="color" id="backgroundColor" value="#ffffff">
         </label>
-
 
         <div class="toolbar-divider"></div>
 
-        <button id="newButton">
-            NEW
-        </button>
+        <button id="newButton">NEW</button>
+        <button id="saveButton">SAVE</button>
+        <button id="saveAsButton">SAVE AS</button>
+        <button id="loadButton">LOAD</button>
 
-        <button id="saveButton">
-            SAVE
-        </button>
-
-        <button id="saveAsButton">
-            SAVE AS
-        </button>
-
-        <button id="loadButton">
-            LOAD
-        </button>
-
+        <button id="helpButton" class="help-button">?</button>
 
         <div class="toolbar-spacer"></div>
 
+        <div id="pickdel">PICKDEL</div>
 
-        <div id="pickdel">
-            PICKDEL
-        </div>
-
-
-        <span id="zoomDisplay">
-            100%
-        </span>
+        <span id="zoomDisplay">100%</span>
 
     </div>
 
-
-
-    <!-- =========================
-         BOARD
-    ========================== -->
 
     <div id="board">
-
         <div id="workspace"></div>
 
-        <canvas
-            id="drawingCanvas"
-        ></canvas>
-
+        <canvas id="drawingCanvas"></canvas>
     </div>
 
-
-
-    <!-- IMAGE INPUT -->
 
     <input
         type="file"
@@ -145,9 +62,6 @@
         hidden
     >
 
-
-    <!-- BOARD LOAD INPUT -->
-
     <input
         type="file"
         id="boardInput"
@@ -155,11 +69,6 @@
         hidden
     >
 
-
-
-    <!-- =========================
-         RIGHT CLICK MENU
-    ========================== -->
 
     <div id="contextMenu">
 
@@ -174,41 +83,78 @@
     </div>
 
 
+    <div id="helpWindow" class="help-window">
 
-    <!-- =========================
-         PAGE DIALOG
-    ========================== -->
+        <div class="help-box">
 
-    <div
-        id="pageDialog"
-        class="dialog"
-    >
-
-        <div class="dialog-box">
-
-            <div class="dialog-title">
-                CREATE PAGE
+            <div class="help-title">
+                PICKDEL BOARD HELP
+                <button id="closeHelp">X</button>
             </div>
 
+            <div class="help-content">
 
-            <div class="dialog-content">
+                <h3>Controls</h3>
 
                 <p>
-                    What should this page button look like?
+                    <b>SELECT</b><br>
+                    Click and drag objects to move them.
                 </p>
 
+                <p>
+                    <b>TEXT</b><br>
+                    Creates a new note. Double-click the blue title to rename it and double-click the text to edit it.
+                </p>
 
-                <button id="pageTextOption">
-                    TEXT
-                </button>
+                <p>
+                    <b>IMAGE</b><br>
+                    Add an image with a title.
+                </p>
 
-                <button id="pageImageOption">
-                    IMAGE
-                </button>
+                <p>
+                    <b>STICKER</b><br>
+                    Add an image without a box or title.
+                </p>
 
-                <button id="pageCancelOption">
-                    CANCEL
-                </button>
+                <p>
+                    <b>DRAW</b><br>
+                    Draw anywhere on the board. Press SELECT when finished.
+                </p>
+
+                <p>
+                    <b>ERASER</b><br>
+                    Erase drawings. Press SELECT when finished.
+                </p>
+
+                <p>
+                    <b>SHIFT + DRAG</b><br>
+                    Move the board around.
+                </p>
+
+                <p>
+                    <b>MOUSE WHEEL</b><br>
+                    Zoom in and out.
+                </p>
+
+                <p>
+                    <b>RIGHT CLICK</b><br>
+                    Delete or duplicate an object.
+                </p>
+
+                <p>
+                    <b>DELETE</b><br>
+                    Deletes the selected object.
+                </p>
+
+                <p>
+                    <b>SAVE AS</b><br>
+                    Creates a new board file.
+                </p>
+
+                <p>
+                    <b>LOAD</b><br>
+                    Opens another board file.
+                </p>
 
             </div>
 
@@ -217,9 +163,7 @@
     </div>
 
 
-
     <script src="app.js"></script>
 
 </body>
-
 </html>
