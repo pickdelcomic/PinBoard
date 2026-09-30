@@ -23,6 +23,23 @@ body {
 
 
 /* =========================
+   VARIABLES
+========================= */
+
+:root {
+
+    --ui-color: #316ac5;
+
+    --ui-dark: #234a8c;
+
+    --ui-light: #eeeeee;
+
+    --window-color: #d4d0c8;
+
+}
+
+
+/* =========================
    TOOLBAR
 ========================= */
 
@@ -37,20 +54,20 @@ body {
     height: 44px;
 
     display: flex;
+
     align-items: center;
 
     gap: 4px;
 
     padding: 5px;
 
-    background: #d4d0c8;
+    background: var(--window-color);
 
     border-bottom:
         2px solid #808080;
 
     z-index: 1000;
 
-    overflow-x: auto;
 }
 
 
@@ -61,8 +78,6 @@ body {
     padding:
         0 10px;
 
-    flex-shrink: 0;
-
     font-family:
         Tahoma,
         Arial,
@@ -70,7 +85,7 @@ body {
 
     font-size: 12px;
 
-    background: #d4d0c8;
+    background: var(--window-color);
 
     border-top:
         2px solid white;
@@ -85,12 +100,14 @@ body {
         2px solid #808080;
 
     cursor: pointer;
+
 }
 
 
 #toolbar button:hover {
 
-    background: #eeeeee;
+    background: var(--ui-light);
+
 }
 
 
@@ -110,52 +127,36 @@ body {
         2px solid white;
 
     background: #c3ccd7;
+
 }
 
-
-/* =========================
-   DIVIDERS
-========================= */
 
 .toolbar-divider {
 
     width: 1px;
+
     height: 27px;
 
     margin:
         0 4px;
 
-    flex-shrink: 0;
-
     background: #808080;
 
     border-right:
         1px solid white;
-}
 
-
-.menu-divider {
-
-    height: 1px;
-
-    margin:
-        3px 0;
-
-    background: #808080;
-
-    border-bottom:
-        1px solid white;
 }
 
 
 .toolbar-spacer {
 
     flex: 1;
+
 }
 
 
 /* =========================
-   COLORS
+   COLOR CONTROL
 ========================= */
 
 .color-control {
@@ -163,6 +164,7 @@ body {
     height: 30px;
 
     display: flex;
+
     align-items: center;
 
     gap: 4px;
@@ -170,11 +172,9 @@ body {
     padding:
         0 6px;
 
-    flex-shrink: 0;
-
     font-size: 11px;
 
-    background: #d4d0c8;
+    background: var(--window-color);
 
     border-top:
         2px solid white;
@@ -187,12 +187,14 @@ body {
 
     border-bottom:
         2px solid #808080;
+
 }
 
 
 .color-control input {
 
     width: 22px;
+
     height: 22px;
 
     padding: 0;
@@ -200,75 +202,7 @@ body {
     border: 0;
 
     cursor: pointer;
-}
 
-
-/* =========================
-   SELECT CONTROLS
-========================= */
-
-.select-control {
-
-    height: 30px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 5px;
-
-    padding:
-        0 6px;
-
-    flex-shrink: 0;
-
-    font-size: 11px;
-
-    background: #d4d0c8;
-
-    border-top:
-        2px solid white;
-
-    border-left:
-        2px solid white;
-
-    border-right:
-        2px solid #808080;
-
-    border-bottom:
-        2px solid #808080;
-}
-
-
-.select-control select {
-
-    height: 21px;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    font-size: 11px;
-
-    background: white;
-
-    border: 1px solid #808080;
-}
-
-
-/* =========================
-   HELP
-========================= */
-
-.help-button {
-
-    width: 30px;
-
-    padding: 0 !important;
-
-    font-size: 18px !important;
-
-    font-weight: bold;
 }
 
 
@@ -283,20 +217,19 @@ body {
 
     margin-right: 6px;
 
-    flex-shrink: 0;
-
     color: white;
 
-    background: #316ac5;
+    background: var(--ui-color);
 
     border:
-        2px solid #234a8c;
+        2px solid var(--ui-dark);
 
     font-size: 13px;
 
     font-weight: bold;
 
     letter-spacing: 1px;
+
 }
 
 
@@ -305,9 +238,8 @@ body {
     padding:
         5px 7px;
 
-    flex-shrink: 0;
-
     font-size: 12px;
+
 }
 
 
@@ -320,9 +252,11 @@ body {
     position: fixed;
 
     left: 0;
+
     top: 44px;
 
     right: 0;
+
     bottom: 0;
 
     overflow: hidden;
@@ -330,6 +264,34 @@ body {
     background: white;
 
     cursor: default;
+
+}
+
+
+#backgroundLayer {
+
+    position: absolute;
+
+    left: 0;
+
+    top: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    background-color: white;
+
+    background-repeat: no-repeat;
+
+    background-position: center;
+
+    background-size: cover;
+
+    pointer-events: none;
+
+    z-index: 0;
+
 }
 
 
@@ -342,19 +304,20 @@ body {
     position: absolute;
 
     left: 0;
+
     top: 0;
 
     width: 10000px;
+
     height: 10000px;
 
-    background-color: white;
-
-    background-repeat: no-repeat;
-
-    background-position: 0 0;
+    background: transparent;
 
     transform-origin:
         0 0;
+
+    z-index: 10;
+
 }
 
 
@@ -367,9 +330,11 @@ body {
     position: absolute;
 
     left: 0;
+
     top: 0;
 
     width: 10000px;
+
     height: 10000px;
 
     pointer-events: none;
@@ -378,6 +343,7 @@ body {
         0 0;
 
     z-index: 500;
+
 }
 
 
@@ -390,15 +356,17 @@ body {
     position: absolute;
 
     user-select: none;
+
 }
 
 
 .board-object.selected {
 
     outline:
-        2px dotted #316ac5;
+        2px dotted var(--ui-color);
 
     outline-offset: 3px;
+
 }
 
 
@@ -410,13 +378,14 @@ body {
 
     width: 230px;
 
-    background: #fffff0;
+    background: var(--object-bg, #fffff0);
 
     border:
-        2px solid #6b7c8c;
+        2px solid var(--object-border, #6b7c8c);
 
     box-shadow:
         4px 4px 0 #9aa7b2;
+
 }
 
 
@@ -428,12 +397,21 @@ body {
     padding:
         5px 8px;
 
-    color: white;
+    color: var(
+        --object-text,
+        white
+    );
 
-    background: #316ac5;
+    background: var(
+        --object-header,
+        #316ac5
+    );
 
     border-bottom:
-        2px solid #234a8c;
+        2px solid var(
+            --object-border,
+            #234a8c
+        );
 
     font-weight: bold;
 
@@ -442,6 +420,7 @@ body {
     cursor: move;
 
     outline: none;
+
 }
 
 
@@ -450,9 +429,11 @@ body {
 
     cursor: text;
 
-    background: #2457a6;
+    background:
+        var(--object-header, #2457a6);
 
     user-select: text;
+
 }
 
 
@@ -462,15 +443,31 @@ body {
 
     padding: 12px;
 
-    color: var(--board-text-color, #222);
+    color: var(
+        --object-text,
+        #222
+    );
 
-    background: #fffff0;
+    background: var(
+        --object-bg,
+        #fffff0
+    );
 
-    font-size: 14px;
+    font-size: var(
+        --object-font-size,
+        14px
+    );
+
+    font-family:
+        var(
+            --object-font,
+            Tahoma
+        );
 
     outline: none;
 
     user-select: none;
+
 }
 
 
@@ -479,24 +476,32 @@ body {
     user-select: text;
 
     cursor: text;
+
 }
 
 
 /* =========================
-   IMAGES
+   IMAGE OBJECT
 ========================= */
 
 .image-object {
 
     width: 260px;
 
-    background: #fffff0;
+    background: var(
+        --object-bg,
+        #fffff0
+    );
 
     border:
-        2px solid #6b7c8c;
+        2px solid var(
+            --object-border,
+            #6b7c8c
+        );
 
     box-shadow:
         4px 4px 0 #9aa7b2;
+
 }
 
 
@@ -504,9 +509,13 @@ body {
 
     padding: 8px;
 
-    background: #fffff0;
+    background: var(
+        --object-bg,
+        #fffff0
+    );
 
     text-align: center;
+
 }
 
 
@@ -515,11 +524,43 @@ body {
     display: block;
 
     width: 100%;
+
     height: auto;
 
     pointer-events: none;
 
     image-rendering: auto;
+
+}
+
+
+/* =========================
+   IMAGE TITLE
+========================= */
+
+.image-title {
+
+    color: var(
+        --object-text,
+        white
+    );
+
+    background: var(
+        --object-header,
+        #316ac5
+    );
+
+    font-family:
+        var(
+            --object-font,
+            Tahoma
+        );
+
+    font-size: var(
+        --object-font-size,
+        13px
+    );
+
 }
 
 
@@ -535,6 +576,7 @@ body {
 
     image-rendering:
         crisp-edges;
+
 }
 
 
@@ -547,6 +589,7 @@ body {
     user-select: none;
 
     cursor: move;
+
 }
 
 
@@ -561,11 +604,12 @@ body {
     pointer-events: none;
 
     image-rendering: auto;
+
 }
 
 
 /* =========================
-   RESIZE
+   RESIZE HANDLE
 ========================= */
 
 .resize-handle {
@@ -573,15 +617,17 @@ body {
     position: absolute;
 
     right: -6px;
+
     bottom: -6px;
 
     width: 12px;
+
     height: 12px;
 
     background: white;
 
     border:
-        2px solid #316ac5;
+        2px solid var(--ui-color);
 
     cursor:
         nwse-resize;
@@ -589,6 +635,7 @@ body {
     display: none;
 
     z-index: 20;
+
 }
 
 
@@ -596,6 +643,7 @@ body {
 .resize-handle {
 
     display: block;
+
 }
 
 
@@ -613,7 +661,7 @@ body {
 
     padding: 3px;
 
-    background: #d4d0c8;
+    background: var(--window-color);
 
     border-top:
         2px solid white;
@@ -628,6 +676,7 @@ body {
         2px solid #404040;
 
     z-index: 2000;
+
 }
 
 
@@ -644,7 +693,7 @@ body {
 
     border: 0;
 
-    background: #d4d0c8;
+    background: var(--window-color);
 
     font-family:
         Tahoma,
@@ -652,6 +701,7 @@ body {
         sans-serif;
 
     cursor: pointer;
+
 }
 
 
@@ -659,35 +709,44 @@ body {
 
     color: white;
 
-    background: #316ac5;
+    background: var(--ui-color);
+
 }
 
 
 /* =========================
-   HELP WINDOW
+   MODAL WINDOWS
 ========================= */
 
-.help-window {
+.modal-window {
 
     position: fixed;
 
     left: 0;
+
     top: 0;
 
     width: 100%;
+
     height: 100%;
 
     display: none;
 
     align-items: center;
+
     justify-content: center;
 
     background:
         rgba(0, 0, 0, 0.25);
 
     z-index: 3000;
+
 }
 
+
+/* =========================
+   HELP
+========================= */
 
 .help-box {
 
@@ -695,7 +754,7 @@ body {
 
     max-height: 80vh;
 
-    background: #d4d0c8;
+    background: var(--window-color);
 
     border-top:
         3px solid white;
@@ -708,39 +767,46 @@ body {
 
     border-bottom:
         3px solid #404040;
+
 }
 
 
-.help-title {
+.help-title,
+.style-title {
 
     height: 30px;
 
     display: flex;
+
     align-items: center;
 
     padding-left: 8px;
 
     color: white;
 
-    background: #316ac5;
+    background: var(--ui-color);
 
     font-weight: bold;
+
 }
 
 
-.help-title button {
+.help-title button,
+.style-title button {
 
     margin-left: auto;
+
     margin-right: 4px;
 
     width: 22px;
+
     height: 22px;
 
     padding: 0;
 
     font-weight: bold;
 
-    background: #d4d0c8;
+    background: var(--window-color);
 
     border-top:
         2px solid white;
@@ -755,6 +821,7 @@ body {
         2px solid #404040;
 
     cursor: pointer;
+
 }
 
 
@@ -769,12 +836,14 @@ body {
     overflow-y: auto;
 
     font-size: 13px;
+
 }
 
 
 .help-content h3 {
 
     margin-top: 5px;
+
 }
 
 
@@ -782,4 +851,190 @@ body {
 
     margin:
         12px 0;
+
+}
+
+
+/* =========================
+   STYLE WINDOW
+========================= */
+
+.style-box {
+
+    width: 470px;
+
+    max-height: 85vh;
+
+    background: var(--window-color);
+
+    border-top:
+        3px solid white;
+
+    border-left:
+        3px solid white;
+
+    border-right:
+        3px solid #404040;
+
+    border-bottom:
+        3px solid #404040;
+
+}
+
+
+.style-content {
+
+    padding:
+        12px 18px;
+
+    max-height:
+        calc(85vh - 30px);
+
+    overflow-y: auto;
+
+    font-size: 13px;
+
+}
+
+
+.style-content h3 {
+
+    margin:
+        6px 0 12px 0;
+
+    font-size: 13px;
+
+}
+
+
+.style-content hr {
+
+    border: 0;
+
+    border-top:
+        1px solid #808080;
+
+    border-bottom:
+        1px solid white;
+
+    margin:
+        14px 0;
+
+}
+
+
+.style-row {
+
+    min-height: 32px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin:
+        6px 0;
+
+}
+
+
+.style-row input[type="color"] {
+
+    width: 38px;
+
+    height: 25px;
+
+    padding: 0;
+
+    border: 0;
+
+}
+
+
+.style-row input[type="number"] {
+
+    width: 75px;
+
+}
+
+
+.style-row select {
+
+    min-width: 150px;
+
+    padding: 3px;
+
+}
+
+
+.style-row button {
+
+    padding:
+        5px 8px;
+
+    background: var(--window-color);
+
+    border-top:
+        2px solid white;
+
+    border-left:
+        2px solid white;
+
+    border-right:
+        2px solid #808080;
+
+    border-bottom:
+        2px solid #808080;
+
+    cursor: pointer;
+
+}
+
+
+.style-row button:active {
+
+    border-top:
+        2px solid #808080;
+
+    border-left:
+        2px solid #808080;
+
+    border-right:
+        2px solid white;
+
+    border-bottom:
+        2px solid white;
+
+}
+
+
+#noSelectionMessage {
+
+    padding:
+        10px;
+
+    background: #eeeeee;
+
+    border:
+        1px solid #808080;
+
+    margin-bottom: 10px;
+
+}
+
+
+#objectStyleControls {
+
+    display: none;
+
+}
+
+
+.style-help {
+
+    line-height: 1.5;
+
 }
