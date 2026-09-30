@@ -1,973 +1,4122 @@
-* {
+/* =========================================================
+   PICKDEL BOARD
+   Main application
+========================================================= */
 
-    box-sizing: border-box;
 
-}
+/* =========================================================
+   HTML ELEMENTS
+========================================================= */
 
+const board =
+    document.getElementById("board");
 
-html,
-body {
+const workspace =
+    document.getElementById("workspace");
 
-    margin: 0;
+const drawingCanvas =
+    document.getElementById("drawingCanvas");
 
-    width: 100%;
-    height: 100%;
-
-    overflow: hidden;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    background: #d6e4f0;
-
-}
+const drawingContext =
+    drawingCanvas.getContext("2d");
 
 
 /* =========================
-   TOOLBAR
+   BUTTONS
 ========================= */
 
-#toolbar {
+const selectButton =
+    document.getElementById("selectButton");
 
-    position: fixed;
+const textButton =
+    document.getElementById("textButton");
 
-    left: 0;
-    top: 0;
+const imageButton =
+    document.getElementById("imageButton");
 
-    width: 100%;
-    height: 44px;
+const stickerButton =
+    document.getElementById("stickerButton");
 
-    display: flex;
+const drawButton =
+    document.getElementById("drawButton");
 
-    align-items: center;
+const eraserButton =
+    document.getElementById("eraserButton");
 
-    gap: 4px;
+const styleButton =
+    document.getElementById("styleButton");
 
-    padding: 5px;
+const newButton =
+    document.getElementById("newButton");
 
-    background: #d4d0c8;
+const saveButton =
+    document.getElementById("saveButton");
 
-    border-bottom:
-        2px solid #808080;
+const saveAsButton =
+    document.getElementById("saveAsButton");
 
-    z-index: 1000;
-
-}
-
-
-#toolbar button {
-
-    height: 30px;
-
-    padding:
-        0 10px;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    font-size: 12px;
-
-    background: #d4d0c8;
-
-    border-top:
-        2px solid white;
-
-    border-left:
-        2px solid white;
-
-    border-right:
-        2px solid #808080;
-
-    border-bottom:
-        2px solid #808080;
-
-    cursor: pointer;
-
-}
-
-
-#toolbar button:hover {
-
-    background: #eeeeee;
-
-}
-
-
-#toolbar button:active,
-#toolbar button.active {
-
-    border-top:
-        2px solid #808080;
-
-    border-left:
-        2px solid #808080;
-
-    border-right:
-        2px solid white;
-
-    border-bottom:
-        2px solid white;
-
-    background: #c3ccd7;
-
-}
-
-
-.toolbar-divider {
-
-    width: 1px;
-
-    height: 27px;
-
-    margin:
-        0 4px;
-
-    background: #808080;
-
-    border-right:
-        1px solid white;
-
-}
-
-
-.toolbar-spacer {
-
-    flex: 1;
-
-}
-
-
-/* =========================
-   COLORS
-========================= */
-
-.color-control {
-
-    height: 30px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 4px;
-
-    padding:
-        0 6px;
-
-    font-size: 11px;
-
-    background: #d4d0c8;
-
-    border-top:
-        2px solid white;
-
-    border-left:
-        2px solid white;
-
-    border-right:
-        2px solid #808080;
-
-    border-bottom:
-        2px solid #808080;
-
-}
-
-
-.color-control input {
-
-    width: 22px;
-    height: 22px;
-
-    padding: 0;
-
-    border: 0;
-
-    cursor: pointer;
-
-}
-
-
-/* =========================
-   PICKDEL
-========================= */
-
-#pickdel {
-
-    padding:
-        4px 10px;
-
-    margin-right: 6px;
-
-    color: white;
-
-    background: #316ac5;
-
-    border:
-        2px solid #234a8c;
-
-    font-size: 13px;
-
-    font-weight: bold;
-
-    letter-spacing: 1px;
-
-}
-
-
-#zoomDisplay {
-
-    padding:
-        5px 7px;
-
-    font-size: 12px;
-
-}
-
-
-/* =========================
-   BOARD
-========================= */
-
-#board {
-
-    position: fixed;
-
-    left: 0;
-    top: 44px;
-
-    right: 0;
-    bottom: 0;
-
-    overflow: hidden;
-
-    background: white;
-
-    cursor: default;
-
-}
-
-
-#workspace {
-
-    position: absolute;
-
-    left: 0;
-    top: 0;
-
-    width: 10000px;
-    height: 10000px;
-
-    background-color: white;
-
-    background-repeat: repeat;
-
-    background-position:
-        0 0;
-
-    transform-origin:
-        0 0;
-
-}
-
-
-#drawingCanvas {
-
-    position: absolute;
-
-    left: 0;
-    top: 0;
-
-    width: 10000px;
-    height: 10000px;
-
-    pointer-events: none;
-
-    transform-origin:
-        0 0;
-
-    z-index: 500;
-
-}
-
-
-/* =========================
-   OBJECTS
-========================= */
-
-.board-object {
-
-    position: absolute;
-
-    user-select: none;
-
-}
-
-
-.board-object.selected {
-
-    outline:
-        2px dotted #316ac5;
-
-    outline-offset: 3px;
-
-}
-
-
-/* =========================
-   NOTES
-========================= */
-
-.note {
-
-    width: 230px;
-
-    background: #fffff0;
-
-    border:
-        2px solid #6b7c8c;
-
-    box-shadow:
-        4px 4px 0 #9aa7b2;
-
-}
-
-
-.note-title,
-.image-title {
-
-    height: 27px;
-
-    padding:
-        5px 8px;
-
-    color: white;
-
-    background: #316ac5;
-
-    border-bottom:
-        2px solid #234a8c;
-
-    font-weight: bold;
-
-    font-size: 13px;
-
-    cursor: move;
-
-    outline: none;
-
-}
-
-
-.note-title.editing,
-.image-title.editing {
-
-    cursor: text;
-
-    user-select: text;
-
-}
-
-
-.note-content {
-
-    min-height: 100px;
-
-    padding: 12px;
-
-    color: #222;
-
-    background: #fffff0;
-
-    font-size: 14px;
-
-    outline: none;
-
-    user-select: none;
-
-}
-
-
-.note-content.editing {
-
-    user-select: text;
-
-    cursor: text;
-
-}
-
-
-/* =========================
-   IMAGES
-========================= */
-
-.image-object {
-
-    width: 260px;
-
-    background: #fffff0;
-
-    border:
-        2px solid #6b7c8c;
-
-    box-shadow:
-        4px 4px 0 #9aa7b2;
-
-}
-
-
-.image-content {
-
-    padding: 8px;
-
-    background: #fffff0;
-
-    text-align: center;
-
-}
-
-
-.image-content img {
-
-    display: block;
-
-    width: 100%;
-    height: auto;
-
-    pointer-events: none;
-
-    image-rendering: auto;
-
-}
-
-
-/* =========================
-   PIXEL MODE
-========================= */
-
-.image-object.pixel-mode img,
-.sticker.pixel-mode img {
-
-    image-rendering:
-        pixelated;
-
-    image-rendering:
-        crisp-edges;
-
-}
-
-
-/* =========================
-   STICKERS
-========================= */
-
-.sticker {
-
-    user-select: none;
-
-    cursor: move;
-
-}
-
-
-.sticker img {
-
-    display: block;
-
-    width: 180px;
-
-    height: auto;
-
-    pointer-events: none;
-
-    image-rendering: auto;
-
-}
-
-
-/* =========================
-   RESIZE
-========================= */
-
-.resize-handle {
-
-    position: absolute;
-
-    right: -6px;
-    bottom: -6px;
-
-    width: 12px;
-    height: 12px;
-
-    background: white;
-
-    border:
-        2px solid #316ac5;
-
-    cursor:
-        nwse-resize;
-
-    display: none;
-
-    z-index: 20;
-
-}
-
-
-.board-object.selected
-.resize-handle {
-
-    display: block;
-
-}
-
-
-/* =========================
-   CONTEXT MENU
-========================= */
-
-#contextMenu {
-
-    position: fixed;
-
-    display: none;
-
-    width: 175px;
-
-    padding: 3px;
-
-    background: #d4d0c8;
-
-    border-top:
-        2px solid white;
-
-    border-left:
-        2px solid white;
-
-    border-right:
-        2px solid #404040;
-
-    border-bottom:
-        2px solid #404040;
-
-    z-index: 2000;
-
-}
-
-
-#contextMenu button {
-
-    display: block;
-
-    width: 100%;
-
-    padding:
-        6px 10px;
-
-    text-align: left;
-
-    border: 0;
-
-    background: #d4d0c8;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    cursor: pointer;
-
-}
-
-
-#contextMenu button:hover {
-
-    color: white;
-
-    background: #316ac5;
-
-}
-
-
-.menu-divider {
-
-    height: 1px;
-
-    margin:
-        3px 0;
-
-    background: #808080;
-
-    border-bottom:
-        1px solid white;
-
-}
-
-
-/* =========================
-   MODAL WINDOWS
-========================= */
-
-.modal-window,
-.help-window {
-
-    position: fixed;
-
-    left: 0;
-    top: 0;
-
-    width: 100%;
-    height: 100%;
-
-    display: none;
-
-    align-items: center;
-
-    justify-content: center;
-
-    background:
-        rgba(0, 0, 0, 0.25);
-
-    z-index: 3000;
-
-}
-
-
-/* =========================
-   STYLE WINDOW
-========================= */
-
-.style-box {
-
-    width: 470px;
-
-    max-height: 85vh;
-
-    background: #d4d0c8;
-
-    border-top:
-        3px solid white;
-
-    border-left:
-        3px solid white;
-
-    border-right:
-        3px solid #404040;
-
-    border-bottom:
-        3px solid #404040;
-
-}
-
-
-.window-title {
-
-    height: 30px;
-
-    display: flex;
-
-    align-items: center;
-
-    padding-left: 8px;
-
-    color: white;
-
-    background: #316ac5;
-
-    font-weight: bold;
-
-}
-
-
-.window-title button {
-
-    margin-left: auto;
-
-    margin-right: 4px;
-
-    width: 22px;
-    height: 22px;
-
-    padding: 0;
-
-    font-weight: bold;
-
-    background: #d4d0c8;
-
-    border-top:
-        2px solid white;
-
-    border-left:
-        2px solid white;
-
-    border-right:
-        2px solid #404040;
-
-    border-bottom:
-        2px solid #404040;
-
-    cursor: pointer;
-
-}
-
-
-.style-content {
-
-    padding: 12px 16px;
-
-    max-height:
-        calc(85vh - 30px);
-
-    overflow-y: auto;
-
-    font-size: 13px;
-
-}
-
-
-.style-content h3 {
-
-    margin:
-        8px 0;
-
-    padding-bottom: 4px;
-
-    border-bottom:
-        1px solid #999;
-
-}
-
-
-.style-row {
-
-    min-height: 34px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    margin:
-        7px 0;
-
-}
-
-
-.style-row input[type="color"] {
-
-    margin-left: auto;
-
-    width: 42px;
-    height: 26px;
-
-    padding: 0;
-
-}
-
-
-.style-row input[type="range"] {
-
-    margin-left: auto;
-
-    width: 170px;
-
-}
-
-
-.style-row input[type="file"] {
-
-    margin-left: auto;
-
-    max-width: 230px;
-
-}
-
-
-.style-row select {
-
-    margin-left: auto;
-
-    min-width: 170px;
-
-    padding: 4px;
-
-}
-
-
-.style-help {
-
-    margin:
-        5px 0 10px;
-
-    color: #444;
-
-    font-size: 12px;
-
-}
-
-
-.wide-button {
-
-    width: 100%;
-
-    min-height: 30px;
-
-    margin:
-        5px 0;
-
-    padding:
-        5px 8px;
-
-    background: #d4d0c8;
-
-    border-top:
-        2px solid white;
-
-    border-left:
-        2px solid white;
-
-    border-right:
-        2px solid #808080;
-
-    border-bottom:
-        2px solid #808080;
-
-    cursor: pointer;
-
-}
-
-
-.wide-button:active {
-
-    border-top:
-        2px solid #808080;
-
-    border-left:
-        2px solid #808080;
-
-    border-right:
-        2px solid white;
-
-    border-bottom:
-        2px solid white;
-
-}
+const loadButton =
+    document.getElementById("loadButton");
 
 
 /* =========================
    HELP
 ========================= */
 
-.help-window {
+const helpButton =
+    document.getElementById("helpButton");
 
-    z-index: 3100;
+const helpWindow =
+    document.getElementById("helpWindow");
+
+const closeHelp =
+    document.getElementById("closeHelp");
+
+
+/* =========================
+   STYLE WINDOW
+========================= */
+
+const styleWindow =
+    document.getElementById("styleWindow");
+
+const closeStyle =
+    document.getElementById("closeStyle");
+
+
+const styleBackgroundColor =
+    document.getElementById(
+        "styleBackgroundColor"
+    );
+
+
+const backgroundImageInput =
+    document.getElementById(
+        "backgroundImageInput"
+    );
+
+
+const clearBackgroundImage =
+    document.getElementById(
+        "clearBackgroundImage"
+    );
+
+
+const backgroundScale =
+    document.getElementById(
+        "backgroundScale"
+    );
+
+
+const backgroundScaleDisplay =
+    document.getElementById(
+        "backgroundScaleDisplay"
+    );
+
+
+const backgroundRepeat =
+    document.getElementById(
+        "backgroundRepeat"
+    );
+
+
+const uiColor =
+    document.getElementById(
+        "uiColor"
+    );
+
+
+const uiHighlight =
+    document.getElementById(
+        "uiHighlight"
+    );
+
+
+const objectBackgroundColor =
+    document.getElementById(
+        "objectBackgroundColor"
+    );
+
+
+const objectBorderColor =
+    document.getElementById(
+        "objectBorderColor"
+    );
+
+
+const objectShadowColor =
+    document.getElementById(
+        "objectShadowColor"
+    );
+
+
+const objectHeaderColor =
+    document.getElementById(
+        "objectHeaderColor"
+    );
+
+
+const objectHeaderTextColor =
+    document.getElementById(
+        "objectHeaderTextColor"
+    );
+
+
+const objectTextColor =
+    document.getElementById(
+        "objectTextColor"
+    );
+
+
+const objectFont =
+    document.getElementById(
+        "objectFont"
+    );
+
+
+const objectFontSize =
+    document.getElementById(
+        "objectFontSize"
+    );
+
+
+const objectFontSizeDisplay =
+    document.getElementById(
+        "objectFontSizeDisplay"
+    );
+
+
+const resetObjectStyle =
+    document.getElementById(
+        "resetObjectStyle"
+    );
+
+
+/* =========================
+   COLORS
+========================= */
+
+const penColor =
+    document.getElementById(
+        "penColor"
+    );
+
+
+/* =========================
+   INPUTS
+========================= */
+
+const imageInput =
+    document.getElementById(
+        "imageInput"
+    );
+
+
+const boardInput =
+    document.getElementById(
+        "boardInput"
+    );
+
+
+/* =========================
+   CONTEXT MENU
+========================= */
+
+const contextMenu =
+    document.getElementById(
+        "contextMenu"
+    );
+
+
+const deleteObject =
+    document.getElementById(
+        "deleteObject"
+    );
+
+
+const duplicateObject =
+    document.getElementById(
+        "duplicateObject"
+    );
+
+
+const pixelObject =
+    document.getElementById(
+        "pixelObject"
+    );
+
+
+const bringFront =
+    document.getElementById(
+        "bringFront"
+    );
+
+
+const bringForward =
+    document.getElementById(
+        "bringForward"
+    );
+
+
+const sendBackward =
+    document.getElementById(
+        "sendBackward"
+    );
+
+
+const sendBack =
+    document.getElementById(
+        "sendBack"
+    );
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let selectedObject =
+    null;
+
+
+let objectNumber =
+    1;
+
+
+let boardName =
+    "Untitled Board";
+
+
+let currentFileHandle =
+    null;
+
+
+let currentImageType =
+    "image";
+
+
+let drawingMode =
+    "select";
+
+
+let drawing =
+    false;
+
+
+/*
+    Camera controls where the board appears
+    on the screen.
+*/
+
+let cameraX =
+    0;
+
+
+let cameraY =
+    0;
+
+
+let zoom =
+    1;
+
+
+/*
+    Background image is stored as a data URL
+    so it can be saved inside the board JSON.
+*/
+
+let backgroundImageData =
+    null;
+
+
+/*
+    These are the global style settings.
+*/
+
+let boardStyle = {
+
+    backgroundColor:
+        "#ffffff",
+
+    backgroundScale:
+        100,
+
+    backgroundRepeat:
+        true,
+
+    uiColor:
+        "#d4d0c8",
+
+    uiHighlight:
+        "#316ac5"
+
+};
+
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
+drawingCanvas.width =
+    10000;
+
+drawingCanvas.height =
+    10000;
+
+
+/* =========================================================
+   BOARD START POSITION
+========================================================= */
+
+/*
+    The board is 10,000 x 10,000.
+
+    We start around its center instead of
+    starting at the top-left corner.
+*/
+
+function centerBoard() {
+
+    const boardWidth =
+        board.clientWidth;
+
+    const boardHeight =
+        board.clientHeight;
+
+
+    cameraX =
+        boardWidth / 2 -
+        5000 * zoom;
+
+
+    cameraY =
+        boardHeight / 2 -
+        5000 * zoom;
+
+
+    updateCamera();
 
 }
 
 
-.help-box {
+/* =========================================================
+   SELECT OBJECT
+========================================================= */
 
-    width: 430px;
+function selectObject(object) {
 
-    max-height: 80vh;
+    if (selectedObject) {
 
-    background: #d4d0c8;
+        selectedObject.classList.remove(
+            "selected"
+        );
 
-    border-top:
-        3px solid white;
-
-    border-left:
-        3px solid white;
-
-    border-right:
-        3px solid #404040;
-
-    border-bottom:
-        3px solid #404040;
-
-}
+    }
 
 
-.help-title {
+    selectedObject =
+        object;
 
-    height: 30px;
 
-    display: flex;
+    if (selectedObject) {
 
-    align-items: center;
+        selectedObject.classList.add(
+            "selected"
+        );
 
-    padding-left: 8px;
+        loadObjectStyleIntoPanel();
 
-    color: white;
-
-    background: #316ac5;
-
-    font-weight: bold;
+    }
 
 }
 
 
-.help-title button {
+/* =========================================================
+   DESELECT
+========================================================= */
 
-    margin-left: auto;
+function deselectObject() {
 
-    margin-right: 4px;
+    if (selectedObject) {
 
-    width: 22px;
-    height: 22px;
+        selectedObject.classList.remove(
+            "selected"
+        );
 
-    padding: 0;
+    }
 
-    font-weight: bold;
 
-    background: #d4d0c8;
-
-    border-top:
-        2px solid white;
-
-    border-left:
-        2px solid white;
-
-    border-right:
-        2px solid #404040;
-
-    border-bottom:
-        2px solid #404040;
-
-    cursor: pointer;
+    selectedObject =
+        null;
 
 }
 
 
-.help-content {
+/* =========================================================
+   TOOL MODE
+========================================================= */
 
-    padding:
-        10px 18px;
+function setTool(tool) {
 
-    max-height:
-        calc(80vh - 30px);
+    drawingMode =
+        tool;
 
-    overflow-y: auto;
 
-    font-size: 13px;
+    [
+        selectButton,
+        drawButton,
+        eraserButton
+    ].forEach(button => {
+
+        button.classList.remove(
+            "active"
+        );
+
+    });
+
+
+    if (tool === "select") {
+
+        selectButton.classList.add(
+            "active"
+        );
+
+        drawingCanvas.style.pointerEvents =
+            "none";
+
+        board.style.cursor =
+            "default";
+
+    }
+
+
+    if (tool === "draw") {
+
+        drawButton.classList.add(
+            "active"
+        );
+
+        drawingCanvas.style.pointerEvents =
+            "auto";
+
+        board.style.cursor =
+            "crosshair";
+
+    }
+
+
+    if (tool === "erase") {
+
+        eraserButton.classList.add(
+            "active"
+        );
+
+        drawingCanvas.style.pointerEvents =
+            "auto";
+
+        board.style.cursor =
+            "crosshair";
+
+    }
 
 }
 
 
-.help-content h3 {
+/* =========================================================
+   SELECT BUTTON
+========================================================= */
 
-    margin-top: 5px;
+selectButton.addEventListener(
+    "click",
+    () => {
+
+        setTool("select");
+
+    }
+);
+
+
+/* =========================================================
+   TEXT BUTTON
+========================================================= */
+
+textButton.addEventListener(
+    "click",
+    () => {
+
+        const x =
+            (
+                board.clientWidth / 2 -
+                cameraX
+            ) / zoom;
+
+
+        const y =
+            (
+                board.clientHeight / 2 -
+                cameraY
+            ) / zoom;
+
+
+        createNote(
+            x,
+            y
+        );
+
+
+        setTool("select");
+
+    }
+);
+
+
+/* =========================================================
+   DRAW BUTTON
+========================================================= */
+
+drawButton.addEventListener(
+    "click",
+    () => {
+
+        setTool("draw");
+
+    }
+);
+
+
+/* =========================================================
+   ERASER BUTTON
+========================================================= */
+
+eraserButton.addEventListener(
+    "click",
+    () => {
+
+        setTool("erase");
+
+    }
+);
+
+
+/* =========================================================
+   BACKGROUND COLOR
+========================================================= */
+
+styleBackgroundColor.addEventListener(
+    "input",
+    () => {
+
+        boardStyle.backgroundColor =
+            styleBackgroundColor.value;
+
+        applyBoardStyle();
+
+    }
+);
+
+
+/* =========================================================
+   DRAWING
+========================================================= */
+
+drawingCanvas.addEventListener(
+    "mousedown",
+    event => {
+
+        if (
+            drawingMode !== "draw" &&
+            drawingMode !== "erase"
+        ) {
+
+            return;
+
+        }
+
+
+        drawing =
+            true;
+
+
+        const position =
+            getCanvasPosition(event);
+
+
+        drawingContext.beginPath();
+
+
+        drawingContext.moveTo(
+            position.x,
+            position.y
+        );
+
+
+        drawingContext.lineWidth =
+            drawingMode === "erase"
+                ? 30
+                : 4;
+
+
+        drawingContext.lineCap =
+            "round";
+
+
+        drawingContext.lineJoin =
+            "round";
+
+
+        if (
+            drawingMode === "erase"
+        ) {
+
+            drawingContext.globalCompositeOperation =
+                "destination-out";
+
+        }
+
+        else {
+
+            drawingContext.globalCompositeOperation =
+                "source-over";
+
+            drawingContext.strokeStyle =
+                penColor.value;
+
+        }
+
+    }
+);
+
+
+drawingCanvas.addEventListener(
+    "mousemove",
+    event => {
+
+        if (!drawing) {
+
+            return;
+
+        }
+
+
+        const position =
+            getCanvasPosition(event);
+
+
+        drawingContext.lineTo(
+            position.x,
+            position.y
+        );
+
+
+        drawingContext.stroke();
+
+    }
+);
+
+
+document.addEventListener(
+    "mouseup",
+    () => {
+
+        drawing =
+            false;
+
+    }
+);
+
+
+/* =========================================================
+   GET CANVAS POSITION
+========================================================= */
+
+function getCanvasPosition(event) {
+
+    const rect =
+        board.getBoundingClientRect();
+
+
+    return {
+
+        x:
+            (
+                event.clientX -
+                rect.left -
+                cameraX
+            ) / zoom,
+
+        y:
+            (
+                event.clientY -
+                rect.top -
+                cameraY
+            ) / zoom
+
+    };
 
 }
 
 
-.help-content p {
+/* =========================================================
+   CREATE NOTE
+========================================================= */
 
-    margin:
-        12px 0;
+function createNote(
+    x,
+    y,
+    title = null,
+    content = "Type something...",
+    savedStyle = null
+) {
+
+    const note =
+        document.createElement("div");
+
+
+    note.className =
+        "note board-object";
+
+
+    note.style.left =
+        x + "px";
+
+
+    note.style.top =
+        y + "px";
+
+
+    note.innerHTML = `
+
+        <div class="note-title">
+
+            ${escapeHTML(
+                title ||
+                "Note " +
+                objectNumber
+            )}
+
+        </div>
+
+
+        <div class="note-content">
+
+            ${escapeHTML(content)}
+
+        </div>
+
+
+        <div class="resize-handle"></div>
+
+    `;
+
+
+    workspace.appendChild(note);
+
+
+    objectNumber++;
+
+
+    setupObject(note);
+
+
+    if (savedStyle) {
+
+        applyObjectStyle(
+            note,
+            savedStyle
+        );
+
+    }
+
+
+    selectObject(note);
 
 }
+
+
+/* =========================================================
+   IMAGE BUTTON
+========================================================= */
+
+imageButton.addEventListener(
+    "click",
+    () => {
+
+        currentImageType =
+            "image";
+
+        imageInput.click();
+
+    }
+);
+
+
+/* =========================================================
+   STICKER BUTTON
+========================================================= */
+
+stickerButton.addEventListener(
+    "click",
+    () => {
+
+        currentImageType =
+            "sticker";
+
+        imageInput.click();
+
+    }
+);
+
+
+/* =========================================================
+   IMAGE INPUT
+========================================================= */
+
+imageInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            imageInput.files[0];
+
+
+        if (!file) {
+
+            return;
+
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            event => {
+
+                const x =
+                    (
+                        board.clientWidth / 2 -
+                        cameraX
+                    ) / zoom;
+
+
+                const y =
+                    (
+                        board.clientHeight / 2 -
+                        cameraY
+                    ) / zoom;
+
+
+                if (
+                    currentImageType ===
+                    "image"
+                ) {
+
+                    createImage(
+                        event.target.result,
+                        x,
+                        y
+                    );
+
+                }
+
+
+                if (
+                    currentImageType ===
+                    "sticker"
+                ) {
+
+                    createSticker(
+                        event.target.result,
+                        x,
+                        y
+                    );
+
+                }
+
+            };
+
+
+        reader.readAsDataURL(file);
+
+
+        imageInput.value =
+            "";
+
+    }
+);
+
+
+/* =========================================================
+   CREATE IMAGE
+========================================================= */
+
+function createImage(
+    imageData,
+    x,
+    y,
+    title = null,
+    width = 260,
+    pixel = false,
+    savedStyle = null
+) {
+
+    const object =
+        document.createElement("div");
+
+
+    object.className =
+        "image-object board-object";
+
+
+    object.style.left =
+        x + "px";
+
+
+    object.style.top =
+        y + "px";
+
+
+    object.style.width =
+        width + "px";
+
+
+    if (pixel) {
+
+        object.classList.add(
+            "pixel-mode"
+        );
+
+    }
+
+
+    object.innerHTML = `
+
+        <div class="image-title">
+
+            ${escapeHTML(
+                title ||
+                "Image " +
+                objectNumber
+            )}
+
+        </div>
+
+
+        <div class="image-content">
+
+            <img src="${imageData}">
+
+        </div>
+
+
+        <div class="resize-handle"></div>
+
+    `;
+
+
+    workspace.appendChild(object);
+
+
+    objectNumber++;
+
+
+    setupObject(object);
+
+
+    if (savedStyle) {
+
+        applyObjectStyle(
+            object,
+            savedStyle
+        );
+
+    }
+
+
+    selectObject(object);
+
+}
+
+
+/* =========================================================
+   CREATE STICKER
+========================================================= */
+
+function createSticker(
+    imageData,
+    x,
+    y,
+    width = 180,
+    pixel = false,
+    savedStyle = null
+) {
+
+    const object =
+        document.createElement("div");
+
+
+    object.className =
+        "sticker board-object";
+
+
+    object.style.left =
+        x + "px";
+
+
+    object.style.top =
+        y + "px";
+
+
+    if (pixel) {
+
+        object.classList.add(
+            "pixel-mode"
+        );
+
+    }
+
+
+    object.innerHTML = `
+
+        <img
+            src="${imageData}"
+            style="width:${width}px"
+        >
+
+        <div class="resize-handle"></div>
+
+    `;
+
+
+    workspace.appendChild(object);
+
+
+    setupObject(object);
+
+
+    if (savedStyle) {
+
+        applyObjectStyle(
+            object,
+            savedStyle
+        );
+
+    }
+
+
+    selectObject(object);
+
+}
+
+
+/* =========================================================
+   SETUP OBJECT
+========================================================= */
+
+function setupObject(object) {
+
+    object.addEventListener(
+        "mousedown",
+        event => {
+
+            if (
+                drawingMode ===
+                "select"
+            ) {
+
+                selectObject(object);
+
+            }
+
+        }
+    );
+
+
+    object.addEventListener(
+        "contextmenu",
+        event => {
+
+            event.preventDefault();
+
+
+            selectObject(object);
+
+
+            updatePixelMenu();
+
+
+            contextMenu.style.display =
+                "block";
+
+
+            contextMenu.style.left =
+                event.clientX + "px";
+
+
+            contextMenu.style.top =
+                event.clientY + "px";
+
+        }
+    );
+
+
+    setupEditing(object);
+
+    setupDragging(object);
+
+    setupResizing(object);
+
+}
+
+
+/* =========================================================
+   PIXEL MODE MENU
+========================================================= */
+
+function updatePixelMenu() {
+
+    if (!selectedObject) {
+
+        return;
+
+    }
+
+
+    const isImage =
+        selectedObject.classList.contains(
+            "image-object"
+        );
+
+
+    const isSticker =
+        selectedObject.classList.contains(
+            "sticker"
+        );
+
+
+    if (
+        !isImage &&
+        !isSticker
+    ) {
+
+        pixelObject.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    pixelObject.style.display =
+        "block";
+
+
+    if (
+        selectedObject.classList.contains(
+            "pixel-mode"
+        )
+    ) {
+
+        pixelObject.textContent =
+            "Pixel Mode: ON";
+
+    }
+
+    else {
+
+        pixelObject.textContent =
+            "Pixel Mode: OFF";
+
+    }
+
+}
+
+
+/* =========================================================
+   PIXEL MODE
+========================================================= */
+
+pixelObject.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        selectedObject.classList.toggle(
+            "pixel-mode"
+        );
+
+
+        updatePixelMenu();
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+/* =========================================================
+   EDITING
+========================================================= */
+
+function setupEditing(object) {
+
+    const title =
+        object.querySelector(
+            ".note-title, .image-title"
+        );
+
+
+    const content =
+        object.querySelector(
+            ".note-content"
+        );
+
+
+    if (title) {
+
+        title.addEventListener(
+            "dblclick",
+            event => {
+
+                event.stopPropagation();
+
+
+                title.contentEditable =
+                    "true";
+
+
+                title.classList.add(
+                    "editing"
+                );
+
+
+                title.focus();
+
+
+                placeCursorAtEnd(
+                    title
+                );
+
+            }
+        );
+
+
+        title.addEventListener(
+            "blur",
+            () => {
+
+                title.contentEditable =
+                    "false";
+
+
+                title.classList.remove(
+                    "editing"
+                );
+
+            }
+        );
+
+    }
+
+
+    if (content) {
+
+        content.addEventListener(
+            "dblclick",
+            event => {
+
+                event.stopPropagation();
+
+
+                content.contentEditable =
+                    "true";
+
+
+                content.classList.add(
+                    "editing"
+                );
+
+
+                content.focus();
+
+            }
+        );
+
+
+        content.addEventListener(
+            "blur",
+            () => {
+
+                content.contentEditable =
+                    "false";
+
+
+                content.classList.remove(
+                    "editing"
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   DRAGGING
+========================================================= */
+
+function setupDragging(object) {
+
+    let handle =
+        object.querySelector(
+            ".note-title, .image-title"
+        );
+
+
+    if (!handle) {
+
+        handle =
+            object;
+
+    }
+
+
+    handle.addEventListener(
+        "mousedown",
+        event => {
+
+            if (
+                drawingMode !==
+                "select"
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                event.button !== 0
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                handle.classList.contains(
+                    "editing"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            selectObject(object);
+
+
+            const startX =
+                event.clientX;
+
+
+            const startY =
+                event.clientY;
+
+
+            const originalX =
+                object.offsetLeft;
+
+
+            const originalY =
+                object.offsetTop;
+
+
+            function move(event) {
+
+                const dx =
+                    (
+                        event.clientX -
+                        startX
+                    ) / zoom;
+
+
+                const dy =
+                    (
+                        event.clientY -
+                        startY
+                    ) / zoom;
+
+
+                object.style.left =
+                    (
+                        originalX +
+                        dx
+                    ) + "px";
+
+
+                object.style.top =
+                    (
+                        originalY +
+                        dy
+                    ) + "px";
+
+            }
+
+
+            function stop() {
+
+                document.removeEventListener(
+                    "mousemove",
+                    move
+                );
+
+
+                document.removeEventListener(
+                    "mouseup",
+                    stop
+                );
+
+            }
+
+
+            document.addEventListener(
+                "mousemove",
+                move
+            );
+
+
+            document.addEventListener(
+                "mouseup",
+                stop
+            );
+
+
+            event.preventDefault();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   RESIZING
+========================================================= */
+
+function setupResizing(object) {
+
+    const handle =
+        object.querySelector(
+            ".resize-handle"
+        );
+
+
+    if (!handle) {
+
+        return;
+
+    }
+
+
+    handle.addEventListener(
+        "mousedown",
+        event => {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            if (
+                drawingMode !==
+                "select"
+            ) {
+
+                return;
+
+            }
+
+
+            selectObject(object);
+
+
+            const startX =
+                event.clientX;
+
+
+            const startWidth =
+                object.offsetWidth;
+
+
+            function resize(event) {
+
+                const change =
+                    (
+                        event.clientX -
+                        startX
+                    ) / zoom;
+
+
+                let newWidth =
+                    startWidth +
+                    change;
+
+
+                newWidth =
+                    Math.max(
+                        80,
+                        Math.min(
+                            1000,
+                            newWidth
+                        )
+                    );
+
+
+                if (
+                    object.classList.contains(
+                        "sticker"
+                    )
+                ) {
+
+                    object.querySelector(
+                        "img"
+                    ).style.width =
+                        newWidth + "px";
+
+                }
+
+                else {
+
+                    object.style.width =
+                        newWidth + "px";
+
+                }
+
+            }
+
+
+            function stop() {
+
+                document.removeEventListener(
+                    "mousemove",
+                    resize
+                );
+
+
+                document.removeEventListener(
+                    "mouseup",
+                    stop
+                );
+
+            }
+
+
+            document.addEventListener(
+                "mousemove",
+                resize
+            );
+
+
+            document.addEventListener(
+                "mouseup",
+                stop
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   DELETE
+========================================================= */
+
+deleteObject.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (selectedObject) {
+
+            selectedObject.remove();
+
+            selectedObject =
+                null;
+
+        }
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+/* =========================================================
+   DUPLICATE
+========================================================= */
+
+duplicateObject.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        const copy =
+            selectedObject.cloneNode(
+                true
+            );
+
+
+        copy.style.left =
+            (
+                selectedObject.offsetLeft +
+                30
+            ) + "px";
+
+
+        copy.style.top =
+            (
+                selectedObject.offsetTop +
+                30
+            ) + "px";
+
+
+        copy.classList.remove(
+            "selected"
+        );
+
+
+        workspace.appendChild(
+            copy
+        );
+
+
+        setupObject(copy);
+
+
+        selectObject(copy);
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+/* =========================================================
+   LAYERS
+========================================================= */
+
+bringFront.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        let highest =
+            0;
+
+
+        workspace
+            .querySelectorAll(
+                ".board-object"
+            )
+            .forEach(object => {
+
+                highest =
+                    Math.max(
+                        highest,
+                        parseInt(
+                            object.style.zIndex ||
+                            "0"
+                        )
+                    );
+
+            });
+
+
+        selectedObject.style.zIndex =
+            highest + 1;
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+bringForward.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        const current =
+            parseInt(
+                selectedObject.style.zIndex ||
+                "0"
+            );
+
+
+        selectedObject.style.zIndex =
+            current + 1;
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+sendBackward.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        const current =
+            parseInt(
+                selectedObject.style.zIndex ||
+                "0"
+            );
+
+
+        selectedObject.style.zIndex =
+            current - 1;
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+sendBack.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        selectedObject.style.zIndex =
+            -100;
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+/* =========================================================
+   CLOSE CONTEXT MENU
+========================================================= */
+
+function closeContextMenu() {
+
+    contextMenu.style.display =
+        "none";
+
+}
+
+
+document.addEventListener(
+    "click",
+    event => {
+
+        if (
+            !contextMenu.contains(event.target)
+        ) {
+
+            closeContextMenu();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   HELP
+========================================================= */
+
+helpButton.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        helpWindow.style.display =
+            "flex";
+
+    }
+);
+
+
+closeHelp.addEventListener(
+    "click",
+    () => {
+
+        helpWindow.style.display =
+            "none";
+
+    }
+);
+
+
+helpWindow.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target ===
+            helpWindow
+        ) {
+
+            helpWindow.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   STYLE WINDOW
+========================================================= */
+
+styleButton.addEventListener(
+    "click",
+    () => {
+
+        loadStylePanel();
+
+        styleWindow.style.display =
+            "flex";
+
+    }
+);
+
+
+closeStyle.addEventListener(
+    "click",
+    () => {
+
+        styleWindow.style.display =
+            "none";
+
+    }
+);
+
+
+styleWindow.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target ===
+            styleWindow
+        ) {
+
+            styleWindow.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   BOARD STYLE
+========================================================= */
+
+function applyBoardStyle() {
+
+    workspace.style.backgroundColor =
+        boardStyle.backgroundColor;
+
+
+    if (backgroundImageData) {
+
+        workspace.style.backgroundImage =
+            `url("${backgroundImageData}")`;
+
+    }
+
+    else {
+
+        workspace.style.backgroundImage =
+            "none";
+
+    }
+
+
+    workspace.style.backgroundSize =
+        boardStyle.backgroundScale +
+        "%";
+
+
+    workspace.style.backgroundRepeat =
+        boardStyle.backgroundRepeat
+            ? "repeat"
+            : "no-repeat";
+
+
+    workspace.style.backgroundPosition =
+        "0 0";
+
+
+    applyUIStyle();
+
+}
+
+
+/* =========================================================
+   UI STYLE
+========================================================= */
+
+function applyUIStyle() {
+
+    document.documentElement.style
+        .setProperty(
+            "--ui-color",
+            boardStyle.uiColor
+        );
+
+
+    document.documentElement.style
+        .setProperty(
+            "--ui-highlight",
+            boardStyle.uiHighlight
+        );
+
+
+    document.documentElement.style
+        .setProperty(
+            "--ui-highlight-dark",
+            darkenColor(
+                boardStyle.uiHighlight,
+                25
+            )
+        );
+
+}
+
+
+/* =========================================================
+   STYLE PANEL
+========================================================= */
+
+function loadStylePanel() {
+
+    styleBackgroundColor.value =
+        boardStyle.backgroundColor;
+
+
+    backgroundScale.value =
+        boardStyle.backgroundScale;
+
+
+    backgroundScaleDisplay.textContent =
+        boardStyle.backgroundScale +
+        "%";
+
+
+    backgroundRepeat.checked =
+        boardStyle.backgroundRepeat;
+
+
+    uiColor.value =
+        boardStyle.uiColor;
+
+
+    uiHighlight.value =
+        boardStyle.uiHighlight;
+
+
+    loadObjectStyleIntoPanel();
+
+}
+
+
+/* =========================================================
+   BACKGROUND SCALE
+========================================================= */
+
+backgroundScale.addEventListener(
+    "input",
+    () => {
+
+        boardStyle.backgroundScale =
+            Number(
+                backgroundScale.value
+            );
+
+
+        backgroundScaleDisplay.textContent =
+            boardStyle.backgroundScale +
+            "%";
+
+
+        applyBoardStyle();
+
+    }
+);
+
+
+/* =========================================================
+   BACKGROUND REPEAT
+========================================================= */
+
+backgroundRepeat.addEventListener(
+    "change",
+    () => {
+
+        boardStyle.backgroundRepeat =
+            backgroundRepeat.checked;
+
+        applyBoardStyle();
+
+    }
+);
+
+
+/* =========================================================
+   BACKGROUND IMAGE
+========================================================= */
+
+backgroundImageInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            backgroundImageInput.files[0];
+
+
+        if (!file) {
+
+            return;
+
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            event => {
+
+                backgroundImageData =
+                    event.target.result;
+
+                applyBoardStyle();
+
+            };
+
+
+        reader.readAsDataURL(file);
+
+    }
+);
+
+
+/* =========================================================
+   CLEAR BACKGROUND IMAGE
+========================================================= */
+
+clearBackgroundImage.addEventListener(
+    "click",
+    () => {
+
+        backgroundImageData =
+            null;
+
+        backgroundImageInput.value =
+            "";
+
+        applyBoardStyle();
+
+    }
+);
+
+
+/* =========================================================
+   UI COLORS
+========================================================= */
+
+uiColor.addEventListener(
+    "input",
+    () => {
+
+        boardStyle.uiColor =
+            uiColor.value;
+
+        applyUIStyle();
+
+    }
+);
+
+
+uiHighlight.addEventListener(
+    "input",
+    () => {
+
+        boardStyle.uiHighlight =
+            uiHighlight.value;
+
+        applyUIStyle();
+
+    }
+);
+
+
+/* =========================================================
+   LOAD SELECTED OBJECT STYLE
+========================================================= */
+
+function loadObjectStyleIntoPanel() {
+
+    if (!selectedObject) {
+
+        return;
+
+    }
+
+
+    const style =
+        getObjectStyle(
+            selectedObject
+        );
+
+
+    objectBackgroundColor.value =
+        style.backgroundColor;
+
+
+    objectBorderColor.value =
+        style.borderColor;
+
+
+    objectShadowColor.value =
+        style.shadowColor;
+
+
+    objectHeaderColor.value =
+        style.headerColor;
+
+
+    objectHeaderTextColor.value =
+        style.headerTextColor;
+
+
+    objectTextColor.value =
+        style.textColor;
+
+
+    objectFont.value =
+        style.font;
+
+
+    objectFontSize.value =
+        style.fontSize;
+
+
+    objectFontSizeDisplay.textContent =
+        style.fontSize +
+        "px";
+
+}
+
+
+/* =========================================================
+   GET OBJECT STYLE
+========================================================= */
+
+function getObjectStyle(object) {
+
+    const title =
+        object.querySelector(
+            ".note-title, .image-title"
+        );
+
+
+    const content =
+        object.querySelector(
+            ".note-content, .image-content"
+        );
+
+
+    let backgroundColor =
+        object.style.backgroundColor ||
+        "#fffff0";
+
+
+    let borderColor =
+        getComputedStyle(
+            object
+        ).borderTopColor ||
+        "#6b7c8c";
+
+
+    let shadowColor =
+        "#9aa7b2";
+
+
+    const shadow =
+        object.style.boxShadow;
+
+
+    if (shadow) {
+
+        const match =
+            shadow.match(
+                /#[0-9a-fA-F]{6}/
+            );
+
+
+        if (match) {
+
+            shadowColor =
+                match[0];
+
+        }
+
+    }
+
+
+    if (
+        object.classList.contains(
+            "note"
+        )
+    ) {
+
+        backgroundColor =
+            object.style.backgroundColor ||
+            "#fffff0";
+
+    }
+
+
+    if (
+        object.classList.contains(
+            "image-object"
+        )
+    ) {
+
+        backgroundColor =
+            object.style.backgroundColor ||
+            "#fffff0";
+
+    }
+
+
+    return {
+
+        backgroundColor:
+            backgroundColor,
+
+        borderColor:
+            object.style.borderColor ||
+            borderColor,
+
+        shadowColor:
+            shadowColor,
+
+        headerColor:
+            title
+                ? title.style.backgroundColor ||
+                  "#316ac5"
+                : "#316ac5",
+
+        headerTextColor:
+            title
+                ? title.style.color ||
+                  "#ffffff"
+                : "#ffffff",
+
+        textColor:
+            content
+                ? content.style.color ||
+                  "#222222"
+                : "#222222",
+
+        font:
+            object.style.fontFamily ||
+            "Tahoma",
+
+        fontSize:
+            content
+                ? parseInt(
+                    content.style.fontSize ||
+                    "14"
+                )
+                : 14
+
+    };
+
+}
+
+
+/* =========================================================
+   OBJECT STYLE INPUTS
+========================================================= */
+
+objectBackgroundColor.addEventListener(
+    "input",
+    updateSelectedObjectStyle
+);
+
+
+objectBorderColor.addEventListener(
+    "input",
+    updateSelectedObjectStyle
+);
+
+
+objectShadowColor.addEventListener(
+    "input",
+    updateSelectedObjectStyle
+);
+
+
+objectHeaderColor.addEventListener(
+    "input",
+    updateSelectedObjectStyle
+);
+
+
+objectHeaderTextColor.addEventListener(
+    "input",
+    updateSelectedObjectStyle
+);
+
+
+objectTextColor.addEventListener(
+    "input",
+    updateSelectedObjectStyle
+);
+
+
+objectFont.addEventListener(
+    "change",
+    updateSelectedObjectStyle
+);
+
+
+objectFontSize.addEventListener(
+    "input",
+    () => {
+
+        objectFontSizeDisplay.textContent =
+            objectFontSize.value +
+            "px";
+
+        updateSelectedObjectStyle();
+
+    }
+);
+
+
+/* =========================================================
+   APPLY SELECTED OBJECT STYLE
+========================================================= */
+
+function updateSelectedObjectStyle() {
+
+    if (!selectedObject) {
+
+        return;
+
+    }
+
+
+    const style = {
+
+        backgroundColor:
+            objectBackgroundColor.value,
+
+        borderColor:
+            objectBorderColor.value,
+
+        shadowColor:
+            objectShadowColor.value,
+
+        headerColor:
+            objectHeaderColor.value,
+
+        headerTextColor:
+            objectHeaderTextColor.value,
+
+        textColor:
+            objectTextColor.value,
+
+        font:
+            objectFont.value,
+
+        fontSize:
+            Number(
+                objectFontSize.value
+            )
+
+    };
+
+
+    applyObjectStyle(
+        selectedObject,
+        style
+    );
+
+}
+
+
+/* =========================================================
+   APPLY OBJECT STYLE
+========================================================= */
+
+function applyObjectStyle(
+    object,
+    style
+) {
+
+    object.style.backgroundColor =
+        style.backgroundColor;
+
+
+    object.style.borderColor =
+        style.borderColor;
+
+
+    object.style.boxShadow =
+        `4px 4px 0 ${style.shadowColor}`;
+
+
+    object.style.fontFamily =
+        style.font;
+
+
+    const title =
+        object.querySelector(
+            ".note-title, .image-title"
+        );
+
+
+    if (title) {
+
+        title.style.backgroundColor =
+            style.headerColor;
+
+        title.style.color =
+            style.headerTextColor;
+
+        title.style.fontFamily =
+            style.font;
+
+    }
+
+
+    const content =
+        object.querySelector(
+            ".note-content"
+        );
+
+
+    if (content) {
+
+        content.style.backgroundColor =
+            style.backgroundColor;
+
+        content.style.color =
+            style.textColor;
+
+        content.style.fontFamily =
+            style.font;
+
+        content.style.fontSize =
+            style.fontSize +
+            "px";
+
+    }
+
+
+    const imageContent =
+        object.querySelector(
+            ".image-content"
+        );
+
+
+    if (imageContent) {
+
+        imageContent.style.backgroundColor =
+            style.backgroundColor;
+
+    }
+
+}
+
+
+/* =========================================================
+   RESET OBJECT STYLE
+========================================================= */
+
+resetObjectStyle.addEventListener(
+    "click",
+    () => {
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        const defaultStyle = {
+
+            backgroundColor:
+                "#fffff0",
+
+            borderColor:
+                "#6b7c8c",
+
+            shadowColor:
+                "#9aa7b2",
+
+            headerColor:
+                boardStyle.uiHighlight,
+
+            headerTextColor:
+                "#ffffff",
+
+            textColor:
+                "#222222",
+
+            font:
+                "Tahoma",
+
+            fontSize:
+                14
+
+        };
+
+
+        applyObjectStyle(
+            selectedObject,
+            defaultStyle
+        );
+
+
+        loadObjectStyleIntoPanel();
+
+    }
+);
+
+
+/* =========================================================
+   NEW BOARD
+========================================================= */
+
+newButton.addEventListener(
+    "click",
+    () => {
+
+        if (
+            !confirm(
+                "Start a new board?"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        workspace.innerHTML =
+            "";
+
+
+        drawingContext.clearRect(
+            0,
+            0,
+            drawingCanvas.width,
+            drawingCanvas.height
+        );
+
+
+        deselectObject();
+
+
+        objectNumber =
+            1;
+
+
+        boardName =
+            "Untitled Board";
+
+
+        currentFileHandle =
+            null;
+
+
+        backgroundImageData =
+            null;
+
+
+        boardStyle = {
+
+            backgroundColor:
+                "#ffffff",
+
+            backgroundScale:
+                100,
+
+            backgroundRepeat:
+                true,
+
+            uiColor:
+                "#d4d0c8",
+
+            uiHighlight:
+                "#316ac5"
+
+        };
+
+
+        applyBoardStyle();
+
+
+        centerBoard();
+
+    }
+);
+
+
+/* =========================================================
+   SAVE AS
+========================================================= */
+
+async function saveAsBoard() {
+
+    const name =
+        prompt(
+            "Board name:",
+            boardName
+        );
+
+
+    if (!name) {
+
+        return;
+
+    }
+
+
+    boardName =
+        name;
+
+
+    if (
+        window.showSaveFilePicker
+    ) {
+
+        try {
+
+            const handle =
+                await window.showSaveFilePicker({
+
+                    suggestedName:
+                        boardName +
+                        ".json",
+
+                    types: [
+
+                        {
+
+                            description:
+                                "Pickdel Board",
+
+                            accept: {
+
+                                "application/json":
+                                    [".json"]
+
+                            }
+
+                        }
+
+                    ]
+
+                });
+
+
+            currentFileHandle =
+                handle;
+
+
+            await writeToFile(
+                handle
+            );
+
+
+            return;
+
+        }
+
+        catch (error) {
+
+            if (
+                error.name ===
+                "AbortError"
+            ) {
+
+                return;
+
+            }
+
+        }
+
+    }
+
+
+    downloadBoard();
+
+}
+
+
+/* =========================================================
+   SAVE
+========================================================= */
+
+async function saveBoard() {
+
+    if (
+        currentFileHandle
+    ) {
+
+        await writeToFile(
+            currentFileHandle
+        );
+
+        return;
+
+    }
+
+
+    await saveAsBoard();
+
+}
+
+
+saveButton.addEventListener(
+    "click",
+    saveBoard
+);
+
+
+saveAsButton.addEventListener(
+    "click",
+    saveAsBoard
+);
+
+
+/* =========================================================
+   WRITE FILE
+========================================================= */
+
+async function writeToFile(handle) {
+
+    const data =
+        getBoardData();
+
+
+    const json =
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+
+    const writable =
+        await handle.createWritable();
+
+
+    await writable.write(
+        json
+    );
+
+
+    await writable.close();
+
+}
+
+
+/* =========================================================
+   DOWNLOAD FALLBACK
+========================================================= */
+
+function downloadBoard() {
+
+    const data =
+        getBoardData();
+
+
+    const json =
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+
+    const blob =
+        new Blob(
+            [json],
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        boardName +
+        ".json";
+
+
+    link.click();
+
+
+    URL.revokeObjectURL(
+        url
+    );
+
+}
+
+
+/* =========================================================
+   LOAD BUTTON
+========================================================= */
+
+loadButton.addEventListener(
+    "click",
+    () => {
+
+        boardInput.click();
+
+    }
+);
+
+
+/* =========================================================
+   LOAD FILE
+========================================================= */
+
+boardInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            boardInput.files[0];
+
+
+        if (!file) {
+
+            return;
+
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            event => {
+
+                try {
+
+                    const data =
+                        JSON.parse(
+                            event.target.result
+                        );
+
+
+                    loadBoard(
+                        data
+                    );
+
+                }
+
+                catch {
+
+                    alert(
+                        "Could not load this board."
+                    );
+
+                }
+
+            };
+
+
+        reader.readAsText(
+            file
+        );
+
+
+        boardInput.value =
+            "";
+
+    }
+);
+
+
+/* =========================================================
+   BOARD DATA
+========================================================= */
+
+function getBoardData() {
+
+    const objects = [];
+
+
+    workspace
+        .querySelectorAll(
+            ".board-object"
+        )
+        .forEach(
+            object => {
+
+                const data = {
+
+                    type:
+                        getObjectType(
+                            object
+                        ),
+
+                    x:
+                        object.offsetLeft,
+
+                    y:
+                        object.offsetTop,
+
+                    width:
+                        object.offsetWidth,
+
+                    zIndex:
+                        parseInt(
+                            object.style.zIndex ||
+                            "0"
+                        ),
+
+                    pixel:
+                        object.classList.contains(
+                            "pixel-mode"
+                        )
+
+                };
+
+
+                const title =
+                    object.querySelector(
+                        ".note-title, .image-title"
+                    );
+
+
+                const content =
+                    object.querySelector(
+                        ".note-content"
+                    );
+
+
+                const image =
+                    object.querySelector(
+                        "img"
+                    );
+
+
+                if (title) {
+
+                    data.title =
+                        title.textContent;
+
+                }
+
+
+                if (content) {
+
+                    data.content =
+                        content.textContent;
+
+                }
+
+
+                if (image) {
+
+                    data.image =
+                        image.src;
+
+                }
+
+
+                if (
+                    object.classList.contains(
+                        "sticker"
+                    )
+                ) {
+
+                    data.width =
+                        image
+                            ? image.offsetWidth
+                            : 180;
+
+                }
+
+
+                /*
+                    Save the individual object's
+                    customization.
+                */
+
+                if (
+                    !object.classList.contains(
+                        "sticker"
+                    )
+                ) {
+
+                    data.style =
+                        getObjectStyle(
+                            object
+                        );
+
+                }
+
+
+                objects.push(
+                    data
+                );
+
+            }
+        );
+
+
+    return {
+
+        version:
+            8,
+
+        name:
+            boardName,
+
+        style:
+            boardStyle,
+
+        backgroundImage:
+            backgroundImageData,
+
+        penColor:
+            penColor.value,
+
+        objects,
+
+        drawing:
+            drawingCanvas.toDataURL()
+
+    };
+
+}
+
+
+/* =========================================================
+   OBJECT TYPE
+========================================================= */
+
+function getObjectType(object) {
+
+    if (
+        object.classList.contains(
+            "note"
+        )
+    ) {
+
+        return "note";
+
+    }
+
+
+    if (
+        object.classList.contains(
+            "image-object"
+        )
+    ) {
+
+        return "image";
+
+    }
+
+
+    if (
+        object.classList.contains(
+            "sticker"
+        )
+    ) {
+
+        return "sticker";
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   LOAD BOARD
+========================================================= */
+
+function loadBoard(data) {
+
+    workspace.innerHTML =
+        "";
+
+
+    deselectObject();
+
+
+    boardName =
+        data.name ||
+        "Untitled Board";
+
+
+    if (data.style) {
+
+        boardStyle = {
+
+            backgroundColor:
+                data.style.backgroundColor ||
+                "#ffffff",
+
+            backgroundScale:
+                Number(
+                    data.style.backgroundScale ||
+                    100
+                ),
+
+            backgroundRepeat:
+                data.style.backgroundRepeat !== false,
+
+            uiColor:
+                data.style.uiColor ||
+                "#d4d0c8",
+
+            uiHighlight:
+                data.style.uiHighlight ||
+                "#316ac5"
+
+        };
+
+    }
+
+
+    backgroundImageData =
+        data.backgroundImage ||
+        null;
+
+
+    if (data.penColor) {
+
+        penColor.value =
+            data.penColor;
+
+    }
+
+
+    applyBoardStyle();
+
+
+    if (
+        Array.isArray(
+            data.objects
+        )
+    ) {
+
+        data.objects.forEach(
+            object => {
+
+                let created =
+                    null;
+
+
+                if (
+                    object.type ===
+                    "note"
+                ) {
+
+                    createNote(
+                        object.x,
+                        object.y,
+                        object.title,
+                        object.content,
+                        object.style
+                    );
+
+                    created =
+                        selectedObject;
+
+                }
+
+
+                if (
+                    object.type ===
+                    "image"
+                ) {
+
+                    createImage(
+                        object.image,
+                        object.x,
+                        object.y,
+                        object.title,
+                        object.width,
+                        object.pixel,
+                        object.style
+                    );
+
+                    created =
+                        selectedObject;
+
+                }
+
+
+                if (
+                    object.type ===
+                    "sticker"
+                ) {
+
+                    createSticker(
+                        object.image,
+                        object.x,
+                        object.y,
+                        object.width,
+                        object.pixel
+                    );
+
+                    created =
+                        selectedObject;
+
+                }
+
+
+                if (created) {
+
+                    created.style.zIndex =
+                        object.zIndex ||
+                        0;
+
+                    created.classList.remove(
+                        "selected"
+                    );
+
+                    selectedObject =
+                        null;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (data.drawing) {
+
+        const image =
+            new Image();
+
+
+        image.onload =
+            () => {
+
+                drawingContext.clearRect(
+                    0,
+                    0,
+                    drawingCanvas.width,
+                    drawingCanvas.height
+                );
+
+
+                drawingContext.drawImage(
+                    image,
+                    0,
+                    0
+                );
+
+            };
+
+
+        image.src =
+            data.drawing;
+
+    }
+
+
+    objectNumber =
+        workspace.querySelectorAll(
+            ".board-object"
+        ).length + 1;
+
+
+    centerBoard();
+
+}
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        /*
+            Don't move the board when typing
+            into a text box.
+        */
+
+        const active =
+            document.activeElement;
+
+
+        const typing =
+            active &&
+            (
+                active.isContentEditable ||
+                active.tagName === "INPUT" ||
+                active.tagName === "TEXTAREA" ||
+                active.tagName === "SELECT"
+            );
+
+
+        if (typing) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                active.blur();
+
+            }
+
+            return;
+
+        }
+
+
+        /* =========================
+           SAVE
+        ========================= */
+
+        if (
+            event.ctrlKey &&
+            event.key.toLowerCase() ===
+            "s"
+        ) {
+
+            event.preventDefault();
+
+            saveBoard();
+
+            return;
+
+        }
+
+
+        /* =========================
+           LOAD
+        ========================= */
+
+        if (
+            event.ctrlKey &&
+            event.key.toLowerCase() ===
+            "o"
+        ) {
+
+            event.preventDefault();
+
+            loadButton.click();
+
+            return;
+
+        }
+
+
+        /* =========================
+           ESCAPE
+        ========================= */
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            setTool(
+                "select"
+            );
+
+
+            helpWindow.style.display =
+                "none";
+
+
+            styleWindow.style.display =
+                "none";
+
+
+            closeContextMenu();
+
+            return;
+
+        }
+
+
+        /* =========================
+           DELETE
+        ========================= */
+
+        if (
+            event.key ===
+            "Delete" &&
+            selectedObject &&
+            drawingMode ===
+            "select"
+        ) {
+
+            selectedObject.remove();
+
+            selectedObject =
+                null;
+
+            return;
+
+        }
+
+
+        /* =========================
+           BOARD MOVEMENT
+        ========================= */
+
+        if (
+            drawingMode ===
+            "select"
+        ) {
+
+            const key =
+                event.key.toLowerCase();
+
+
+            const speed =
+                event.shiftKey
+                    ? 30
+                    : 12;
+
+
+            if (
+                key === "w" ||
+                event.key === "ArrowUp"
+            ) {
+
+                cameraY +=
+                    speed;
+
+                updateCamera();
+
+                event.preventDefault();
+
+            }
+
+
+            if (
+                key === "s" ||
+                event.key === "ArrowDown"
+            ) {
+
+                cameraY -=
+                    speed;
+
+                updateCamera();
+
+                event.preventDefault();
+
+            }
+
+
+            if (
+                key === "a" ||
+                event.key === "ArrowLeft"
+            ) {
+
+                cameraX +=
+                    speed;
+
+                updateCamera();
+
+                event.preventDefault();
+
+            }
+
+
+            if (
+                key === "d" ||
+                event.key === "ArrowRight"
+            ) {
+
+                cameraX -=
+                    speed;
+
+                updateCamera();
+
+                event.preventDefault();
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   PAN WITH MOUSE
+========================================================= */
+
+let panning =
+    false;
+
+
+let panStartX =
+    0;
+
+
+let panStartY =
+    0;
+
+
+let cameraStartX =
+    0;
+
+
+let cameraStartY =
+    0;
+
+
+board.addEventListener(
+    "mousedown",
+    event => {
+
+        if (
+            drawingMode !==
+            "select"
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            event.button === 1 ||
+            (
+                event.button === 0 &&
+                event.shiftKey
+            )
+        ) {
+
+            panning =
+                true;
+
+
+            panStartX =
+                event.clientX;
+
+
+            panStartY =
+                event.clientY;
+
+
+            cameraStartX =
+                cameraX;
+
+
+            cameraStartY =
+                cameraY;
+
+
+            board.style.cursor =
+                "grabbing";
+
+
+            event.preventDefault();
+
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "mousemove",
+    event => {
+
+        if (!panning) {
+
+            return;
+
+        }
+
+
+        cameraX =
+            cameraStartX +
+            (
+                event.clientX -
+                panStartX
+            );
+
+
+        cameraY =
+            cameraStartY +
+            (
+                event.clientY -
+                panStartY
+            );
+
+
+        updateCamera();
+
+    }
+);
+
+
+document.addEventListener(
+    "mouseup",
+    () => {
+
+        panning =
+            false;
+
+
+        if (
+            drawingMode ===
+            "select"
+        ) {
+
+            board.style.cursor =
+                "default";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ZOOM
+========================================================= */
+
+board.addEventListener(
+    "wheel",
+    event => {
+
+        if (
+            drawingMode !==
+            "select"
+        ) {
+
+            return;
+
+        }
+
+
+        event.preventDefault();
+
+
+        const oldZoom =
+            zoom;
+
+
+        if (
+            event.deltaY < 0
+        ) {
+
+            zoom +=
+                0.1;
+
+        }
+
+        else {
+
+            zoom -=
+                0.1;
+
+        }
+
+
+        zoom =
+            Math.max(
+                0.3,
+                Math.min(
+                    3,
+                    zoom
+                )
+            );
+
+
+        /*
+            Keep the zoom roughly centered
+            around the mouse cursor.
+        */
+
+        const rect =
+            board.getBoundingClientRect();
+
+
+        const mouseX =
+            event.clientX -
+            rect.left;
+
+
+        const mouseY =
+            event.clientY -
+            rect.top;
+
+
+        const worldX =
+            (
+                mouseX -
+                cameraX
+            ) / oldZoom;
+
+
+        const worldY =
+            (
+                mouseY -
+                cameraY
+            ) / oldZoom;
+
+
+        cameraX =
+            mouseX -
+            worldX * zoom;
+
+
+        cameraY =
+            mouseY -
+            worldY * zoom;
+
+
+        updateCamera();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+function updateCamera() {
+
+    const transform =
+        `translate(${cameraX}px, ${cameraY}px) scale(${zoom})`;
+
+
+    workspace.style.transform =
+        transform;
+
+
+    drawingCanvas.style.transform =
+        transform;
+
+
+    const zoomDisplay =
+        document.getElementById(
+            "zoomDisplay"
+        );
+
+
+    zoomDisplay.textContent =
+        Math.round(
+            zoom * 100
+        ) + "%";
+
+}
+
+
+/* =========================================================
+   CLICK EMPTY BOARD
+========================================================= */
+
+board.addEventListener(
+    "mousedown",
+    event => {
+
+        /*
+            If the user clicks the actual board
+            rather than an object, deselect it.
+        */
+
+        if (
+            event.target === board
+        ) {
+
+            deselectObject();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CURSOR
+========================================================= */
+
+function placeCursorAtEnd(element) {
+
+    const range =
+        document.createRange();
+
+
+    const selection =
+        window.getSelection();
+
+
+    range.selectNodeContents(
+        element
+    );
+
+
+    range.collapse(
+        false
+    );
+
+
+    selection.removeAllRanges();
+
+
+    selection.addRange(
+        range
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        text || "";
+
+
+    return div.innerHTML;
+
+}
+
+
+/* =========================================================
+   DARKEN COLOR
+========================================================= */
+
+function darkenColor(
+    hex,
+    amount
+) {
+
+    const value =
+        hex.replace(
+            "#",
+            ""
+        );
+
+
+    if (
+        value.length !== 6
+    ) {
+
+        return hex;
+
+    }
+
+
+    const r =
+        Math.max(
+            0,
+            parseInt(
+                value.substring(0, 2),
+                16
+            ) - amount
+        );
+
+
+    const g =
+        Math.max(
+            0,
+            parseInt(
+                value.substring(2, 4),
+                16
+            ) - amount
+        );
+
+
+    const b =
+        Math.max(
+            0,
+            parseInt(
+                value.substring(4, 6),
+                16
+            ) - amount
+        );
+
+
+    return (
+        "#" +
+        [r, g, b]
+            .map(
+                value =>
+                    value
+                        .toString(16)
+                        .padStart(2, "0")
+            )
+            .join("")
+    );
+
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+applyBoardStyle();
+
+setTool(
+    "select"
+);
+
+
+/*
+    Wait until the browser has calculated
+    the board's dimensions before centering.
+*/
+
+window.addEventListener(
+    "load",
+    () => {
+
+        centerBoard();
+
+    }
+);
+
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        /*
+            Don't reset the user's camera
+            when resizing the window.
+        */
+
+        updateCamera();
+
+    }
+);
