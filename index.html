@@ -1,79 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Pickdel Board</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
 
 <body>
 
+
+<!-- =========================
+     TOOLBAR
+========================= -->
+
 <div id="toolbar">
 
-    <button id="selectButton">SELECT</button>
-    <button id="textButton">TEXT</button>
-    <button id="imageButton">IMAGE</button>
-    <button id="stickerButton">STICKER</button>
-
-    <div class="toolbar-divider"></div>
-
-    <button id="drawButton">DRAW</button>
-    <button id="eraserButton">ERASER</button>
-
-    <label class="color-control">
-        PEN
-        <input type="color" id="penColor" value="#000000">
-    </label>
-
-    <label class="color-control">
-        BG
-        <input type="color" id="backgroundColor" value="#ffffff">
-    </label>
-
-    <button id="backgroundImageButton">BG IMAGE</button>
-
-    <button id="tileBackgroundButton">
-        BG TILE: ON
+    <button id="selectButton">
+        SELECT
     </button>
 
-    <label class="font-control">
-        FONT
-        <select id="fontSelect">
-            <option value="Tahoma, Arial, sans-serif">Tahoma</option>
-            <option value="Arial, sans-serif">Arial</option>
-            <option value="Verdana, sans-serif">Verdana</option>
-            <option value="Georgia, serif">Georgia</option>
-            <option value="Courier New, monospace">Courier New</option>
-            <option value="Trebuchet MS, sans-serif">Trebuchet</option>
-            <option value="Impact, sans-serif">Impact</option>
-        </select>
-    </label>
-
-    <label class="color-control">
+    <button id="textButton">
         TEXT
-        <input type="color" id="textColor" value="#222222">
-    </label>
+    </button>
+
+    <button id="imageButton">
+        IMAGE
+    </button>
+
+    <button id="stickerButton">
+        STICKER
+    </button>
+
 
     <div class="toolbar-divider"></div>
 
-    <button id="newButton">NEW</button>
-    <button id="saveButton">SAVE</button>
-    <button id="saveAsButton">SAVE AS</button>
-    <button id="loadButton">LOAD</button>
-    <button id="shareButton">SHARE</button>
 
-    <button id="resetViewButton">CENTER</button>
+    <button id="drawButton">
+        DRAW
+    </button>
 
-    <button id="helpButton" class="help-button">?</button>
+    <button id="eraserButton">
+        ERASER
+    </button>
+
+
+    <label class="color-control">
+
+        PEN
+
+        <input
+            type="color"
+            id="penColor"
+            value="#000000"
+        >
+
+    </label>
+
+
+    <div class="toolbar-divider"></div>
+
+
+    <label class="color-control">
+
+        BG
+
+        <input
+            type="color"
+            id="backgroundColor"
+            value="#ffffff"
+        >
+
+    </label>
+
+
+    <button id="backgroundImageButton">
+        BG IMAGE
+    </button>
+
+    <button id="clearBackgroundButton">
+        CLEAR BG
+    </button>
+
+
+    <label class="select-control">
+
+        BG MODE
+
+        <select id="backgroundMode">
+
+            <option value="cover">
+                FIT
+            </option>
+
+            <option value="repeat">
+                TILE
+            </option>
+
+            <option value="stretch">
+                STRETCH
+            </option>
+
+        </select>
+
+    </label>
+
+
+    <div class="toolbar-divider"></div>
+
+
+    <label class="select-control">
+
+        FONT
+
+        <select id="fontFamily">
+
+            <option value="Tahoma">
+                Tahoma
+            </option>
+
+            <option value="Arial">
+                Arial
+            </option>
+
+            <option value="Verdana">
+                Verdana
+            </option>
+
+            <option value="Georgia">
+                Georgia
+            </option>
+
+            <option value="Courier New">
+                Courier New
+            </option>
+
+            <option value="Comic Sans MS">
+                Comic Sans
+            </option>
+
+        </select>
+
+    </label>
+
+
+    <label class="color-control">
+
+        TEXT
+
+        <input
+            type="color"
+            id="textColor"
+            value="#222222"
+        >
+
+    </label>
+
+
+    <div class="toolbar-divider"></div>
+
+
+    <button id="newButton">
+        NEW
+    </button>
+
+    <button id="saveButton">
+        SAVE
+    </button>
+
+    <button id="saveAsButton">
+        SAVE AS
+    </button>
+
+    <button id="loadButton">
+        LOAD
+    </button>
+
+
+    <button id="resetViewButton">
+        RESET VIEW
+    </button>
+
+
+    <button
+        id="helpButton"
+        class="help-button"
+    >
+        ?
+    </button>
+
 
     <div class="toolbar-spacer"></div>
+
 
     <div id="pickdel">
         PICKDEL
     </div>
+
 
     <span id="zoomDisplay">
         100%
@@ -81,6 +215,11 @@
 
 </div>
 
+
+
+<!-- =========================
+     BOARD
+========================= -->
 
 <div id="board">
 
@@ -91,6 +230,11 @@
 </div>
 
 
+
+<!-- =========================
+     FILE INPUTS
+========================= -->
+
 <input
     type="file"
     id="imageInput"
@@ -98,12 +242,14 @@
     hidden
 >
 
+
 <input
     type="file"
     id="backgroundImageInput"
     accept="image/*"
     hidden
 >
+
 
 <input
     type="file"
@@ -113,7 +259,10 @@
 >
 
 
-<!-- RIGHT CLICK MENU -->
+
+<!-- =========================
+     RIGHT CLICK MENU
+========================= -->
 
 <div id="contextMenu">
 
@@ -125,13 +274,17 @@
         Duplicate
     </button>
 
+
     <div class="menu-divider"></div>
+
 
     <button id="pixelObject">
         Pixel Mode
     </button>
 
+
     <div class="menu-divider"></div>
+
 
     <button id="bringFront">
         Bring to Front
@@ -152,15 +305,23 @@
 </div>
 
 
-<!-- HELP -->
 
-<div id="helpWindow" class="help-window">
+<!-- =========================
+     HELP
+========================= -->
+
+<div
+    id="helpWindow"
+    class="help-window"
+>
 
     <div class="help-box">
+
 
         <div class="help-title">
 
             PICKDEL BOARD
+
 
             <button id="closeHelp">
                 X
@@ -168,105 +329,117 @@
 
         </div>
 
+
         <div class="help-content">
 
-            <h3>Controls</h3>
+
+            <h3>
+                Controls
+            </h3>
+
 
             <p>
                 <b>SELECT</b><br>
                 Select and move objects.
             </p>
 
+
             <p>
                 <b>TEXT</b><br>
                 Creates a new note.
             </p>
+
 
             <p>
                 <b>IMAGE</b><br>
                 Adds an image with a title.
             </p>
 
+
             <p>
                 <b>STICKER</b><br>
                 Adds an image without a title or border.
             </p>
+
 
             <p>
                 <b>DRAW</b><br>
                 Draw on the board.
             </p>
 
+
             <p>
                 <b>ERASER</b><br>
                 Erase drawings.
             </p>
 
+
             <p>
-                <b>WASD</b><br>
+                <b>WASD / ARROW KEYS</b><br>
                 Move around the board.
             </p>
 
-            <p>
-                <b>ARROW KEYS</b><br>
-                Also move around the board.
-            </p>
 
             <p>
                 <b>SHIFT + DRAG</b><br>
-                Move around the board.
+                Move around the board with the mouse.
             </p>
+
 
             <p>
                 <b>MOUSE WHEEL</b><br>
                 Zoom in and out.
             </p>
 
+
+            <p>
+                <b>CLICK EMPTY SPACE</b><br>
+                Deselect the current object.
+            </p>
+
+
             <p>
                 <b>RIGHT CLICK</b><br>
                 Open object options.
             </p>
 
-            <p>
-                <b>CLICK EMPTY SPACE</b><br>
-                Deselect objects.
-            </p>
 
             <p>
                 <b>PIXEL MODE</b><br>
                 Makes pixel-art images use crisp nearest-neighbor scaling.
             </p>
 
+
             <p>
                 <b>DELETE</b><br>
                 Delete the selected object.
             </p>
 
-            <p>
-                <b>CTRL + D</b><br>
-                Duplicate the selected object.
-            </p>
 
             <p>
                 <b>BG IMAGE</b><br>
-                Add an image behind your board.
+                Add an image behind the board.
             </p>
 
-            <p>
-                <b>BG TILE</b><br>
-                Toggle whether the background image repeats.
-            </p>
 
             <p>
-                <b>SAVE / LOAD</b><br>
-                Boards are saved as portable JSON files that can be shared with other people.
+                <b>BG MODE</b><br>
+                Choose FIT, TILE, or STRETCH.
             </p>
+
+
+            <p>
+                <b>FONT / TEXT</b><br>
+                Change the board's default font and text color.
+            </p>
+
 
         </div>
 
     </div>
 
 </div>
+
 
 
 <script src="app.js"></script>
