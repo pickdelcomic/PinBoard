@@ -33,12 +33,39 @@
         <input type="color" id="backgroundColor" value="#ffffff">
     </label>
 
+    <button id="backgroundImageButton">BG IMAGE</button>
+
+    <button id="tileBackgroundButton">
+        BG TILE: ON
+    </button>
+
+    <label class="font-control">
+        FONT
+        <select id="fontSelect">
+            <option value="Tahoma, Arial, sans-serif">Tahoma</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="Verdana, sans-serif">Verdana</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="Courier New, monospace">Courier New</option>
+            <option value="Trebuchet MS, sans-serif">Trebuchet</option>
+            <option value="Impact, sans-serif">Impact</option>
+        </select>
+    </label>
+
+    <label class="color-control">
+        TEXT
+        <input type="color" id="textColor" value="#222222">
+    </label>
+
     <div class="toolbar-divider"></div>
 
     <button id="newButton">NEW</button>
     <button id="saveButton">SAVE</button>
     <button id="saveAsButton">SAVE AS</button>
     <button id="loadButton">LOAD</button>
+    <button id="shareButton">SHARE</button>
+
+    <button id="resetViewButton">CENTER</button>
 
     <button id="helpButton" class="help-button">?</button>
 
@@ -67,6 +94,13 @@
 <input
     type="file"
     id="imageInput"
+    accept="image/*"
+    hidden
+>
+
+<input
+    type="file"
+    id="backgroundImageInput"
     accept="image/*"
     hidden
 >
@@ -169,6 +203,16 @@
             </p>
 
             <p>
+                <b>WASD</b><br>
+                Move around the board.
+            </p>
+
+            <p>
+                <b>ARROW KEYS</b><br>
+                Also move around the board.
+            </p>
+
+            <p>
                 <b>SHIFT + DRAG</b><br>
                 Move around the board.
             </p>
@@ -184,6 +228,11 @@
             </p>
 
             <p>
+                <b>CLICK EMPTY SPACE</b><br>
+                Deselect objects.
+            </p>
+
+            <p>
                 <b>PIXEL MODE</b><br>
                 Makes pixel-art images use crisp nearest-neighbor scaling.
             </p>
@@ -191,6 +240,26 @@
             <p>
                 <b>DELETE</b><br>
                 Delete the selected object.
+            </p>
+
+            <p>
+                <b>CTRL + D</b><br>
+                Duplicate the selected object.
+            </p>
+
+            <p>
+                <b>BG IMAGE</b><br>
+                Add an image behind your board.
+            </p>
+
+            <p>
+                <b>BG TILE</b><br>
+                Toggle whether the background image repeats.
+            </p>
+
+            <p>
+                <b>SAVE / LOAD</b><br>
+                Boards are saved as portable JSON files that can be shared with other people.
             </p>
 
         </div>
