@@ -14,6 +14,9 @@ const drawingCanvas =
 const drawingContext =
     drawingCanvas.getContext("2d");
 
+const backgroundLayer =
+    document.getElementById("backgroundLayer");
+
 
 /* =========================
    BUTTONS
@@ -49,16 +52,16 @@ const saveAsButton =
 const loadButton =
     document.getElementById("loadButton");
 
-const resetViewButton =
-    document.getElementById("resetViewButton");
+const styleButton =
+    document.getElementById("styleButton");
+
+const helpButton =
+    document.getElementById("helpButton");
 
 
 /* =========================
    HELP
 ========================= */
-
-const helpButton =
-    document.getElementById("helpButton");
 
 const helpWindow =
     document.getElementById("helpWindow");
@@ -68,23 +71,95 @@ const closeHelp =
 
 
 /* =========================
-   COLORS / STYLE
+   STYLE WINDOW
+========================= */
+
+const styleWindow =
+    document.getElementById("styleWindow");
+
+const closeStyle =
+    document.getElementById("closeStyle");
+
+const uiColor =
+    document.getElementById("uiColor");
+
+const styleBackgroundColor =
+    document.getElementById(
+        "styleBackgroundColor"
+    );
+
+const backgroundImageButton =
+    document.getElementById(
+        "backgroundImageButton"
+    );
+
+const removeBackgroundButton =
+    document.getElementById(
+        "removeBackgroundButton"
+    );
+
+const backgroundScale =
+    document.getElementById(
+        "backgroundScale"
+    );
+
+const backgroundRepeat =
+    document.getElementById(
+        "backgroundRepeat"
+    );
+
+const backgroundPosition =
+    document.getElementById(
+        "backgroundPosition"
+    );
+
+const noSelectionMessage =
+    document.getElementById(
+        "noSelectionMessage"
+    );
+
+const objectStyleControls =
+    document.getElementById(
+        "objectStyleControls"
+    );
+
+const objectFont =
+    document.getElementById(
+        "objectFont"
+    );
+
+const objectFontSize =
+    document.getElementById(
+        "objectFontSize"
+    );
+
+const objectTextColor =
+    document.getElementById(
+        "objectTextColor"
+    );
+
+const objectHeaderColor =
+    document.getElementById(
+        "objectHeaderColor"
+    );
+
+const objectBackgroundColor =
+    document.getElementById(
+        "objectBackgroundColor"
+    );
+
+const objectBorderColor =
+    document.getElementById(
+        "objectBorderColor"
+    );
+
+
+/* =========================
+   COLORS
 ========================= */
 
 const penColor =
     document.getElementById("penColor");
-
-const backgroundColor =
-    document.getElementById("backgroundColor");
-
-const textColor =
-    document.getElementById("textColor");
-
-const fontFamily =
-    document.getElementById("fontFamily");
-
-const backgroundMode =
-    document.getElementById("backgroundMode");
 
 
 /* =========================
@@ -94,27 +169,12 @@ const backgroundMode =
 const imageInput =
     document.getElementById("imageInput");
 
-const backgroundImageInput =
-    document.getElementById(
-        "backgroundImageInput"
-    );
-
 const boardInput =
     document.getElementById("boardInput");
 
-
-/* =========================
-   BACKGROUND BUTTONS
-========================= */
-
-const backgroundImageButton =
+const backgroundInput =
     document.getElementById(
-        "backgroundImageButton"
-    );
-
-const clearBackgroundButton =
-    document.getElementById(
-        "clearBackgroundButton"
+        "backgroundInput"
     );
 
 
@@ -126,25 +186,39 @@ const contextMenu =
     document.getElementById("contextMenu");
 
 const deleteObject =
-    document.getElementById("deleteObject");
+    document.getElementById(
+        "deleteObject"
+    );
 
 const duplicateObject =
-    document.getElementById("duplicateObject");
+    document.getElementById(
+        "duplicateObject"
+    );
 
 const pixelObject =
-    document.getElementById("pixelObject");
+    document.getElementById(
+        "pixelObject"
+    );
 
 const bringFront =
-    document.getElementById("bringFront");
+    document.getElementById(
+        "bringFront"
+    );
 
 const bringForward =
-    document.getElementById("bringForward");
+    document.getElementById(
+        "bringForward"
+    );
 
 const sendBackward =
-    document.getElementById("sendBackward");
+    document.getElementById(
+        "sendBackward"
+    );
 
 const sendBack =
-    document.getElementById("sendBack");
+    document.getElementById(
+        "sendBack"
+    );
 
 
 /* =========================
@@ -186,16 +260,32 @@ let cameraY =
 let zoom =
     1;
 
+let cameraSpeed =
+    12;
+
 
 /* =========================
-   BACKGROUND STATE
+   BACKGROUND
 ========================= */
 
-let backgroundImage =
-    null;
+let backgroundData = {
 
-let backgroundImageMode =
-    "cover";
+    color:
+        "#ffffff",
+
+    image:
+        "",
+
+    scale:
+        "cover",
+
+    repeat:
+        "no-repeat",
+
+    position:
+        "center"
+
+};
 
 
 /* =========================
@@ -207,6 +297,26 @@ drawingCanvas.width =
 
 drawingCanvas.height =
     10000;
+
+
+/* =========================
+   INITIALIZE
+========================= */
+
+function initializeBoard() {
+
+    backgroundData.color =
+        styleBackgroundColor.value;
+
+    updateBackground();
+
+    centerBoard();
+
+    setTool("select");
+
+    updateCamera();
+
+}
 
 
 /* =========================
@@ -236,6 +346,9 @@ function selectObject(object) {
 
     }
 
+
+    updateStyleControls();
+
 }
 
 
@@ -257,6 +370,9 @@ function deselectObject() {
     selectedObject =
         null;
 
+
+    updateStyleControls();
+
 }
 
 
@@ -274,13 +390,15 @@ function setTool(tool) {
         selectButton,
         drawButton,
         eraserButton
-    ].forEach(button => {
+    ].forEach(
+        button => {
 
-        button.classList.remove(
-            "active"
-        );
+            button.classList.remove(
+                "active"
+            );
 
-    });
+        }
+    );
 
 
     if (tool === "select") {
@@ -352,18 +470,13 @@ textButton.addEventListener(
     "click",
     () => {
 
-        const x =
-            200 -
-            cameraX / zoom;
-
-        const y =
-            150 -
-            cameraY / zoom;
+        const center =
+            getBoardCenter();
 
 
         createNote(
-            x,
-            y
+            center.x,
+            center.y
         );
 
 
@@ -399,426 +512,6 @@ eraserButton.addEventListener(
 
     }
 );
-
-
-/* =========================
-   BACKGROUND COLOR
-========================= */
-
-backgroundColor.addEventListener(
-    "input",
-    () => {
-
-        applyBackground();
-
-    }
-);
-
-
-/* =========================
-   BACKGROUND IMAGE
-========================= */
-
-backgroundImageButton.addEventListener(
-    "click",
-    () => {
-
-        backgroundImageInput.click();
-
-    }
-);
-
-
-backgroundImageInput.addEventListener(
-    "change",
-    () => {
-
-        const file =
-            backgroundImageInput.files[0];
-
-
-        if (!file) {
-
-            return;
-
-        }
-
-
-        const reader =
-            new FileReader();
-
-
-        reader.onload =
-            event => {
-
-                backgroundImage =
-                    event.target.result;
-
-                applyBackground();
-
-            };
-
-
-        reader.readAsDataURL(file);
-
-
-        backgroundImageInput.value =
-            "";
-
-    }
-);
-
-
-/* =========================
-   BACKGROUND MODE
-========================= */
-
-backgroundMode.addEventListener(
-    "change",
-    () => {
-
-        backgroundImageMode =
-            backgroundMode.value;
-
-        applyBackground();
-
-    }
-);
-
-
-/* =========================
-   CLEAR BACKGROUND
-========================= */
-
-clearBackgroundButton.addEventListener(
-    "click",
-    () => {
-
-        backgroundImage =
-            null;
-
-        applyBackground();
-
-    }
-);
-
-
-/* =========================
-   APPLY BACKGROUND
-========================= */
-
-function applyBackground() {
-
-    workspace.style.backgroundColor =
-        backgroundColor.value;
-
-    board.style.backgroundColor =
-        backgroundColor.value;
-
-
-    if (!backgroundImage) {
-
-        workspace.style.backgroundImage =
-            "none";
-
-        return;
-
-    }
-
-
-    workspace.style.backgroundImage =
-        `url("${backgroundImage}")`;
-
-
-    if (
-        backgroundImageMode ===
-        "repeat"
-    ) {
-
-        workspace.style.backgroundRepeat =
-            "repeat";
-
-        workspace.style.backgroundSize =
-            "auto";
-
-    }
-
-
-    if (
-        backgroundImageMode ===
-        "cover"
-    ) {
-
-        workspace.style.backgroundRepeat =
-            "no-repeat";
-
-        workspace.style.backgroundSize =
-            "cover";
-
-    }
-
-
-    if (
-        backgroundImageMode ===
-        "stretch"
-    ) {
-
-        workspace.style.backgroundRepeat =
-            "no-repeat";
-
-        workspace.style.backgroundSize =
-            "100% 100%";
-
-    }
-
-}
-
-
-/* =========================
-   FONT
-========================= */
-
-fontFamily.addEventListener(
-    "change",
-    () => {
-
-        applyStyleSettings();
-
-    }
-);
-
-
-/* =========================
-   TEXT COLOR
-========================= */
-
-textColor.addEventListener(
-    "input",
-    () => {
-
-        applyStyleSettings();
-
-    }
-);
-
-
-/* =========================
-   APPLY STYLE SETTINGS
-========================= */
-
-function applyStyleSettings() {
-
-    workspace.style.fontFamily =
-        fontFamily.value;
-
-    workspace.style.setProperty(
-        "--board-text-color",
-        textColor.value
-    );
-
-}
-
-
-/* =========================
-   DRAWING
-========================= */
-
-drawingCanvas.addEventListener(
-    "mousedown",
-    event => {
-
-        if (
-            drawingMode !== "draw" &&
-            drawingMode !== "erase"
-        ) {
-
-            return;
-
-        }
-
-
-        drawing =
-            true;
-
-
-        const position =
-            getCanvasPosition(event);
-
-
-        drawingContext.beginPath();
-
-
-        drawingContext.moveTo(
-            position.x,
-            position.y
-        );
-
-
-        drawingContext.lineWidth =
-            drawingMode === "erase"
-                ? 30
-                : 4;
-
-
-        drawingContext.lineCap =
-            "round";
-
-
-        drawingContext.lineJoin =
-            "round";
-
-
-        if (
-            drawingMode ===
-            "erase"
-        ) {
-
-            drawingContext.globalCompositeOperation =
-                "destination-out";
-
-        } else {
-
-            drawingContext.globalCompositeOperation =
-                "source-over";
-
-            drawingContext.strokeStyle =
-                penColor.value;
-
-        }
-
-    }
-);
-
-
-drawingCanvas.addEventListener(
-    "mousemove",
-    event => {
-
-        if (!drawing) {
-
-            return;
-
-        }
-
-
-        const position =
-            getCanvasPosition(event);
-
-
-        drawingContext.lineTo(
-            position.x,
-            position.y
-        );
-
-
-        drawingContext.stroke();
-
-    }
-);
-
-
-document.addEventListener(
-    "mouseup",
-    () => {
-
-        drawing =
-            false;
-
-        drawingContext.closePath();
-
-    }
-);
-
-
-/* =========================
-   CANVAS POSITION
-========================= */
-
-function getCanvasPosition(event) {
-
-    const rect =
-        board.getBoundingClientRect();
-
-
-    return {
-
-        x:
-            (
-                event.clientX -
-                rect.left -
-                cameraX
-            ) / zoom,
-
-        y:
-            (
-                event.clientY -
-                rect.top -
-                cameraY
-            ) / zoom
-
-    };
-
-}
-
-
-/* =========================
-   CREATE NOTE
-========================= */
-
-function createNote(
-    x,
-    y,
-    title = null,
-    content = "Type something..."
-) {
-
-    const note =
-        document.createElement("div");
-
-
-    note.className =
-        "note board-object";
-
-
-    note.style.left =
-        x + "px";
-
-
-    note.style.top =
-        y + "px";
-
-
-    note.innerHTML = `
-
-        <div class="note-title">
-            ${escapeHTML(
-                title ||
-                "Note " +
-                objectNumber
-            )}
-        </div>
-
-        <div class="note-content">
-            ${escapeHTML(content)}
-        </div>
-
-        <div class="resize-handle"></div>
-
-    `;
-
-
-    workspace.appendChild(note);
-
-
-    objectNumber++;
-
-
-    setupObject(note);
-
-
-    selectObject(note);
-
-}
 
 
 /* =========================
@@ -881,14 +574,8 @@ imageInput.addEventListener(
         reader.onload =
             event => {
 
-                const x =
-                    200 -
-                    cameraX / zoom;
-
-
-                const y =
-                    150 -
-                    cameraY / zoom;
+                const center =
+                    getBoardCenter();
 
 
                 if (
@@ -898,8 +585,8 @@ imageInput.addEventListener(
 
                     createImage(
                         event.target.result,
-                        x,
-                        y
+                        center.x,
+                        center.y
                     );
 
                 }
@@ -912,8 +599,8 @@ imageInput.addEventListener(
 
                     createSticker(
                         event.target.result,
-                        x,
-                        y
+                        center.x,
+                        center.y
                     );
 
                 }
@@ -923,12 +610,71 @@ imageInput.addEventListener(
 
         reader.readAsDataURL(file);
 
-
         imageInput.value =
             "";
 
     }
 );
+
+
+/* =========================
+   CREATE NOTE
+========================= */
+
+function createNote(
+    x,
+    y,
+    title = null,
+    content = "Type something..."
+) {
+
+    const note =
+        document.createElement("div");
+
+
+    note.className =
+        "note board-object";
+
+
+    note.style.left =
+        x + "px";
+
+
+    note.style.top =
+        y + "px";
+
+
+    note.innerHTML = `
+
+        <div class="note-title">
+            ${escapeHTML(
+                title ||
+                "Note " +
+                objectNumber
+            )}
+        </div>
+
+        <div class="note-content">
+            ${escapeHTML(content)}
+        </div>
+
+        <div class="resize-handle"></div>
+
+    `;
+
+
+    workspace.appendChild(note);
+
+
+    objectNumber++;
+
+
+    setupObject(note);
+
+
+    selectObject(note);
+
+}
 
 
 /* =========================
@@ -1097,20 +843,15 @@ function setupObject(object) {
 
             event.preventDefault();
 
-
             selectObject(object);
 
-
             updatePixelMenu();
-
 
             contextMenu.style.display =
                 "block";
 
-
             contextMenu.style.left =
                 event.clientX + "px";
-
 
             contextMenu.style.top =
                 event.clientY + "px";
@@ -1126,123 +867,6 @@ function setupObject(object) {
     setupResizing(object);
 
 }
-
-
-/* =========================
-   PIXEL MODE MENU
-========================= */
-
-function updatePixelMenu() {
-
-    if (!selectedObject) {
-
-        return;
-
-    }
-
-
-    const isImage =
-        selectedObject.classList.contains(
-            "image-object"
-        );
-
-
-    const isSticker =
-        selectedObject.classList.contains(
-            "sticker"
-        );
-
-
-    if (
-        !isImage &&
-        !isSticker
-    ) {
-
-        pixelObject.style.display =
-            "none";
-
-        return;
-
-    }
-
-
-    pixelObject.style.display =
-        "block";
-
-
-    if (
-        selectedObject.classList.contains(
-            "pixel-mode"
-        )
-    ) {
-
-        pixelObject.textContent =
-            "Pixel Mode: ON";
-
-    } else {
-
-        pixelObject.textContent =
-            "Pixel Mode: OFF";
-
-    }
-
-}
-
-
-/* =========================
-   TOGGLE PIXEL MODE
-========================= */
-
-pixelObject.addEventListener(
-    "click",
-    event => {
-
-        event.stopPropagation();
-
-
-        if (!selectedObject) {
-
-            return;
-
-        }
-
-
-        const isImage =
-            selectedObject.classList.contains(
-                "image-object"
-            );
-
-
-        const isSticker =
-            selectedObject.classList.contains(
-                "sticker"
-            );
-
-
-        if (
-            !isImage &&
-            !isSticker
-        ) {
-
-            closeContextMenu();
-
-            return;
-
-        }
-
-
-        selectedObject.classList.toggle(
-            "pixel-mode"
-        );
-
-
-        updatePixelMenu();
-
-
-        closeContextMenu();
-
-    }
-);
 
 
 /* =========================
@@ -1271,18 +895,14 @@ function setupEditing(object) {
 
                 event.stopPropagation();
 
-
                 title.contentEditable =
                     "true";
-
 
                 title.classList.add(
                     "editing"
                 );
 
-
                 title.focus();
-
 
                 placeCursorAtEnd(
                     title
@@ -1298,7 +918,6 @@ function setupEditing(object) {
 
                 title.contentEditable =
                     "false";
-
 
                 title.classList.remove(
                     "editing"
@@ -1318,15 +937,12 @@ function setupEditing(object) {
 
                 event.stopPropagation();
 
-
                 content.contentEditable =
                     "true";
-
 
                 content.classList.add(
                     "editing"
                 );
-
 
                 content.focus();
 
@@ -1340,7 +956,6 @@ function setupEditing(object) {
 
                 content.contentEditable =
                     "false";
-
 
                 content.classList.remove(
                     "editing"
@@ -1621,6 +1236,98 @@ function setupResizing(object) {
 
 
 /* =========================
+   PIXEL MENU
+========================= */
+
+function updatePixelMenu() {
+
+    if (!selectedObject) {
+
+        return;
+
+    }
+
+
+    const isImage =
+        selectedObject.classList.contains(
+            "image-object"
+        );
+
+
+    const isSticker =
+        selectedObject.classList.contains(
+            "sticker"
+        );
+
+
+    if (
+        !isImage &&
+        !isSticker
+    ) {
+
+        pixelObject.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    pixelObject.style.display =
+        "block";
+
+
+    if (
+        selectedObject.classList.contains(
+            "pixel-mode"
+        )
+    ) {
+
+        pixelObject.textContent =
+            "Pixel Mode: ON";
+
+    } else {
+
+        pixelObject.textContent =
+            "Pixel Mode: OFF";
+
+    }
+
+}
+
+
+/* =========================
+   PIXEL MODE
+========================= */
+
+pixelObject.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        selectedObject.classList.toggle(
+            "pixel-mode"
+        );
+
+
+        updatePixelMenu();
+
+        closeContextMenu();
+
+    }
+);
+
+
+/* =========================
    DELETE
 ========================= */
 
@@ -1637,6 +1344,8 @@ deleteObject.addEventListener(
 
             selectedObject =
                 null;
+
+            updateStyleControls();
 
         }
 
@@ -1690,16 +1399,12 @@ duplicateObject.addEventListener(
         );
 
 
-        workspace.appendChild(
-            copy
-        );
+        workspace.appendChild(copy);
 
 
         setupObject(copy);
 
-
         selectObject(copy);
-
 
         closeContextMenu();
 
@@ -1708,7 +1413,7 @@ duplicateObject.addEventListener(
 
 
 /* =========================
-   BRING TO FRONT
+   LAYERS
 ========================= */
 
 bringFront.addEventListener(
@@ -1733,18 +1438,20 @@ bringFront.addEventListener(
             .querySelectorAll(
                 ".board-object"
             )
-            .forEach(object => {
+            .forEach(
+                object => {
 
-                highest =
-                    Math.max(
-                        highest,
-                        parseInt(
-                            object.style.zIndex ||
-                            "0"
-                        )
-                    );
+                    highest =
+                        Math.max(
+                            highest,
+                            parseInt(
+                                object.style.zIndex ||
+                                "0"
+                            )
+                        );
 
-            });
+                }
+            );
 
 
         selectedObject.style.zIndex =
@@ -1756,10 +1463,6 @@ bringFront.addEventListener(
     }
 );
 
-
-/* =========================
-   BRING FORWARD
-========================= */
 
 bringForward.addEventListener(
     "click",
@@ -1792,10 +1495,6 @@ bringForward.addEventListener(
 );
 
 
-/* =========================
-   SEND BACKWARD
-========================= */
-
 sendBackward.addEventListener(
     "click",
     event => {
@@ -1827,10 +1526,6 @@ sendBackward.addEventListener(
 );
 
 
-/* =========================
-   SEND TO BACK
-========================= */
-
 sendBack.addEventListener(
     "click",
     event => {
@@ -1856,7 +1551,7 @@ sendBack.addEventListener(
 
 
 /* =========================
-   CLOSE MENU
+   CONTEXT MENU
 ========================= */
 
 function closeContextMenu() {
@@ -1886,6 +1581,34 @@ document.addEventListener(
 
 
 /* =========================
+   EMPTY BOARD CLICK
+========================= */
+
+board.addEventListener(
+    "mousedown",
+    event => {
+
+        if (
+            event.target === board ||
+            event.target === backgroundLayer
+        ) {
+
+            if (
+                event.button === 0 &&
+                !event.shiftKey
+            ) {
+
+                deselectObject();
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================
    HELP
 ========================= */
 
@@ -1894,7 +1617,6 @@ helpButton.addEventListener(
     event => {
 
         event.stopPropagation();
-
 
         helpWindow.style.display =
             "flex";
@@ -1933,26 +1655,582 @@ helpWindow.addEventListener(
 
 
 /* =========================
-   RESET VIEW
+   STYLE WINDOW
 ========================= */
 
-resetViewButton.addEventListener(
+styleButton.addEventListener(
     "click",
-    () => {
+    event => {
 
-        cameraX =
-            0;
+        event.stopPropagation();
 
-        cameraY =
-            0;
+        updateStyleControls();
 
-        zoom =
-            1;
-
-        updateCamera();
+        styleWindow.style.display =
+            "flex";
 
     }
 );
+
+
+closeStyle.addEventListener(
+    "click",
+    () => {
+
+        styleWindow.style.display =
+            "none";
+
+    }
+);
+
+
+styleWindow.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target ===
+            styleWindow
+        ) {
+
+            styleWindow.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+/* =========================
+   UI COLOR
+========================= */
+
+uiColor.addEventListener(
+    "input",
+    () => {
+
+        document.documentElement.style
+            .setProperty(
+                "--ui-color",
+                uiColor.value
+            );
+
+
+        const dark =
+            darkenColor(
+                uiColor.value,
+                25
+            );
+
+
+        document.documentElement.style
+            .setProperty(
+                "--ui-dark",
+                dark
+            );
+
+    }
+);
+
+
+/* =========================
+   BACKGROUND COLOR
+========================= */
+
+styleBackgroundColor.addEventListener(
+    "input",
+    () => {
+
+        backgroundData.color =
+            styleBackgroundColor.value;
+
+        updateBackground();
+
+    }
+);
+
+
+/* =========================
+   BACKGROUND IMAGE
+========================= */
+
+backgroundImageButton.addEventListener(
+    "click",
+    () => {
+
+        backgroundInput.click();
+
+    }
+);
+
+
+backgroundInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            backgroundInput.files[0];
+
+
+        if (!file) {
+
+            return;
+
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            event => {
+
+                backgroundData.image =
+                    event.target.result;
+
+                updateBackground();
+
+            };
+
+
+        reader.readAsDataURL(file);
+
+        backgroundInput.value =
+            "";
+
+    }
+);
+
+
+/* =========================
+   REMOVE BACKGROUND
+========================= */
+
+removeBackgroundButton.addEventListener(
+    "click",
+    () => {
+
+        backgroundData.image =
+            "";
+
+        updateBackground();
+
+    }
+);
+
+
+/* =========================
+   BACKGROUND SCALE
+========================= */
+
+backgroundScale.addEventListener(
+    "change",
+    () => {
+
+        backgroundData.scale =
+            backgroundScale.value;
+
+        updateBackground();
+
+    }
+);
+
+
+/* =========================
+   BACKGROUND REPEAT
+========================= */
+
+backgroundRepeat.addEventListener(
+    "change",
+    () => {
+
+        backgroundData.repeat =
+            backgroundRepeat.value;
+
+        updateBackground();
+
+    }
+);
+
+
+/* =========================
+   BACKGROUND POSITION
+========================= */
+
+backgroundPosition.addEventListener(
+    "change",
+    () => {
+
+        backgroundData.position =
+            backgroundPosition.value;
+
+        updateBackground();
+
+    }
+);
+
+
+/* =========================
+   UPDATE BACKGROUND
+========================= */
+
+function updateBackground() {
+
+    backgroundLayer.style.backgroundColor =
+        backgroundData.color;
+
+
+    if (backgroundData.image) {
+
+        backgroundLayer.style.backgroundImage =
+            `url("${backgroundData.image}")`;
+
+    } else {
+
+        backgroundLayer.style.backgroundImage =
+            "none";
+
+    }
+
+
+    backgroundLayer.style.backgroundSize =
+        backgroundData.scale;
+
+
+    backgroundLayer.style.backgroundRepeat =
+        backgroundData.repeat;
+
+
+    backgroundLayer.style.backgroundPosition =
+        backgroundData.position;
+
+}
+
+
+/* =========================
+   SELECTED OBJECT STYLE
+========================= */
+
+function updateStyleControls() {
+
+    if (
+        !selectedObject ||
+        (
+            !selectedObject.classList.contains(
+                "note"
+            ) &&
+            !selectedObject.classList.contains(
+                "image-object"
+            )
+        )
+    ) {
+
+        noSelectionMessage.style.display =
+            "block";
+
+        objectStyleControls.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    noSelectionMessage.style.display =
+        "none";
+
+    objectStyleControls.style.display =
+        "block";
+
+
+    const styles =
+        getComputedStyle(
+            selectedObject
+        );
+
+
+    objectFont.value =
+        selectedObject.style
+            .getPropertyValue(
+                "--object-font"
+            ) ||
+        "Tahoma";
+
+
+    objectFontSize.value =
+        parseInt(
+            selectedObject.style
+                .getPropertyValue(
+                    "--object-font-size"
+                ) ||
+                "14"
+        );
+
+
+    objectTextColor.value =
+        rgbToHex(
+            styles.color
+        );
+
+
+    objectHeaderColor.value =
+        rgbToHex(
+            selectedObject.style
+                .getPropertyValue(
+                    "--object-header"
+                ) ||
+                "#316ac5"
+        );
+
+
+    objectBackgroundColor.value =
+        rgbToHex(
+            selectedObject.style
+                .getPropertyValue(
+                    "--object-bg"
+                ) ||
+                "#fffff0"
+        );
+
+
+    objectBorderColor.value =
+        rgbToHex(
+            selectedObject.style
+                .getPropertyValue(
+                    "--object-border"
+                ) ||
+                "#6b7c8c"
+        );
+
+}
+
+
+/* =========================
+   OBJECT FONT
+========================= */
+
+objectFont.addEventListener(
+    "change",
+    () => {
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        selectedObject.style
+            .setProperty(
+                "--object-font",
+                objectFont.value
+            );
+
+        applyFontToObject();
+
+    }
+);
+
+
+/* =========================
+   OBJECT FONT SIZE
+========================= */
+
+objectFontSize.addEventListener(
+    "input",
+    () => {
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        const size =
+            Math.max(
+                8,
+                Math.min(
+                    72,
+                    parseInt(
+                        objectFontSize.value ||
+                        "14"
+                    )
+                )
+            );
+
+
+        selectedObject.style
+            .setProperty(
+                "--object-font-size",
+                size + "px"
+            );
+
+
+        applyFontToObject();
+
+    }
+);
+
+
+/* =========================
+   OBJECT TEXT COLOR
+========================= */
+
+objectTextColor.addEventListener(
+    "input",
+    () => {
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        selectedObject.style
+            .setProperty(
+                "--object-text",
+                objectTextColor.value
+            );
+
+    }
+);
+
+
+/* =========================
+   OBJECT HEADER COLOR
+========================= */
+
+objectHeaderColor.addEventListener(
+    "input",
+    () => {
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        selectedObject.style
+            .setProperty(
+                "--object-header",
+                objectHeaderColor.value
+            );
+
+    }
+);
+
+
+/* =========================
+   OBJECT BACKGROUND COLOR
+========================= */
+
+objectBackgroundColor.addEventListener(
+    "input",
+    () => {
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        selectedObject.style
+            .setProperty(
+                "--object-bg",
+                objectBackgroundColor.value
+            );
+
+    }
+);
+
+
+/* =========================
+   OBJECT BORDER COLOR
+========================= */
+
+objectBorderColor.addEventListener(
+    "input",
+    () => {
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        selectedObject.style
+            .setProperty(
+                "--object-border",
+                objectBorderColor.value
+            );
+
+    }
+);
+
+
+/* =========================
+   APPLY FONT
+========================= */
+
+function applyFontToObject() {
+
+    if (!selectedObject) {
+
+        return;
+
+    }
+
+
+    const font =
+        objectFont.value;
+
+
+    const size =
+        objectFontSize.value +
+        "px";
+
+
+    const title =
+        selectedObject.querySelector(
+            ".note-title, .image-title"
+        );
+
+
+    const content =
+        selectedObject.querySelector(
+            ".note-content"
+        );
+
+
+    if (title) {
+
+        title.style.fontFamily =
+            font;
+
+        title.style.fontSize =
+            size;
+
+    }
+
+
+    if (content) {
+
+        content.style.fontFamily =
+            font;
+
+        content.style.fontSize =
+            size;
+
+    }
+
+}
 
 
 /* =========================
@@ -2001,45 +2279,33 @@ newButton.addEventListener(
             null;
 
 
-        backgroundImage =
-            null;
+        backgroundData = {
+
+            color:
+                "#ffffff",
+
+            image:
+                "",
+
+            scale:
+                "cover",
+
+            repeat:
+                "no-repeat",
+
+            position:
+                "center"
+
+        };
 
 
-        backgroundColor.value =
+        styleBackgroundColor.value =
             "#ffffff";
 
 
-        penColor.value =
-            "#000000";
+        updateBackground();
 
-
-        textColor.value =
-            "#222222";
-
-
-        fontFamily.value =
-            "Tahoma";
-
-
-        backgroundMode.value =
-            "cover";
-
-
-        cameraX =
-            0;
-
-        cameraY =
-            0;
-
-        zoom =
-            1;
-
-
-        applyBackground();
-
-        applyStyleSettings();
-
-        updateCamera();
+        centerBoard();
 
     }
 );
@@ -2252,15 +2518,7 @@ function downloadBoard() {
         ".json";
 
 
-    document.body.appendChild(
-        link
-    );
-
-
     link.click();
-
-
-    link.remove();
 
 
     URL.revokeObjectURL(
@@ -2271,7 +2529,7 @@ function downloadBoard() {
 
 
 /* =========================
-   LOAD
+   LOAD BUTTON
 ========================= */
 
 loadButton.addEventListener(
@@ -2283,6 +2541,10 @@ loadButton.addEventListener(
     }
 );
 
+
+/* =========================
+   LOAD FILE
+========================= */
 
 boardInput.addEventListener(
     "change",
@@ -2320,12 +2582,7 @@ boardInput.addEventListener(
 
                 }
 
-                catch (error) {
-
-                    console.error(
-                        error
-                    );
-
+                catch {
 
                     alert(
                         "Could not load this board."
@@ -2389,7 +2646,47 @@ function getBoardData() {
                     pixel:
                         object.classList.contains(
                             "pixel-mode"
-                        )
+                        ),
+
+                    styles: {
+
+                        font:
+                            object.style
+                                .getPropertyValue(
+                                    "--object-font"
+                                ),
+
+                        fontSize:
+                            object.style
+                                .getPropertyValue(
+                                    "--object-font-size"
+                                ),
+
+                        text:
+                            object.style
+                                .getPropertyValue(
+                                    "--object-text"
+                                ),
+
+                        header:
+                            object.style
+                                .getPropertyValue(
+                                    "--object-header"
+                                ),
+
+                        background:
+                            object.style
+                                .getPropertyValue(
+                                    "--object-bg"
+                                ),
+
+                        border:
+                            object.style
+                                .getPropertyValue(
+                                    "--object-border"
+                                )
+
+                    }
 
                 };
 
@@ -2461,28 +2758,19 @@ function getBoardData() {
     return {
 
         version:
-            7,
+            8,
 
         name:
             boardName,
 
         background:
-            backgroundColor.value,
-
-        backgroundImage:
-            backgroundImage,
-
-        backgroundMode:
-            backgroundImageMode,
+            backgroundData,
 
         penColor:
             penColor.value,
 
-        textColor:
-            textColor.value,
-
-        fontFamily:
-            fontFamily.value,
+        uiColor:
+            uiColor.value,
 
         objects,
 
@@ -2532,9 +2820,6 @@ function getObjectType(object) {
 
     }
 
-
-    return null;
-
 }
 
 
@@ -2551,39 +2836,121 @@ function loadBoard(data) {
     deselectObject();
 
 
+    objectNumber =
+        1;
+
+
     boardName =
         data.name ||
         "Untitled Board";
 
 
     /* =====================
-       BACKGROUND
+       UI COLOR
     ===================== */
 
-    if (data.background) {
+    if (data.uiColor) {
 
-        backgroundColor.value =
-            data.background;
+        uiColor.value =
+            data.uiColor;
+
+        uiColor.dispatchEvent(
+            new Event("input")
+        );
 
     }
 
 
-    backgroundImage =
-        data.backgroundImage ||
-        null;
+    /* =====================
+       BACKGROUND
+    ===================== */
+
+    if (
+        data.background &&
+        typeof data.background ===
+        "object"
+    ) {
+
+        backgroundData = {
+
+            color:
+                data.background.color ||
+                "#ffffff",
+
+            image:
+                data.background.image ||
+                "",
+
+            scale:
+                data.background.scale ||
+                "cover",
+
+            repeat:
+                data.background.repeat ||
+                "no-repeat",
+
+            position:
+                data.background.position ||
+                "center"
+
+        };
+
+    }
 
 
-    backgroundImageMode =
-        data.backgroundMode ||
-        "cover";
+    /*
+       Older boards may have stored
+       background as a simple color.
+    */
+
+    else if (
+        typeof data.background ===
+        "string"
+    ) {
+
+        backgroundData = {
+
+            color:
+                data.background,
+
+            image:
+                "",
+
+            scale:
+                "cover",
+
+            repeat:
+                "no-repeat",
+
+            position:
+                "center"
+
+        };
+
+    }
 
 
-    backgroundMode.value =
-        backgroundImageMode;
+    styleBackgroundColor.value =
+        backgroundData.color;
+
+
+    backgroundScale.value =
+        backgroundData.scale;
+
+
+    backgroundRepeat.value =
+        backgroundData.repeat;
+
+
+    backgroundPosition.value =
+        backgroundData.position;
+
+
+    updateBackground();
 
 
     /* =====================
-       PEN
+       PEN COLOR
     ===================== */
 
     if (data.penColor) {
@@ -2595,37 +2962,8 @@ function loadBoard(data) {
 
 
     /* =====================
-       FONT
-    ===================== */
-
-    if (data.textColor) {
-
-        textColor.value =
-            data.textColor;
-
-    }
-
-
-    if (data.fontFamily) {
-
-        fontFamily.value =
-            data.fontFamily;
-
-    }
-
-
-    applyBackground();
-
-    applyStyleSettings();
-
-
-    /* =====================
        OBJECTS
     ===================== */
-
-    let largestObjectNumber =
-        0;
-
 
     if (
         Array.isArray(
@@ -2636,7 +2974,7 @@ function loadBoard(data) {
         data.objects.forEach(
             object => {
 
-                let createdObject =
+                let created =
                     null;
 
 
@@ -2652,8 +2990,7 @@ function loadBoard(data) {
                         object.content
                     );
 
-
-                    createdObject =
+                    created =
                         selectedObject;
 
                 }
@@ -2673,8 +3010,7 @@ function loadBoard(data) {
                         object.pixel
                     );
 
-
-                    createdObject =
+                    created =
                         selectedObject;
 
                 }
@@ -2693,33 +3029,34 @@ function loadBoard(data) {
                         object.pixel
                     );
 
-
-                    createdObject =
+                    created =
                         selectedObject;
 
                 }
 
 
-                if (createdObject) {
+                if (created) {
 
-                    createdObject.style.zIndex =
+                    created.style.zIndex =
                         object.zIndex ||
                         0;
 
 
-                    const title =
-                        createdObject.querySelector(
-                            ".note-title, .image-title"
+                    if (
+                        object.styles
+                    ) {
+
+                        applySavedStyles(
+                            created,
+                            object.styles
                         );
-
-
-                    if (title) {
-
-                        title.contentEditable =
-                            "false";
 
                     }
 
+
+                    created.classList.remove(
+                        "selected"
+                    );
 
                     selectedObject =
                         null;
@@ -2735,14 +3072,6 @@ function loadBoard(data) {
     /* =====================
        DRAWING
     ===================== */
-
-    drawingContext.clearRect(
-        0,
-        0,
-        drawingCanvas.width,
-        drawingCanvas.height
-    );
-
 
     if (data.drawing) {
 
@@ -2761,10 +3090,6 @@ function loadBoard(data) {
                 );
 
 
-                drawingContext.globalCompositeOperation =
-                    "source-over";
-
-
                 drawingContext.drawImage(
                     image,
                     0,
@@ -2780,25 +3105,146 @@ function loadBoard(data) {
     }
 
 
-    updateObjectNumber();
+    updateStyleControls();
+
+    centerBoard();
 
 }
 
 
 /* =========================
-   OBJECT NUMBER
+   SAVED STYLES
 ========================= */
 
-function updateObjectNumber() {
+function applySavedStyles(
+    object,
+    styles
+) {
 
-    const objects =
-        workspace.querySelectorAll(
-            ".board-object"
+    if (
+        styles.font
+    ) {
+
+        object.style.setProperty(
+            "--object-font",
+            styles.font
+        );
+
+    }
+
+
+    if (
+        styles.fontSize
+    ) {
+
+        object.style.setProperty(
+            "--object-font-size",
+            styles.fontSize
+        );
+
+    }
+
+
+    if (
+        styles.text
+    ) {
+
+        object.style.setProperty(
+            "--object-text",
+            styles.text
+        );
+
+    }
+
+
+    if (
+        styles.header
+    ) {
+
+        object.style.setProperty(
+            "--object-header",
+            styles.header
+        );
+
+    }
+
+
+    if (
+        styles.background
+    ) {
+
+        object.style.setProperty(
+            "--object-bg",
+            styles.background
+        );
+
+    }
+
+
+    if (
+        styles.border
+    ) {
+
+        object.style.setProperty(
+            "--object-border",
+            styles.border
+        );
+
+    }
+
+
+    const title =
+        object.querySelector(
+            ".note-title, .image-title"
         );
 
 
-    objectNumber =
-        objects.length + 1;
+    const content =
+        object.querySelector(
+            ".note-content"
+        );
+
+
+    if (
+        styles.font
+    ) {
+
+        if (title) {
+
+            title.style.fontFamily =
+                styles.font;
+
+        }
+
+        if (content) {
+
+            content.style.fontFamily =
+                styles.font;
+
+        }
+
+    }
+
+
+    if (
+        styles.fontSize
+    ) {
+
+        if (title) {
+
+            title.style.fontSize =
+                styles.fontSize;
+
+        }
+
+        if (content) {
+
+            content.style.fontSize =
+                styles.fontSize;
+
+        }
+
+    }
 
 }
 
@@ -2811,25 +3257,8 @@ document.addEventListener(
     "keydown",
     event => {
 
-        const active =
-            document.activeElement;
-
-
-        const editing =
-            active &&
-            (
-                active.isContentEditable ||
-                active.tagName === "INPUT" ||
-                active.tagName === "TEXTAREA" ||
-                active.tagName === "SELECT"
-            );
-
-
-        if (editing) {
-
-            return;
-
-        }
+        const key =
+            event.key.toLowerCase();
 
 
         /* =====================
@@ -2838,8 +3267,7 @@ document.addEventListener(
 
         if (
             event.ctrlKey &&
-            event.key.toLowerCase() ===
-            "s"
+            key === "s"
         ) {
 
             event.preventDefault();
@@ -2852,13 +3280,12 @@ document.addEventListener(
 
 
         /* =====================
-           OPEN
+           LOAD
         ===================== */
 
         if (
             event.ctrlKey &&
-            event.key.toLowerCase() ===
-            "o"
+            key === "o"
         ) {
 
             event.preventDefault();
@@ -2879,14 +3306,13 @@ document.addEventListener(
             "Escape"
         ) {
 
-            setTool(
-                "select"
-            );
-
+            setTool("select");
 
             helpWindow.style.display =
                 "none";
 
+            styleWindow.style.display =
+                "none";
 
             closeContextMenu();
 
@@ -2904,13 +3330,16 @@ document.addEventListener(
             "Delete" &&
             selectedObject &&
             drawingMode ===
-            "select"
+            "select" &&
+            !isTyping()
         ) {
 
             selectedObject.remove();
 
             selectedObject =
                 null;
+
+            updateStyleControls();
 
             return;
 
@@ -2922,85 +3351,100 @@ document.addEventListener(
         ===================== */
 
         if (
-            drawingMode ===
+            drawingMode !==
             "select"
         ) {
 
-            const key =
-                event.key.toLowerCase();
+            return;
+
+        }
 
 
-            const movement =
-                50;
+        if (
+            isTyping()
+        ) {
+
+            return;
+
+        }
 
 
-            let moved =
-                false;
+        let moveX =
+            0;
+
+        let moveY =
+            0;
 
 
-            if (
-                key === "w" ||
-                key === "arrowup"
-            ) {
+        if (
+            key === "w" ||
+            event.key === "ArrowUp"
+        ) {
 
-                cameraY +=
-                    movement;
+            moveY =
+                cameraSpeed;
 
-                moved =
-                    true;
-
-            }
+        }
 
 
-            if (
-                key === "s" ||
-                key === "arrowdown"
-            ) {
+        if (
+            key === "s" ||
+            event.key === "ArrowDown"
+        ) {
 
-                cameraY -=
-                    movement;
+            moveY =
+                -cameraSpeed;
 
-                moved =
-                    true;
-
-            }
+        }
 
 
-            if (
-                key === "a" ||
-                key === "arrowleft"
-            ) {
+        if (
+            key === "a" ||
+            event.key === "ArrowLeft"
+        ) {
 
-                cameraX +=
-                    movement;
+            moveX =
+                cameraSpeed;
 
-                moved =
-                    true;
-
-            }
+        }
 
 
-            if (
-                key === "d" ||
-                key === "arrowright"
-            ) {
+        if (
+            key === "d" ||
+            event.key === "ArrowRight"
+        ) {
 
-                cameraX -=
-                    movement;
+            moveX =
+                -cameraSpeed;
 
-                moved =
-                    true;
-
-            }
+        }
 
 
-            if (moved) {
+        if (
+            moveX !== 0 ||
+            moveY !== 0
+        ) {
 
-                event.preventDefault();
+            event.preventDefault();
 
-                updateCamera();
 
-            }
+            const speed =
+                event.shiftKey
+                    ? 3
+                    : 1;
+
+
+            cameraX +=
+                moveX *
+                speed;
+
+
+            cameraY +=
+                moveY *
+                speed;
+
+
+            updateCamera();
 
         }
 
@@ -3009,7 +3453,34 @@ document.addEventListener(
 
 
 /* =========================
-   PAN WITH MOUSE
+   TYPING CHECK
+========================= */
+
+function isTyping() {
+
+    const active =
+        document.activeElement;
+
+
+    if (!active) {
+
+        return false;
+
+    }
+
+
+    return (
+        active.isContentEditable ||
+        active.tagName === "INPUT" ||
+        active.tagName === "TEXTAREA" ||
+        active.tagName === "SELECT"
+    );
+
+}
+
+
+/* =========================
+   PAN
 ========================= */
 
 let panning =
@@ -3138,39 +3609,6 @@ document.addEventListener(
 
 
 /* =========================
-   DESELECT BY CLICKING EMPTY
-========================= */
-
-board.addEventListener(
-    "mousedown",
-    event => {
-
-        if (
-            drawingMode !==
-            "select"
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            event.target ===
-            board ||
-            event.target ===
-            workspace
-        ) {
-
-            deselectObject();
-
-        }
-
-    }
-);
-
-
-/* =========================
    ZOOM
 ========================= */
 
@@ -3189,6 +3627,10 @@ board.addEventListener(
 
 
         event.preventDefault();
+
+
+        const oldZoom =
+            zoom;
 
 
         if (
@@ -3214,6 +3656,51 @@ board.addEventListener(
                     zoom
                 )
             );
+
+
+        /*
+           Keep the point under the mouse
+           in roughly the same place while zooming.
+        */
+
+        const rect =
+            board.getBoundingClientRect();
+
+
+        const mouseX =
+            event.clientX -
+            rect.left;
+
+
+        const mouseY =
+            event.clientY -
+            rect.top;
+
+
+        const worldX =
+            (
+                mouseX -
+                cameraX
+            ) / oldZoom;
+
+
+        const worldY =
+            (
+                mouseY -
+                cameraY
+            ) / oldZoom;
+
+
+        cameraX =
+            mouseX -
+            worldX *
+            zoom;
+
+
+        cameraY =
+            mouseY -
+            worldY *
+            zoom;
 
 
         updateCamera();
@@ -3249,6 +3736,72 @@ function updateCamera() {
         Math.round(
             zoom * 100
         ) + "%";
+
+}
+
+
+/* =========================
+   CENTER BOARD
+========================= */
+
+function centerBoard() {
+
+    const rect =
+        board.getBoundingClientRect();
+
+
+    const boardWidth =
+        10000 * zoom;
+
+
+    const boardHeight =
+        10000 * zoom;
+
+
+    cameraX =
+        (
+            rect.width -
+            boardWidth
+        ) / 2;
+
+
+    cameraY =
+        (
+            rect.height -
+            boardHeight
+        ) / 2;
+
+
+    updateCamera();
+
+}
+
+
+/* =========================
+   BOARD CENTER
+========================= */
+
+function getBoardCenter() {
+
+    const rect =
+        board.getBoundingClientRect();
+
+
+    return {
+
+        x:
+            (
+                rect.width / 2 -
+                cameraX
+            ) / zoom,
+
+        y:
+            (
+                rect.height / 2 -
+                cameraY
+            ) / zoom
+
+    };
 
 }
 
@@ -3309,15 +3862,133 @@ function escapeHTML(text) {
 
 
 /* =========================
+   RGB -> HEX
+========================= */
+
+function rgbToHex(color) {
+
+    if (
+        !color ||
+        color.startsWith("#")
+    ) {
+
+        return color ||
+            "#000000";
+
+    }
+
+
+    const result =
+        color.match(
+            /\d+/g
+        );
+
+
+    if (
+        !result ||
+        result.length < 3
+    ) {
+
+        return "#000000";
+
+    }
+
+
+    return "#" +
+        result
+            .slice(0, 3)
+            .map(
+                number =>
+                    parseInt(
+                        number
+                    )
+                        .toString(16)
+                        .padStart(
+                            2,
+                            "0"
+                        )
+            )
+            .join("");
+
+}
+
+
+/* =========================
+   DARKEN COLOR
+========================= */
+
+function darkenColor(
+    hex,
+    amount
+) {
+
+    const value =
+        hex.replace(
+            "#",
+            ""
+        );
+
+
+    const number =
+        parseInt(
+            value,
+            16
+        );
+
+
+    let r =
+        (number >> 16) -
+        amount;
+
+
+    let g =
+        ((number >> 8) & 255) -
+        amount;
+
+
+    let b =
+        (number & 255) -
+        amount;
+
+
+    r =
+        Math.max(
+            0,
+            r
+        );
+
+
+    g =
+        Math.max(
+            0,
+            g
+        );
+
+
+    b =
+        Math.max(
+            0,
+            b
+        );
+
+
+    return "#" +
+        (
+            (r << 16) |
+            (g << 8) |
+            b
+        )
+            .toString(16)
+            .padStart(
+                6,
+                "0"
+            );
+
+}
+
+
+/* =========================
    START
 ========================= */
 
-applyBackground();
-
-applyStyleSettings();
-
-setTool(
-    "select"
-);
-
-updateCamera();
+initializeBoard();
