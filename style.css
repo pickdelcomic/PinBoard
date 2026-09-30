@@ -15,13 +15,15 @@
 
     --ui-text: #000000;
 
+    --ui-hover: #eeeeee;
+
+    --ui-active: #c3ccd7;
+
     --accent: #316ac5;
 
     --accent-dark: #234a8c;
 
-    --button-hover: #eeeeee;
-
-    --button-active: #c3ccd7;
+    --board-color: #ffffff;
 
 }
 
@@ -41,16 +43,18 @@ body {
         Arial,
         sans-serif;
 
-    background: #d6e4f0;
+    background:
+        #d6e4f0;
 
-    color: var(--ui-text);
+    color:
+        var(--ui-text);
 
 }
 
 
-/* =========================
+/* =========================================================
    TOOLBAR
-========================= */
+========================================================= */
 
 #toolbar {
 
@@ -70,7 +74,8 @@ body {
 
     padding: 5px;
 
-    background: var(--ui-color);
+    background:
+        var(--ui-color);
 
     border-bottom:
         2px solid var(--ui-dark);
@@ -90,11 +95,14 @@ body {
     font-family:
         inherit;
 
-    font-size: 12px;
+    font-size:
+        12px;
 
-    color: var(--ui-text);
+    color:
+        var(--ui-text);
 
-    background: var(--ui-color);
+    background:
+        var(--ui-color);
 
     border-top:
         2px solid var(--ui-light);
@@ -108,7 +116,8 @@ body {
     border-bottom:
         2px solid var(--ui-dark);
 
-    cursor: pointer;
+    cursor:
+        pointer;
 
 }
 
@@ -116,7 +125,7 @@ body {
 #toolbar button:hover {
 
     background:
-        var(--button-hover);
+        var(--ui-hover);
 
 }
 
@@ -137,7 +146,7 @@ body {
         2px solid var(--ui-light);
 
     background:
-        var(--button-active);
+        var(--ui-active);
 
 }
 
@@ -162,32 +171,31 @@ body {
 
 .toolbar-spacer {
 
-    flex: 1;
+    flex:
+        1;
 
 }
 
 
-/* =========================
-   COLOR CONTROLS
-========================= */
-
 .color-control {
 
-    height: 30px;
+    height:
+        30px;
 
-    display: flex;
+    display:
+        flex;
 
-    align-items: center;
+    align-items:
+        center;
 
-    gap: 4px;
+    gap:
+        4px;
 
     padding:
         0 6px;
 
-    font-size: 11px;
-
-    color:
-        var(--ui-text);
+    font-size:
+        11px;
 
     background:
         var(--ui-color);
@@ -209,42 +217,20 @@ body {
 
 .color-control input {
 
-    width: 22px;
+    width:
+        22px;
 
-    height: 22px;
-
-    padding: 0;
-
-    border: 0;
-
-    cursor: pointer;
-
-}
-
-
-/* =========================
-   HELP BUTTON
-========================= */
-
-.help-button {
-
-    width: 30px;
+    height:
+        22px;
 
     padding:
-        0 !important;
+        0;
 
-    font-size:
-        18px !important;
-
-    font-weight:
-        bold;
+    border:
+        0;
 
 }
 
-
-/* =========================
-   PICKDEL
-========================= */
 
 #pickdel {
 
@@ -286,49 +272,84 @@ body {
 }
 
 
-/* =========================
+.help-button {
+
+    width:
+        30px;
+
+    padding:
+        0 !important;
+
+    font-size:
+        18px !important;
+
+    font-weight:
+        bold;
+
+}
+
+
+/* =========================================================
    BOARD
-========================= */
+========================================================= */
 
 #board {
 
-    position: fixed;
+    position:
+        fixed;
 
-    left: 0;
-    top: 44px;
+    left:
+        0;
 
-    right: 0;
-    bottom: 0;
+    top:
+        44px;
 
-    overflow: hidden;
+    right:
+        0;
 
-    background: white;
+    bottom:
+        0;
 
-    cursor: default;
+    overflow:
+        hidden;
+
+    background:
+        var(--board-color);
 
 }
 
 
 #workspace {
 
-    position: absolute;
+    position:
+        absolute;
 
-    left: 0;
-    top: 0;
+    left:
+        0;
 
-    width: 10000px;
+    top:
+        0;
 
-    height: 10000px;
+    width:
+        5000px;
 
-    background-color: white;
+    height:
+        5000px;
 
-    background-image: none;
+    background-color:
+        var(--board-color);
 
-    background-repeat: repeat;
+    background-image:
+        none;
 
-    background-position: 0 0;
+    background-repeat:
+        repeat;
 
-    background-size: 256px auto;
+    background-position:
+        0 0;
+
+    background-size:
+        256px auto;
 
     transform-origin:
         0 0;
@@ -338,34 +359,44 @@ body {
 
 #drawingCanvas {
 
-    position: absolute;
+    position:
+        absolute;
 
-    left: 0;
-    top: 0;
+    left:
+        0;
 
-    width: 10000px;
+    top:
+        0;
 
-    height: 10000px;
+    width:
+        5000px;
 
-    pointer-events: none;
+    height:
+        5000px;
+
+    pointer-events:
+        none;
 
     transform-origin:
         0 0;
 
-    z-index: 500;
+    z-index:
+        500;
 
 }
 
 
-/* =========================
+/* =========================================================
    OBJECTS
-========================= */
+========================================================= */
 
 .board-object {
 
-    position: absolute;
+    position:
+        absolute;
 
-    user-select: none;
+    user-select:
+        none;
 
 }
 
@@ -381,13 +412,14 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    NOTES
-========================= */
+========================================================= */
 
 .note {
 
-    width: 230px;
+    width:
+        230px;
 
     background:
         #fffff0;
@@ -404,7 +436,8 @@ body {
 .note-title,
 .image-title {
 
-    height: 27px;
+    height:
+        27px;
 
     padding:
         5px 8px;
@@ -443,9 +476,6 @@ body {
 
     cursor:
         text;
-
-    background:
-        #2457a6;
 
     user-select:
         text;
@@ -495,9 +525,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    IMAGES
-========================= */
+========================================================= */
 
 .image-object {
 
@@ -530,11 +560,6 @@ body {
     text-align:
         center;
 
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
 }
 
 
@@ -558,10 +583,6 @@ body {
 }
 
 
-/* =========================
-   PIXEL MODE
-========================= */
-
 .image-object.pixel-mode img,
 .sticker.pixel-mode img {
 
@@ -574,17 +595,14 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    STICKERS
-========================= */
+========================================================= */
 
 .sticker {
 
     user-select:
         none;
-
-    cursor:
-        move;
 
 }
 
@@ -603,15 +621,12 @@ body {
     pointer-events:
         none;
 
-    image-rendering:
-        auto;
-
 }
 
 
-/* =========================
+/* =========================================================
    RESIZE
-========================= */
+========================================================= */
 
 .resize-handle {
 
@@ -648,8 +663,7 @@ body {
 }
 
 
-.board-object.selected
-.resize-handle {
+.board-object.selected .resize-handle {
 
     display:
         block;
@@ -657,9 +671,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    CONTEXT MENU
-========================= */
+========================================================= */
 
 #contextMenu {
 
@@ -691,7 +705,7 @@ body {
         2px solid var(--ui-darkest);
 
     z-index:
-        2000;
+        2500;
 
 }
 
@@ -720,9 +734,7 @@ body {
         var(--ui-text);
 
     font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
+        inherit;
 
     cursor:
         pointer;
@@ -758,11 +770,465 @@ body {
 }
 
 
-/* =========================
-   WINDOWS
-========================= */
+/* =========================================================
+   STYLE SIDEBAR
+========================================================= */
 
-.window-overlay {
+#stylePanel {
+
+    position:
+        fixed;
+
+    top:
+        44px;
+
+    right:
+        0;
+
+    bottom:
+        0;
+
+    width:
+        330px;
+
+    display:
+        none;
+
+    flex-direction:
+        column;
+
+    background:
+        var(--ui-color);
+
+    border-left:
+        3px solid var(--ui-dark);
+
+    box-shadow:
+        -4px 0 0 rgba(0, 0, 0, 0.12);
+
+    z-index:
+        1500;
+
+}
+
+
+#stylePanel.open {
+
+    display:
+        flex;
+
+}
+
+
+.style-header {
+
+    height:
+        34px;
+
+    flex:
+        0 0 34px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    padding:
+        0 6px 0 10px;
+
+    color:
+        white;
+
+    background:
+        var(--accent);
+
+    font-size:
+        12px;
+
+    font-weight:
+        bold;
+
+}
+
+
+#closeStyle {
+
+    margin-left:
+        auto;
+
+    width:
+        24px;
+
+    height:
+        24px;
+
+    padding:
+        0;
+
+    background:
+        var(--ui-color);
+
+    border-top:
+        2px solid var(--ui-light);
+
+    border-left:
+        2px solid var(--ui-light);
+
+    border-right:
+        2px solid var(--ui-darkest);
+
+    border-bottom:
+        2px solid var(--ui-darkest);
+
+    font-weight:
+        bold;
+
+    cursor:
+        pointer;
+
+}
+
+
+.style-scroll {
+
+    flex:
+        1;
+
+    overflow-y:
+        auto;
+
+    padding:
+        8px;
+
+}
+
+
+.style-section {
+
+    margin-bottom:
+        10px;
+
+    padding:
+        9px;
+
+    background:
+        #eeeeee;
+
+    border-top:
+        2px solid var(--ui-light);
+
+    border-left:
+        2px solid var(--ui-light);
+
+    border-right:
+        2px solid var(--ui-dark);
+
+    border-bottom:
+        2px solid var(--ui-dark);
+
+}
+
+
+.style-section h3 {
+
+    margin:
+        0 0 9px;
+
+    padding-bottom:
+        5px;
+
+    border-bottom:
+        1px solid #888888;
+
+    font-size:
+        12px;
+
+}
+
+
+.style-section h4 {
+
+    margin:
+        12px 0 6px;
+
+    font-size:
+        10px;
+
+}
+
+
+.style-section label {
+
+    display:
+        block;
+
+    margin-bottom:
+        8px;
+
+    font-size:
+        10px;
+
+    font-weight:
+        bold;
+
+}
+
+
+.style-section input[type="color"] {
+
+    display:
+        block;
+
+    width:
+        100%;
+
+    height:
+        30px;
+
+    margin-top:
+        3px;
+
+    padding:
+        2px;
+
+    background:
+        white;
+
+    border:
+        2px inset #dddddd;
+
+}
+
+
+.style-section input[type="number"],
+.style-section select {
+
+    width:
+        100%;
+
+    height:
+        29px;
+
+    margin-top:
+        3px;
+
+    padding:
+        3px;
+
+    background:
+        white;
+
+    border:
+        2px inset #dddddd;
+
+    font-family:
+        Tahoma,
+        Arial,
+        sans-serif;
+
+}
+
+
+.two-column {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:
+        7px;
+
+}
+
+
+.two-column label {
+
+    margin-bottom:
+        0;
+
+}
+
+
+.number-row {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        4px;
+
+}
+
+
+.number-row input {
+
+    flex:
+        1;
+
+}
+
+
+.number-row span {
+
+    font-size:
+        10px;
+
+}
+
+
+.small-help {
+
+    margin:
+        8px 0 0;
+
+    font-size:
+        10px;
+
+    line-height:
+        1.4;
+
+    color:
+        #555555;
+
+}
+
+
+.style-buttons {
+
+    display:
+        flex;
+
+    gap:
+        5px;
+
+}
+
+
+.style-buttons button,
+.wide-button {
+
+    flex:
+        1;
+
+    min-height:
+        30px;
+
+    padding:
+        5px;
+
+    background:
+        var(--ui-color);
+
+    border-top:
+        2px solid var(--ui-light);
+
+    border-left:
+        2px solid var(--ui-light);
+
+    border-right:
+        2px solid var(--ui-dark);
+
+    border-bottom:
+        2px solid var(--ui-dark);
+
+    font-family:
+        inherit;
+
+    font-size:
+        10px;
+
+    cursor:
+        pointer;
+
+}
+
+
+.style-buttons button:active,
+.wide-button:active {
+
+    border-top:
+        2px solid var(--ui-dark);
+
+    border-left:
+        2px solid var(--ui-dark);
+
+    border-right:
+        2px solid var(--ui-light);
+
+    border-bottom:
+        2px solid var(--ui-light);
+
+}
+
+
+#backgroundStatus {
+
+    margin-top:
+        7px;
+
+    padding:
+        6px;
+
+    background:
+        white;
+
+    border:
+        1px solid #888888;
+
+    font-size:
+        10px;
+
+    overflow:
+        hidden;
+
+    text-overflow:
+        ellipsis;
+
+    white-space:
+        nowrap;
+
+}
+
+
+#noObjectMessage {
+
+    padding:
+        9px;
+
+    background:
+        #ffffe1;
+
+    border:
+        1px solid #999999;
+
+    font-size:
+        11px;
+
+    line-height:
+        1.4;
+
+}
+
+
+#objectStyleControls {
+
+    display:
+        none;
+
+}
+
+
+/* =========================================================
+   HELP
+========================================================= */
+
+#helpWindow {
 
     position:
         fixed;
@@ -797,17 +1263,16 @@ body {
 }
 
 
-.style-box,
 .help-box {
 
     width:
-        520px;
+        430px;
 
     max-width:
         calc(100vw - 30px);
 
     max-height:
-        85vh;
+        80vh;
 
     background:
         var(--ui-color);
@@ -870,9 +1335,6 @@ body {
     padding:
         0;
 
-    font-weight:
-        bold;
-
     background:
         var(--ui-color);
 
@@ -888,330 +1350,28 @@ body {
     border-bottom:
         2px solid var(--ui-darkest);
 
-    cursor:
-        pointer;
-
-}
-
-
-.style-content {
-
-    max-height:
-        calc(85vh - 30px);
-
-    overflow-y:
-        auto;
-
-    padding:
-        10px;
-
-}
-
-
-.style-section {
-
-    margin-bottom:
-        12px;
-
-    padding:
-        10px;
-
-    background:
-        #eeeeee;
-
-    border-top:
-        2px solid var(--ui-light);
-
-    border-left:
-        2px solid var(--ui-light);
-
-    border-right:
-        2px solid var(--ui-dark);
-
-    border-bottom:
-        2px solid var(--ui-dark);
-
-}
-
-
-.style-section h3 {
-
-    margin:
-        0 0 10px 0;
-
-    padding-bottom:
-        5px;
-
-    border-bottom:
-        1px solid #888888;
-
-    font-size:
-        13px;
-
-}
-
-
-.style-subtitle {
-
-    margin-top:
-        12px;
-
-    margin-bottom:
-        7px;
-
-    font-size:
-        11px;
-
     font-weight:
         bold;
 
-}
-
-
-.style-grid {
-
-    display:
-        grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap:
-        8px;
-
-}
-
-
-.style-grid label {
-
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    gap:
-        4px;
-
-    font-size:
-        10px;
-
-    font-weight:
-        bold;
-
-}
-
-
-.style-grid input[type="color"] {
-
-    width:
-        100%;
-
-    height:
-        32px;
-
-    padding:
-        2px;
-
-    background:
-        white;
-
-    border:
-        2px inset #dddddd;
-
     cursor:
         pointer;
-
-}
-
-
-.style-grid input[type="number"],
-.style-grid select {
-
-    width:
-        100%;
-
-    height:
-        30px;
-
-    padding:
-        3px;
-
-    background:
-        white;
-
-    border:
-        2px inset #dddddd;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-}
-
-
-.number-row {
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        4px;
-
-}
-
-
-.number-row input {
-
-    flex:
-        1;
-
-}
-
-
-.number-row span {
-
-    font-size:
-        10px;
-
-}
-
-
-.style-button-row {
-
-    display:
-        flex;
-
-    gap:
-        6px;
-
-    margin-top:
-        10px;
-
-}
-
-
-.style-button-row button {
-
-    padding:
-        7px 10px;
-
-    background:
-        var(--ui-color);
-
-    border-top:
-        2px solid var(--ui-light);
-
-    border-left:
-        2px solid var(--ui-light);
-
-    border-right:
-        2px solid var(--ui-dark);
-
-    border-bottom:
-        2px solid var(--ui-dark);
-
-    cursor:
-        pointer;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    font-size:
-        11px;
-
-}
-
-
-.style-button-row button:active {
-
-    border-top:
-        2px solid var(--ui-dark);
-
-    border-left:
-        2px solid var(--ui-dark);
-
-    border-right:
-        2px solid var(--ui-light);
-
-    border-bottom:
-        2px solid var(--ui-light);
-
-}
-
-
-#backgroundStatus {
-
-    margin-top:
-        8px;
-
-    padding:
-        6px;
-
-    font-size:
-        11px;
-
-    background:
-        white;
-
-    border:
-        1px solid #888888;
-
-}
-
-
-#noObjectMessage {
-
-    padding:
-        12px;
-
-    background:
-        #ffffe1;
-
-    border:
-        1px solid #999999;
-
-    font-size:
-        12px;
-
-}
-
-
-#objectStyleControls {
-
-    display:
-        none;
 
 }
 
 
 .help-content {
 
-    padding:
-        10px 18px;
-
     max-height:
-        calc(85vh - 30px);
+        calc(80vh - 30px);
 
     overflow-y:
         auto;
 
+    padding:
+        10px 18px;
+
     font-size:
         13px;
-
-}
-
-
-.help-content h3 {
-
-    margin-top:
-        5px;
 
 }
 
@@ -1224,24 +1384,16 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    MOBILE
-========================= */
+========================================================= */
 
-@media (max-width: 800px) {
+@media (max-width: 700px) {
 
-    #toolbar {
+    #stylePanel {
 
-        overflow-x:
-            auto;
-
-    }
-
-
-    .style-grid {
-
-        grid-template-columns:
-            1fr;
+        width:
+            280px;
 
     }
 
