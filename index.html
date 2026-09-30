@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,383 +11,341 @@
 
 <body>
 
-<div id="toolbar">
+    <!-- =========================
+         TOP TOOLBAR
+    ========================== -->
 
-    <button id="selectButton">SELECT</button>
-    <button id="textButton">TEXT</button>
-    <button id="imageButton">IMAGE</button>
-    <button id="stickerButton">STICKER</button>
+    <div id="toolbar">
 
-    <div class="toolbar-divider"></div>
+        <button id="selectButton">SELECT</button>
+        <button id="textButton">TEXT</button>
+        <button id="imageButton">IMAGE</button>
+        <button id="stickerButton">STICKER</button>
 
-    <button id="drawButton">DRAW</button>
-    <button id="eraserButton">ERASER</button>
+        <div class="toolbar-divider"></div>
 
-    <label class="color-control">
-        PEN
-        <input type="color" id="penColor" value="#000000">
-    </label>
+        <button id="drawButton">DRAW</button>
+        <button id="eraserButton">ERASER</button>
 
-    <label class="color-control">
-        BG
-        <input type="color" id="backgroundColor" value="#ffffff">
-    </label>
+        <label class="color-control">
+            PEN
+            <input type="color" id="penColor" value="#000000">
+        </label>
 
-    <div class="toolbar-divider"></div>
+        <div class="toolbar-divider"></div>
 
-    <button id="styleButton">STYLE</button>
+        <button id="styleButton">STYLE</button>
 
-    <button id="newButton">NEW</button>
-    <button id="saveButton">SAVE</button>
-    <button id="saveAsButton">SAVE AS</button>
-    <button id="loadButton">LOAD</button>
+        <div class="toolbar-divider"></div>
 
-    <button id="helpButton" class="help-button">?</button>
+        <button id="newButton">NEW</button>
+        <button id="saveButton">SAVE</button>
+        <button id="saveAsButton">SAVE AS</button>
+        <button id="loadButton">LOAD</button>
 
-    <div class="toolbar-spacer"></div>
+        <button id="helpButton" class="help-button">?</button>
 
-    <div id="pickdel">
-        PICKDEL
-    </div>
+        <div class="toolbar-spacer"></div>
 
-    <span id="zoomDisplay">
-        100%
-    </span>
+        <div id="pickdel">
+            PICKDEL
+        </div>
 
-</div>
-
-
-<div id="board">
-
-    <div id="workspace"></div>
-
-    <canvas id="drawingCanvas"></canvas>
-
-</div>
-
-
-<!-- FILE INPUTS -->
-
-<input
-    type="file"
-    id="imageInput"
-    accept="image/*"
-    hidden
->
-
-<input
-    type="file"
-    id="backgroundImageInput"
-    accept="image/*"
-    hidden
->
-
-<input
-    type="file"
-    id="boardInput"
-    accept=".json,application/json"
-    hidden
->
-
-
-<!-- RIGHT CLICK MENU -->
-
-<div id="contextMenu">
-
-    <button id="deleteObject">
-        Delete
-    </button>
-
-    <button id="duplicateObject">
-        Duplicate
-    </button>
-
-    <div class="menu-divider"></div>
-
-    <button id="pixelObject">
-        Pixel Mode
-    </button>
-
-    <div class="menu-divider"></div>
-
-    <button id="bringFront">
-        Bring to Front
-    </button>
-
-    <button id="bringForward">
-        Bring Forward
-    </button>
-
-    <button id="sendBackward">
-        Send Backward
-    </button>
-
-    <button id="sendBack">
-        Send to Back
-    </button>
-
-</div>
-
-
-<!-- STYLE SIDEBAR -->
-
-<aside id="stylePanel">
-
-    <div class="style-header">
-
-        <span>PICKDEL STYLE</span>
-
-        <button id="closeStyle">
-            X
-        </button>
+        <span id="zoomDisplay">
+            100%
+        </span>
 
     </div>
 
 
-    <div class="style-scroll">
+    <!-- =========================
+         BOARD
+    ========================== -->
 
-        <!-- UI -->
+    <div id="board">
 
-        <section class="style-section">
+        <div id="workspace"></div>
 
-            <h3>UI APPEARANCE</h3>
+        <canvas id="drawingCanvas"></canvas>
 
-            <label>
-                UI COLOR
-                <input
-                    type="color"
-                    id="uiColor"
-                    value="#d4d0c8"
-                >
-            </label>
-
-            <label>
-                UI TEXT
-                <input
-                    type="color"
-                    id="uiTextColor"
-                    value="#000000"
-                >
-            </label>
-
-            <label>
-                BUTTON HOVER
-                <input
-                    type="color"
-                    id="uiHoverColor"
-                    value="#eeeeee"
-                >
-            </label>
-
-            <label>
-                BUTTON ACTIVE
-                <input
-                    type="color"
-                    id="uiActiveColor"
-                    value="#c3ccd7"
-                >
-            </label>
-
-            <label>
-                ACCENT
-                <input
-                    type="color"
-                    id="uiAccent"
-                    value="#316ac5"
-                >
-            </label>
-
-            <label>
-                ACCENT DARK
-                <input
-                    type="color"
-                    id="uiAccentDark"
-                    value="#234a8c"
-                >
-            </label>
-
-            <label>
-                UI FONT
-
-                <select id="uiFont">
-
-                    <option value="Tahoma, Arial, sans-serif">
-                        Tahoma
-                    </option>
-
-                    <option value="Arial, sans-serif">
-                        Arial
-                    </option>
-
-                    <option value="Verdana, sans-serif">
-                        Verdana
-                    </option>
-
-                    <option value="'Trebuchet MS', sans-serif">
-                        Trebuchet MS
-                    </option>
-
-                    <option value="'Courier New', monospace">
-                        Courier New
-                    </option>
-
-                    <option value="monospace">
-                        Monospace
-                    </option>
-
-                </select>
-
-            </label>
-
-        </section>
+    </div>
 
 
-        <!-- BOARD -->
+    <!-- =========================
+         HIDDEN FILE INPUTS
+    ========================== -->
 
-        <section class="style-section">
+    <input
+        type="file"
+        id="imageInput"
+        accept="image/*"
+        hidden
+    >
 
-            <h3>BOARD</h3>
+    <input
+        type="file"
+        id="backgroundImageInput"
+        accept="image/*"
+        hidden
+    >
 
-            <div class="two-column">
+    <input
+        type="file"
+        id="boardInput"
+        accept=".json"
+        hidden
+    >
+
+
+    <!-- =========================
+         STYLE SIDEBAR
+    ========================== -->
+
+    <aside id="stylePanel">
+
+        <div class="style-panel-title">
+
+            <span>STYLE</span>
+
+            <button id="closeStyle">
+                X
+            </button>
+
+        </div>
+
+
+        <div class="style-panel-content">
+
+            <!-- UI STYLE -->
+
+            <section class="style-section">
+
+                <div class="style-section-title">
+                    UI STYLE
+                </div>
 
                 <label>
-                    WIDTH
+                    UI BACKGROUND
+                    <input
+                        type="color"
+                        id="uiBg"
+                        value="#d4d0c8"
+                    >
+                </label>
+
+                <label>
+                    ACCENT
+                    <input
+                        type="color"
+                        id="uiAccent"
+                        value="#316ac5"
+                    >
+                </label>
+
+                <label>
+                    DARK ACCENT
+                    <input
+                        type="color"
+                        id="uiDarkAccent"
+                        value="#234a8c"
+                    >
+                </label>
+
+                <label>
+                    BUTTON HOVER
+                    <input
+                        type="color"
+                        id="uiButtonHover"
+                        value="#eeeeee"
+                    >
+                </label>
+
+                <label>
+                    UI TEXT
+                    <input
+                        type="color"
+                        id="uiText"
+                        value="#000000"
+                    >
+                </label>
+
+                <label>
+                    UI FONT
+
+                    <select id="uiFont">
+
+                        <option value="Tahoma, Arial, sans-serif">
+                            Tahoma
+                        </option>
+
+                        <option value="Arial, sans-serif">
+                            Arial
+                        </option>
+
+                        <option value="Verdana, sans-serif">
+                            Verdana
+                        </option>
+
+                        <option value="'Courier New', monospace">
+                            Courier New
+                        </option>
+
+                        <option value="'Times New Roman', serif">
+                            Times New Roman
+                        </option>
+
+                    </select>
+
+                </label>
+
+            </section>
+
+
+            <!-- BOARD -->
+
+            <section class="style-section">
+
+                <div class="style-section-title">
+                    BOARD
+                </div>
+
+                <label>
+                    WIDTH (PX)
 
                     <input
                         type="number"
                         id="boardWidth"
-                        min="300"
-                        max="20000"
-                        value="5000"
+                        min="500"
+                        max="12000"
+                        step="100"
+                        value="3000"
                     >
 
                 </label>
 
                 <label>
-                    HEIGHT
+                    HEIGHT (PX)
 
                     <input
                         type="number"
                         id="boardHeight"
-                        min="300"
-                        max="20000"
-                        value="5000"
+                        min="500"
+                        max="12000"
+                        step="100"
+                        value="2000"
                     >
 
                 </label>
 
-            </div>
-
-
-            <p class="small-help">
-                Board size is measured in pixels.
-                Objects and drawings live inside this area.
-            </p>
-
-        </section>
-
-
-        <!-- BACKGROUND -->
-
-        <section class="style-section">
-
-            <h3>BACKGROUND</h3>
-
-            <label>
-                BOARD COLOR
-
-                <input
-                    type="color"
-                    id="styleBackgroundColor"
-                    value="#ffffff"
+                <button
+                    id="applyBoardSize"
+                    class="wide-button"
                 >
-
-            </label>
-
-
-            <label>
-                IMAGE REPEAT
-
-                <select id="backgroundRepeat">
-
-                    <option value="repeat">
-                        TILE
-                    </option>
-
-                    <option value="no-repeat">
-                        NO REPEAT
-                    </option>
-
-                    <option value="repeat-x">
-                        REPEAT X
-                    </option>
-
-                    <option value="repeat-y">
-                        REPEAT Y
-                    </option>
-
-                </select>
-
-            </label>
+                    APPLY BOARD SIZE
+                </button>
 
 
-            <label>
-                IMAGE SCALE
+                <label>
+                    BOARD COLOR
 
-                <div class="number-row">
+                    <input
+                        type="color"
+                        id="boardColor"
+                        value="#ffffff"
+                    >
+
+                </label>
+
+
+                <label>
+                    BACKGROUND REPEAT
+
+                    <select id="backgroundRepeat">
+
+                        <option value="repeat">
+                            REPEAT
+                        </option>
+
+                        <option value="no-repeat">
+                            NO REPEAT
+                        </option>
+
+                        <option value="repeat-x">
+                            REPEAT X
+                        </option>
+
+                        <option value="repeat-y">
+                            REPEAT Y
+                        </option>
+
+                    </select>
+
+                </label>
+
+
+                <label>
+                    IMAGE SCALE (PX)
 
                     <input
                         type="number"
                         id="backgroundScale"
                         min="16"
                         max="3000"
+                        step="16"
                         value="256"
                     >
 
-                    <span>px</span>
+                </label>
 
+
+                <button
+                    id="backgroundImageButton"
+                    class="wide-button"
+                >
+                    BACKGROUND IMAGE
+                </button>
+
+
+                <button
+                    id="clearBackgroundImage"
+                    class="wide-button"
+                >
+                    CLEAR BG IMAGE
+                </button>
+
+            </section>
+
+
+            <!-- SELECTED OBJECT -->
+
+            <section class="style-section">
+
+                <div class="style-section-title">
+                    SELECTED OBJECT
                 </div>
 
-            </label>
+                <div
+                    id="objectStyleMessage"
+                    class="style-message"
+                >
+                    Select a note or image first.
+                </div>
 
 
-            <div class="style-buttons">
-
-                <button id="backgroundImageButton">
-                    SET IMAGE
+                <button
+                    id="editTitleButton"
+                    class="wide-button object-only"
+                >
+                    EDIT TITLE
                 </button>
 
-                <button id="removeBackgroundImage">
-                    REMOVE IMAGE
+                <button
+                    id="editBodyButton"
+                    class="wide-button object-only"
+                >
+                    EDIT BODY
                 </button>
 
-            </div>
-
-
-            <div id="backgroundStatus">
-                No background image
-            </div>
-
-        </section>
-
-
-        <!-- SELECTED OBJECT -->
-
-        <section class="style-section">
-
-            <h3>SELECTED OBJECT</h3>
-
-            <div id="noObjectMessage">
-
-                Click a note or image to edit
-                its individual style.
-
-            </div>
-
-
-            <div id="objectStyleControls">
-
-                <h4>COLORS</h4>
 
                 <label>
                     HEADER COLOR
@@ -396,6 +353,7 @@
                     <input
                         type="color"
                         id="objectHeaderColor"
+                        class="object-only"
                         value="#316ac5"
                     >
 
@@ -408,6 +366,7 @@
                     <input
                         type="color"
                         id="objectBodyColor"
+                        class="object-only"
                         value="#fffff0"
                     >
 
@@ -420,6 +379,7 @@
                     <input
                         type="color"
                         id="objectBorderColor"
+                        class="object-only"
                         value="#6b7c8c"
                     >
 
@@ -431,7 +391,8 @@
 
                     <input
                         type="color"
-                        id="objectHeaderTextColor"
+                        id="objectHeaderText"
+                        class="object-only"
                         value="#ffffff"
                     >
 
@@ -443,20 +404,21 @@
 
                     <input
                         type="color"
-                        id="objectBodyTextColor"
+                        id="objectBodyText"
+                        class="object-only"
                         value="#222222"
                     >
 
                 </label>
 
 
-                <h4>FONTS</h4>
-
-
                 <label>
-                    HEADER FONT
+                    FONT
 
-                    <select id="objectHeaderFont">
+                    <select
+                        id="objectFont"
+                        class="object-only"
+                    >
 
                         <option value="Tahoma, Arial, sans-serif">
                             Tahoma
@@ -470,28 +432,12 @@
                             Verdana
                         </option>
 
-                        <option value="'Trebuchet MS', sans-serif">
-                            Trebuchet MS
-                        </option>
-
                         <option value="'Courier New', monospace">
                             Courier New
                         </option>
 
-                        <option value="Georgia, serif">
-                            Georgia
-                        </option>
-
                         <option value="'Times New Roman', serif">
                             Times New Roman
-                        </option>
-
-                        <option value="'Comic Sans MS', cursive">
-                            Comic Sans
-                        </option>
-
-                        <option value="monospace">
-                            Monospace
                         </option>
 
                     </select>
@@ -500,84 +446,33 @@
 
 
                 <label>
-                    BODY FONT
+                    HEADER SIZE
 
-                    <select id="objectBodyFont">
-
-                        <option value="Tahoma, Arial, sans-serif">
-                            Tahoma
-                        </option>
-
-                        <option value="Arial, sans-serif">
-                            Arial
-                        </option>
-
-                        <option value="Verdana, sans-serif">
-                            Verdana
-                        </option>
-
-                        <option value="'Trebuchet MS', sans-serif">
-                            Trebuchet MS
-                        </option>
-
-                        <option value="'Courier New', monospace">
-                            Courier New
-                        </option>
-
-                        <option value="Georgia, serif">
-                            Georgia
-                        </option>
-
-                        <option value="'Times New Roman', serif">
-                            Times New Roman
-                        </option>
-
-                        <option value="'Comic Sans MS', cursive">
-                            Comic Sans
-                        </option>
-
-                        <option value="monospace">
-                            Monospace
-                        </option>
-
-                    </select>
+                    <input
+                        type="number"
+                        id="objectHeaderSize"
+                        class="object-only"
+                        min="8"
+                        max="48"
+                        value="13"
+                    >
 
                 </label>
 
 
-                <div class="two-column">
+                <label>
+                    BODY SIZE
 
-                    <label>
-                        HEADER SIZE
+                    <input
+                        type="number"
+                        id="objectBodySize"
+                        class="object-only"
+                        min="8"
+                        max="48"
+                        value="14"
+                    >
 
-                        <input
-                            type="number"
-                            id="objectHeaderSize"
-                            min="8"
-                            max="60"
-                            value="13"
-                        >
-
-                    </label>
-
-
-                    <label>
-                        BODY SIZE
-
-                        <input
-                            type="number"
-                            id="objectBodySize"
-                            min="8"
-                            max="60"
-                            value="14"
-                        >
-
-                    </label>
-
-                </div>
-
-
-                <h4>BOX</h4>
+                </label>
 
 
                 <label>
@@ -586,145 +481,259 @@
                     <input
                         type="number"
                         id="objectBorderWidth"
+                        class="object-only"
                         min="0"
-                        max="12"
+                        max="20"
                         value="2"
                     >
 
                 </label>
 
 
-                <label>
+                <label class="checkbox-label">
+
+                    <input
+                        type="checkbox"
+                        id="objectShadow"
+                        class="object-only"
+                        checked
+                    >
+
                     SHADOW
-
-                    <select id="objectShadow">
-
-                        <option value="normal">
-                            NORMAL
-                        </option>
-
-                        <option value="small">
-                            SMALL
-                        </option>
-
-                        <option value="none">
-                            NONE
-                        </option>
-
-                    </select>
 
                 </label>
 
 
+                <label>
+                    SHADOW SIZE
+
+                    <input
+                        type="number"
+                        id="objectShadowSize"
+                        class="object-only"
+                        min="0"
+                        max="30"
+                        value="4"
+                    >
+
+                </label>
+
+            </section>
+
+
+            <!-- DRAWING -->
+
+            <section class="style-section">
+
+                <div class="style-section-title">
+                    DRAWING
+                </div>
+
+
+                <label>
+                    PEN COLOR
+
+                    <input
+                        type="color"
+                        id="stylePenColor"
+                        value="#000000"
+                    >
+
+                </label>
+
+
+                <label>
+                    PEN SIZE
+
+                    <input
+                        type="number"
+                        id="penSize"
+                        min="1"
+                        max="100"
+                        value="4"
+                    >
+
+                </label>
+
+
+                <label>
+                    ERASER SIZE
+
+                    <input
+                        type="number"
+                        id="eraserSize"
+                        min="1"
+                        max="200"
+                        value="30"
+                    >
+
+                </label>
+
+            </section>
+
+
+            <section class="style-section">
+
                 <button
-                    id="resetObjectStyle"
+                    id="centerBoardButton"
                     class="wide-button"
                 >
-                    RESET OBJECT
+                    CENTER BOARD
+                </button>
+
+            </section>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         RIGHT CLICK MENU
+    ========================== -->
+
+    <div id="contextMenu">
+
+        <button id="deleteObject">
+            Delete
+        </button>
+
+        <button id="duplicateObject">
+            Duplicate
+        </button>
+
+        <div class="menu-divider"></div>
+
+        <button id="pixelObject">
+            Pixel Mode
+        </button>
+
+        <div class="menu-divider"></div>
+
+        <button id="bringFront">
+            Bring to Front
+        </button>
+
+        <button id="bringForward">
+            Bring Forward
+        </button>
+
+        <button id="sendBackward">
+            Send Backward
+        </button>
+
+        <button id="sendBack">
+            Send to Back
+        </button>
+
+    </div>
+
+
+    <!-- =========================
+         HELP
+    ========================== -->
+
+    <div id="helpWindow" class="help-window">
+
+        <div class="help-box">
+
+            <div class="help-title">
+
+                PICKDEL BOARD
+
+                <button id="closeHelp">
+                    X
                 </button>
 
             </div>
 
-        </section>
+            <div class="help-content">
 
-    </div>
+                <h3>Controls</h3>
 
-</aside>
+                <p>
+                    <b>SELECT</b><br>
+                    Select and move objects.
+                </p>
 
+                <p>
+                    <b>TEXT</b><br>
+                    Creates a new note.
+                </p>
 
-<!-- HELP -->
+                <p>
+                    <b>IMAGE</b><br>
+                    Adds an image with a title.
+                </p>
 
-<div id="helpWindow">
+                <p>
+                    <b>STICKER</b><br>
+                    Adds an image without a title or border.
+                </p>
 
-    <div class="help-box">
+                <p>
+                    <b>DRAW</b><br>
+                    Draw on the board.
+                </p>
 
-        <div class="window-title">
+                <p>
+                    <b>ERASER</b><br>
+                    Erase drawings.
+                </p>
 
-            PICKDEL BOARD
+                <p>
+                    <b>STYLE</b><br>
+                    Opens the right-side customization panel.
+                </p>
 
-            <button id="closeHelp">
-                X
-            </button>
+                <p>
+                    <b>SHIFT + DRAG</b><br>
+                    Move around the board.
+                </p>
 
-        </div>
+                <p>
+                    <b>W A S D</b><br>
+                    Move around the board.
+                </p>
 
-        <div class="help-content">
+                <p>
+                    <b>HOME</b><br>
+                    Center the board.
+                </p>
 
-            <h3>Controls</h3>
+                <p>
+                    <b>MOUSE WHEEL</b><br>
+                    Zoom in and out.
+                </p>
 
-            <p>
-                <b>SELECT</b><br>
-                Select and move objects.
-            </p>
+                <p>
+                    <b>RIGHT CLICK</b><br>
+                    Open object options.
+                </p>
 
-            <p>
-                <b>TEXT</b><br>
-                Creates a note.
-            </p>
+                <p>
+                    <b>DOUBLE CLICK</b><br>
+                    Edit text directly.
+                </p>
 
-            <p>
-                <b>IMAGE</b><br>
-                Adds an image with a title.
-            </p>
+                <p>
+                    <b>PIXEL MODE</b><br>
+                    Makes pixel-art images use crisp scaling.
+                </p>
 
-            <p>
-                <b>STICKER</b><br>
-                Adds an image without a title.
-            </p>
+                <p>
+                    <b>DELETE</b><br>
+                    Delete the selected object.
+                </p>
 
-            <p>
-                <b>DRAW</b><br>
-                Draw using the PEN color.
-            </p>
-
-            <p>
-                <b>ERASER</b><br>
-                Erase drawings.
-            </p>
-
-            <p>
-                <b>STYLE</b><br>
-                Opens the customization sidebar.
-            </p>
-
-            <p>
-                <b>DOUBLE CLICK</b><br>
-                Edit text directly.
-            </p>
-
-            <p>
-                <b>W A S D</b><br>
-                Move around the board.
-            </p>
-
-            <p>
-                <b>SHIFT + DRAG</b><br>
-                Pan around the board.
-            </p>
-
-            <p>
-                <b>MOUSE WHEEL</b><br>
-                Zoom.
-            </p>
-
-            <p>
-                <b>HOME</b><br>
-                Center the board.
-            </p>
-
-            <p>
-                <b>DELETE</b><br>
-                Delete selected object.
-            </p>
+            </div>
 
         </div>
 
     </div>
 
-</div>
 
-
-<script src="app.js"></script>
+    <script src="app.js"></script>
 
 </body>
 </html>
