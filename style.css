@@ -49,6 +49,9 @@ body {
         2px solid #808080;
 
     z-index: 1000;
+
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 
@@ -58,6 +61,8 @@ body {
 
     padding:
         0 10px;
+
+    flex-shrink: 0;
 
     font-family:
         Tahoma,
@@ -125,6 +130,8 @@ body {
 
     border-right:
         1px solid white;
+
+    flex-shrink: 0;
 }
 
 
@@ -179,6 +186,8 @@ body {
 
     border-bottom:
         2px solid #808080;
+
+    flex-shrink: 0;
 }
 
 
@@ -190,6 +199,62 @@ body {
     padding: 0;
 
     border: 0;
+
+    cursor: pointer;
+}
+
+
+/* =========================
+   FONT
+========================= */
+
+.font-control {
+
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 4px;
+
+    padding:
+        0 6px;
+
+    font-size: 11px;
+
+    background: #d4d0c8;
+
+    border-top:
+        2px solid white;
+
+    border-left:
+        2px solid white;
+
+    border-right:
+        2px solid #808080;
+
+    border-bottom:
+        2px solid #808080;
+
+    flex-shrink: 0;
+}
+
+
+.font-control select {
+
+    height: 22px;
+
+    border:
+        1px solid #808080;
+
+    background: white;
+
+    font-family:
+        Tahoma,
+        Arial,
+        sans-serif;
+
+    font-size: 11px;
 
     cursor: pointer;
 }
@@ -234,6 +299,8 @@ body {
     font-weight: bold;
 
     letter-spacing: 1px;
+
+    flex-shrink: 0;
 }
 
 
@@ -243,6 +310,8 @@ body {
         5px 7px;
 
     font-size: 12px;
+
+    flex-shrink: 0;
 }
 
 
@@ -280,8 +349,27 @@ body {
 
     background-color: white;
 
+    background-repeat: repeat;
+
+    background-position:
+        0 0;
+
+    background-size:
+        auto;
+
     transform-origin:
         0 0;
+
+    --board-font:
+        Tahoma,
+        Arial,
+        sans-serif;
+
+    --board-text-color:
+        #222222;
+
+    font-family:
+        var(--board-font);
 }
 
 
@@ -313,6 +401,9 @@ body {
     position: absolute;
 
     user-select: none;
+
+    font-family:
+        var(--board-font);
 }
 
 
@@ -385,7 +476,8 @@ body {
 
     padding: 12px;
 
-    color: #222;
+    color:
+        var(--board-text-color);
 
     background: #fffff0;
 
@@ -442,21 +534,14 @@ body {
 
     pointer-events: none;
 
-    /*
-       NORMAL IMAGES
-       stay smooth.
-    */
-
-    image-rendering: auto;
+    image-rendering:
+        auto;
 }
 
 
-/*
+/* =========================
    PIXEL MODE
-
-   ONLY images with this class
-   become crisp pixel art.
-*/
+========================= */
 
 .image-object.pixel-mode img,
 .sticker.pixel-mode img {
@@ -491,7 +576,8 @@ body {
 
     pointer-events: none;
 
-    image-rendering: auto;
+    image-rendering:
+        auto;
 }
 
 
