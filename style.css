@@ -1,1400 +1,4656 @@
-* {
-    box-sizing: border-box;
-}
-
-
-:root {
-
-    --ui-color: #d4d0c8;
-
-    --ui-light: #ffffff;
-
-    --ui-dark: #808080;
-
-    --ui-darkest: #404040;
-
-    --ui-text: #000000;
-
-    --ui-hover: #eeeeee;
-
-    --ui-active: #c3ccd7;
-
-    --accent: #316ac5;
-
-    --accent-dark: #234a8c;
-
-    --board-color: #ffffff;
-
-}
-
-
-html,
-body {
-
-    margin: 0;
-
-    width: 100%;
-    height: 100%;
-
-    overflow: hidden;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    background:
-        #d6e4f0;
-
-    color:
-        var(--ui-text);
-
-}
+"use strict";
 
 
 /* =========================================================
+   ELEMENTS
+========================================================= */
+
+const board =
+    document.getElementById("board");
+
+const workspace =
+    document.getElementById("workspace");
+
+const drawingCanvas =
+    document.getElementById("drawingCanvas");
+
+const drawingContext =
+    drawingCanvas.getContext("2d");
+
+
+/* =========================
    TOOLBAR
+========================= */
+
+const selectButton =
+    document.getElementById("selectButton");
+
+const textButton =
+    document.getElementById("textButton");
+
+const imageButton =
+    document.getElementById("imageButton");
+
+const stickerButton =
+    document.getElementById("stickerButton");
+
+const drawButton =
+    document.getElementById("drawButton");
+
+const eraserButton =
+    document.getElementById("eraserButton");
+
+const styleButton =
+    document.getElementById("styleButton");
+
+const newButton =
+    document.getElementById("newButton");
+
+const saveButton =
+    document.getElementById("saveButton");
+
+const saveAsButton =
+    document.getElementById("saveAsButton");
+
+const loadButton =
+    document.getElementById("loadButton");
+
+const helpButton =
+    document.getElementById("helpButton");
+
+
+/* =========================
+   STYLE PANEL
+========================= */
+
+const stylePanel =
+    document.getElementById("stylePanel");
+
+const closeStyle =
+    document.getElementById("closeStyle");
+
+
+/* =========================
+   UI STYLE
+========================= */
+
+const uiBg =
+    document.getElementById("uiBg");
+
+const uiAccent =
+    document.getElementById("uiAccent");
+
+const uiDarkAccent =
+    document.getElementById("uiDarkAccent");
+
+const uiButtonHover =
+    document.getElementById("uiButtonHover");
+
+const uiText =
+    document.getElementById("uiText");
+
+const uiFont =
+    document.getElementById("uiFont");
+
+
+/* =========================
+   BOARD STYLE
+========================= */
+
+const boardWidthInput =
+    document.getElementById("boardWidth");
+
+const boardHeightInput =
+    document.getElementById("boardHeight");
+
+const applyBoardSize =
+    document.getElementById("applyBoardSize");
+
+const boardColor =
+    document.getElementById("boardColor");
+
+const backgroundRepeat =
+    document.getElementById("backgroundRepeat");
+
+const backgroundScale =
+    document.getElementById("backgroundScale");
+
+const backgroundImageButton =
+    document.getElementById("backgroundImageButton");
+
+const clearBackgroundImage =
+    document.getElementById("clearBackgroundImage");
+
+
+/* =========================
+   OBJECT STYLE
+========================= */
+
+const objectStyleMessage =
+    document.getElementById("objectStyleMessage");
+
+const editTitleButton =
+    document.getElementById("editTitleButton");
+
+const editBodyButton =
+    document.getElementById("editBodyButton");
+
+const objectHeaderColor =
+    document.getElementById("objectHeaderColor");
+
+const objectBodyColor =
+    document.getElementById("objectBodyColor");
+
+const objectBorderColor =
+    document.getElementById("objectBorderColor");
+
+const objectHeaderText =
+    document.getElementById("objectHeaderText");
+
+const objectBodyText =
+    document.getElementById("objectBodyText");
+
+const objectFont =
+    document.getElementById("objectFont");
+
+const objectHeaderSize =
+    document.getElementById("objectHeaderSize");
+
+const objectBodySize =
+    document.getElementById("objectBodySize");
+
+const objectBorderWidth =
+    document.getElementById("objectBorderWidth");
+
+const objectShadow =
+    document.getElementById("objectShadow");
+
+const objectShadowSize =
+    document.getElementById("objectShadowSize");
+
+
+/* =========================
+   DRAWING STYLE
+========================= */
+
+const penColor =
+    document.getElementById("penColor");
+
+const stylePenColor =
+    document.getElementById("stylePenColor");
+
+const penSizeInput =
+    document.getElementById("penSize");
+
+const eraserSizeInput =
+    document.getElementById("eraserSize");
+
+
+/* =========================
+   OTHER
+========================= */
+
+const centerBoardButton =
+    document.getElementById("centerBoardButton");
+
+const imageInput =
+    document.getElementById("imageInput");
+
+const backgroundImageInput =
+    document.getElementById("backgroundImageInput");
+
+const boardInput =
+    document.getElementById("boardInput");
+
+const zoomDisplay =
+    document.getElementById("zoomDisplay");
+
+
+/* =========================
+   CONTEXT MENU
+========================= */
+
+const contextMenu =
+    document.getElementById("contextMenu");
+
+const deleteObject =
+    document.getElementById("deleteObject");
+
+const duplicateObject =
+    document.getElementById("duplicateObject");
+
+const pixelObject =
+    document.getElementById("pixelObject");
+
+const bringFront =
+    document.getElementById("bringFront");
+
+const bringForward =
+    document.getElementById("bringForward");
+
+const sendBackward =
+    document.getElementById("sendBackward");
+
+const sendBack =
+    document.getElementById("sendBack");
+
+
+/* =========================
+   HELP
+========================= */
+
+const helpWindow =
+    document.getElementById("helpWindow");
+
+const closeHelp =
+    document.getElementById("closeHelp");
+
+
+/* =========================================================
+   STATE
 ========================================================= */
 
-#toolbar {
+let selectedObject =
+    null;
 
-    position: fixed;
+let objectNumber =
+    1;
 
-    left: 0;
-    top: 0;
+let boardName =
+    "Untitled Board";
 
-    width: 100%;
-    height: 44px;
+let currentFileHandle =
+    null;
 
-    display: flex;
+let currentImageType =
+    "image";
 
-    align-items: center;
+let drawingMode =
+    "select";
 
-    gap: 4px;
+let drawing =
+    false;
 
-    padding: 5px;
+let panning =
+    false;
 
-    background:
-        var(--ui-color);
+let backgroundImageData =
+    null;
 
-    border-bottom:
-        2px solid var(--ui-dark);
+let cameraX =
+    0;
 
-    z-index: 1000;
+let cameraY =
+    0;
 
-}
+let zoom =
+    1;
 
+let boardWidth =
+    3000;
 
-#toolbar button {
+let boardHeight =
+    2000;
 
-    height: 30px;
+let penSize =
+    4;
 
-    padding:
-        0 10px;
+let eraserSize =
+    30;
 
-    font-family:
-        inherit;
+let panStartX =
+    0;
 
-    font-size:
-        12px;
+let panStartY =
+    0;
 
-    color:
-        var(--ui-text);
+let cameraStartX =
+    0;
 
-    background:
-        var(--ui-color);
+let cameraStartY =
+    0;
 
-    border-top:
-        2px solid var(--ui-light);
+let drawingPointerId =
+    null;
 
-    border-left:
-        2px solid var(--ui-light);
-
-    border-right:
-        2px solid var(--ui-dark);
-
-    border-bottom:
-        2px solid var(--ui-dark);
-
-    cursor:
-        pointer;
-
-}
-
-
-#toolbar button:hover {
-
-    background:
-        var(--ui-hover);
-
-}
+const keys =
+    new Set();
 
 
-#toolbar button:active,
-#toolbar button.active {
+/* =========================================================
+   INITIAL CANVAS
+========================================================= */
 
-    border-top:
-        2px solid var(--ui-dark);
+setCanvasSize(
+    boardWidth,
+    boardHeight,
+    false
+);
 
-    border-left:
-        2px solid var(--ui-dark);
+applyBoardDimensions();
 
-    border-right:
-        2px solid var(--ui-light);
+applyBackground();
 
-    border-bottom:
-        2px solid var(--ui-light);
+applyUITheme();
 
-    background:
-        var(--ui-active);
+setTool("select");
 
-}
+centerBoard();
 
-
-.toolbar-divider {
-
-    width: 1px;
-
-    height: 27px;
-
-    margin:
-        0 4px;
-
-    background:
-        var(--ui-dark);
-
-    border-right:
-        1px solid var(--ui-light);
-
-}
+updateStylePanel();
 
 
-.toolbar-spacer {
+/* =========================================================
+   UI THEME
+========================================================= */
 
-    flex:
-        1;
+function applyUITheme() {
 
-}
+    const root =
+        document.documentElement;
 
+    root.style.setProperty(
+        "--ui-bg",
+        uiBg.value
+    );
 
-.color-control {
+    root.style.setProperty(
+        "--accent",
+        uiAccent.value
+    );
 
-    height:
-        30px;
+    root.style.setProperty(
+        "--accent-dark",
+        uiDarkAccent.value
+    );
 
-    display:
-        flex;
+    root.style.setProperty(
+        "--button-hover",
+        uiButtonHover.value
+    );
 
-    align-items:
-        center;
+    root.style.setProperty(
+        "--ui-text",
+        uiText.value
+    );
 
-    gap:
-        4px;
-
-    padding:
-        0 6px;
-
-    font-size:
-        11px;
-
-    background:
-        var(--ui-color);
-
-    border-top:
-        2px solid var(--ui-light);
-
-    border-left:
-        2px solid var(--ui-light);
-
-    border-right:
-        2px solid var(--ui-dark);
-
-    border-bottom:
-        2px solid var(--ui-dark);
+    root.style.setProperty(
+        "--ui-font",
+        uiFont.value
+    );
 
 }
 
 
-.color-control input {
+[
+    uiBg,
+    uiAccent,
+    uiDarkAccent,
+    uiButtonHover,
+    uiText,
+    uiFont
+].forEach(input => {
 
-    width:
-        22px;
+    input.addEventListener(
+        "input",
+        applyUITheme
+    );
 
-    height:
-        22px;
+    input.addEventListener(
+        "change",
+        applyUITheme
+    );
 
-    padding:
-        0;
-
-    border:
-        0;
-
-}
-
-
-#pickdel {
-
-    padding:
-        4px 10px;
-
-    margin-right:
-        6px;
-
-    color:
-        white;
-
-    background:
-        var(--accent);
-
-    border:
-        2px solid var(--accent-dark);
-
-    font-size:
-        13px;
-
-    font-weight:
-        bold;
-
-    letter-spacing:
-        1px;
-
-}
+});
 
 
-#zoomDisplay {
+/* =========================================================
+   STYLE PANEL
+========================================================= */
 
-    padding:
-        5px 7px;
+styleButton.addEventListener(
+    "click",
+    event => {
 
-    font-size:
-        12px;
+        event.preventDefault();
 
-}
+        event.stopPropagation();
+
+        stylePanel.classList.toggle(
+            "open"
+        );
+
+        styleButton.classList.toggle(
+            "active",
+            stylePanel.classList.contains("open")
+        );
+
+        updateStylePanel();
+
+    }
+);
 
 
-.help-button {
+closeStyle.addEventListener(
+    "click",
+    event => {
 
-    width:
-        30px;
+        event.preventDefault();
 
-    padding:
-        0 !important;
+        event.stopPropagation();
 
-    font-size:
-        18px !important;
+        stylePanel.classList.remove(
+            "open"
+        );
 
-    font-weight:
-        bold;
+        styleButton.classList.remove(
+            "active"
+        );
+
+    }
+);
+
+
+/*
+   Stop sidebar clicks from interacting
+   with the board underneath.
+*/
+
+stylePanel.addEventListener(
+    "mousedown",
+    event => {
+
+        event.stopPropagation();
+
+    }
+);
+
+
+stylePanel.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+    }
+);
+
+
+/* =========================================================
+   TOOL MODE
+========================================================= */
+
+function setTool(tool) {
+
+    drawingMode =
+        tool;
+
+    [
+        selectButton,
+        drawButton,
+        eraserButton
+    ].forEach(button => {
+
+        button.classList.remove(
+            "active"
+        );
+
+    });
+
+
+    if (tool === "select") {
+
+        selectButton.classList.add(
+            "active"
+        );
+
+        drawingCanvas.style.pointerEvents =
+            "none";
+
+        board.style.cursor =
+            "default";
+
+    }
+
+
+    if (tool === "draw") {
+
+        drawButton.classList.add(
+            "active"
+        );
+
+        drawingCanvas.style.pointerEvents =
+            "auto";
+
+        board.style.cursor =
+            "crosshair";
+
+    }
+
+
+    if (tool === "erase") {
+
+        eraserButton.classList.add(
+            "active"
+        );
+
+        drawingCanvas.style.pointerEvents =
+            "auto";
+
+        board.style.cursor =
+            "crosshair";
+
+    }
 
 }
 
 
 /* =========================================================
-   BOARD
+   SELECT
 ========================================================= */
 
-#board {
+selectButton.addEventListener(
+    "click",
+    () => {
 
-    position:
-        fixed;
+        setTool("select");
 
-    left:
-        0;
-
-    top:
-        44px;
-
-    right:
-        0;
-
-    bottom:
-        0;
-
-    overflow:
-        hidden;
-
-    background:
-        var(--board-color);
-
-}
+    }
+);
 
 
-#workspace {
+/* =========================================================
+   TEXT
+========================================================= */
 
-    position:
-        absolute;
+textButton.addEventListener(
+    "click",
+    event => {
 
-    left:
-        0;
+        event.preventDefault();
 
-    top:
-        0;
+        const position =
+            getDefaultObjectPosition();
 
-    width:
-        5000px;
+        createNote(
+            position.x,
+            position.y
+        );
 
-    height:
-        5000px;
+        setTool("select");
 
-    background-color:
-        var(--board-color);
-
-    background-image:
-        none;
-
-    background-repeat:
-        repeat;
-
-    background-position:
-        0 0;
-
-    background-size:
-        256px auto;
-
-    transform-origin:
-        0 0;
-
-}
+    }
+);
 
 
-#drawingCanvas {
+/* =========================================================
+   DRAW
+========================================================= */
 
-    position:
-        absolute;
+drawButton.addEventListener(
+    "click",
+    () => {
 
-    left:
-        0;
+        setTool("draw");
 
-    top:
-        0;
+    }
+);
 
-    width:
-        5000px;
 
-    height:
-        5000px;
+/* =========================================================
+   ERASER
+========================================================= */
 
-    pointer-events:
-        none;
+eraserButton.addEventListener(
+    "click",
+    () => {
 
-    transform-origin:
-        0 0;
+        setTool("erase");
 
-    z-index:
-        500;
+    }
+);
+
+
+/* =========================================================
+   DEFAULT OBJECT POSITION
+========================================================= */
+
+function getDefaultObjectPosition() {
+
+    const viewportCenterX =
+        board.clientWidth / 2;
+
+    const viewportCenterY =
+        board.clientHeight / 2;
+
+    return {
+
+        x:
+            (
+                viewportCenterX -
+                cameraX
+            ) / zoom - 115,
+
+        y:
+            (
+                viewportCenterY -
+                cameraY
+            ) / zoom - 60
+
+    };
 
 }
 
 
 /* =========================================================
-   OBJECTS
+   BOARD SIZE
 ========================================================= */
 
-.board-object {
+applyBoardSize.addEventListener(
+    "click",
+    event => {
 
-    position:
-        absolute;
+        event.preventDefault();
 
-    user-select:
-        none;
+        event.stopPropagation();
 
-}
+        const width =
+            clamp(
+                parseInt(
+                    boardWidthInput.value,
+                    10
+                ) || 3000,
+                500,
+                12000
+            );
+
+        const height =
+            clamp(
+                parseInt(
+                    boardHeightInput.value,
+                    10
+                ) || 2000,
+                500,
+                12000
+            );
+
+        boardWidth =
+            width;
+
+        boardHeight =
+            height;
+
+        boardWidthInput.value =
+            width;
+
+        boardHeightInput.value =
+            height;
+
+        applyBoardDimensions();
+
+        setCanvasSize(
+            width,
+            height,
+            true
+        );
+
+        clampCamera();
+
+    }
+);
 
 
-.board-object.selected {
+function applyBoardDimensions() {
 
-    outline:
-        2px dotted var(--accent);
+    workspace.style.width =
+        boardWidth + "px";
 
-    outline-offset:
-        3px;
+    workspace.style.height =
+        boardHeight + "px";
+
+    drawingCanvas.style.width =
+        boardWidth + "px";
+
+    drawingCanvas.style.height =
+        boardHeight + "px";
 
 }
 
 
 /* =========================================================
-   NOTES
+   CANVAS SIZE
 ========================================================= */
 
-.note {
+function setCanvasSize(
+    width,
+    height,
+    preserve
+) {
 
-    width:
-        230px;
+    let oldData =
+        null;
 
-    background:
-        #fffff0;
+    if (
+        preserve &&
+        drawingCanvas.width > 0 &&
+        drawingCanvas.height > 0
+    ) {
 
-    border:
-        2px solid #6b7c8c;
+        try {
 
-    box-shadow:
-        4px 4px 0 #9aa7b2;
+            oldData =
+                drawingCanvas.toDataURL();
 
-}
+        } catch {
 
+            oldData =
+                null;
 
-.note-title,
-.image-title {
+        }
 
-    height:
-        27px;
-
-    padding:
-        5px 8px;
-
-    color:
-        white;
-
-    background:
-        #316ac5;
-
-    border-bottom:
-        2px solid #234a8c;
-
-    font-weight:
-        bold;
-
-    font-size:
-        13px;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    cursor:
-        move;
-
-    outline:
-        none;
-
-}
+    }
 
 
-.note-title.editing,
-.image-title.editing {
+    drawingCanvas.width =
+        width;
 
-    cursor:
-        text;
-
-    user-select:
-        text;
-
-}
+    drawingCanvas.height =
+        height;
 
 
-.note-content {
+    drawingContext.setTransform(
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+    );
 
-    min-height:
-        100px;
-
-    padding:
-        12px;
-
-    color:
-        #222222;
-
-    background:
-        #fffff0;
-
-    font-size:
-        14px;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    outline:
-        none;
-
-    user-select:
-        none;
-
-}
+    drawingContext.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
 
 
-.note-content.editing {
+    if (oldData) {
 
-    user-select:
-        text;
+        const image =
+            new Image();
 
-    cursor:
-        text;
+        image.onload =
+            () => {
+
+                drawingContext.drawImage(
+                    image,
+                    0,
+                    0
+                );
+
+            };
+
+        image.src =
+            oldData;
+
+    }
+
+
+    applyBoardDimensions();
 
 }
 
 
 /* =========================================================
-   IMAGES
+   BACKGROUND
 ========================================================= */
 
-.image-object {
+boardColor.addEventListener(
+    "input",
+    applyBackground
+);
 
-    width:
-        260px;
 
-    background:
-        #fffff0;
+backgroundRepeat.addEventListener(
+    "change",
+    applyBackground
+);
 
-    border:
-        2px solid #6b7c8c;
 
-    box-shadow:
-        4px 4px 0 #9aa7b2;
+backgroundScale.addEventListener(
+    "input",
+    applyBackground
+);
+
+
+function applyBackground() {
+
+    const color =
+        boardColor.value ||
+        "#ffffff";
+
+    workspace.style.backgroundColor =
+        color;
+
+    board.style.backgroundColor =
+        color;
+
+    workspace.style.backgroundRepeat =
+        backgroundRepeat.value;
+
+    const scale =
+        clamp(
+            parseInt(
+                backgroundScale.value,
+                10
+            ) || 256,
+            16,
+            3000
+        );
+
+    workspace.style.backgroundSize =
+        scale + "px auto";
+
+    workspace.style.backgroundPosition =
+        "0 0";
+
+    if (backgroundImageData) {
+
+        workspace.style.backgroundImage =
+            `url("${backgroundImageData}")`;
+
+    } else {
+
+        workspace.style.backgroundImage =
+            "none";
+
+    }
 
 }
 
 
-.image-content {
+backgroundImageButton.addEventListener(
+    "click",
+    event => {
 
-    padding:
-        8px;
+        event.preventDefault();
 
-    background:
-        #fffff0;
+        event.stopPropagation();
 
-    color:
-        #222222;
+        backgroundImageInput.click();
 
-    text-align:
-        center;
+    }
+);
+
+
+backgroundImageInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            backgroundImageInput.files[0];
+
+        if (!file) {
+
+            return;
+
+        }
+
+        const reader =
+            new FileReader();
+
+        reader.onload =
+            event => {
+
+                backgroundImageData =
+                    event.target.result;
+
+                applyBackground();
+
+            };
+
+        reader.readAsDataURL(
+            file
+        );
+
+        backgroundImageInput.value =
+            "";
+
+    }
+);
+
+
+clearBackgroundImage.addEventListener(
+    "click",
+    event => {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        backgroundImageData =
+            null;
+
+        applyBackground();
+
+    }
+);
+
+
+/* =========================================================
+   DRAWING
+========================================================= */
+
+drawingCanvas.addEventListener(
+    "pointerdown",
+    event => {
+
+        if (
+            drawingMode !== "draw" &&
+            drawingMode !== "erase"
+        ) {
+
+            return;
+
+        }
+
+        event.preventDefault();
+
+        drawing =
+            true;
+
+        drawingPointerId =
+            event.pointerId;
+
+        drawingCanvas.setPointerCapture(
+            event.pointerId
+        );
+
+        const position =
+            getCanvasPosition(event);
+
+        drawingContext.beginPath();
+
+        drawingContext.moveTo(
+            position.x,
+            position.y
+        );
+
+        drawingContext.lineWidth =
+            drawingMode === "erase"
+                ? eraserSize
+                : penSize;
+
+        drawingContext.lineCap =
+            "round";
+
+        drawingContext.lineJoin =
+            "round";
+
+        if (
+            drawingMode === "erase"
+        ) {
+
+            drawingContext.globalCompositeOperation =
+                "destination-out";
+
+        } else {
+
+            drawingContext.globalCompositeOperation =
+                "source-over";
+
+            drawingContext.strokeStyle =
+                penColor.value;
+
+        }
+
+    }
+);
+
+
+drawingCanvas.addEventListener(
+    "pointermove",
+    event => {
+
+        if (
+            !drawing ||
+            event.pointerId !== drawingPointerId
+        ) {
+
+            return;
+
+        }
+
+        event.preventDefault();
+
+        const position =
+            getCanvasPosition(event);
+
+        drawingContext.lineTo(
+            position.x,
+            position.y
+        );
+
+        drawingContext.stroke();
+
+    }
+);
+
+
+function stopDrawing() {
+
+    if (!drawing) {
+
+        return;
+
+    }
+
+    drawing =
+        false;
+
+    drawingPointerId =
+        null;
+
+    drawingContext.closePath();
+
+    drawingContext.globalCompositeOperation =
+        "source-over";
 
 }
 
 
-.image-content img {
+drawingCanvas.addEventListener(
+    "pointerup",
+    stopDrawing
+);
 
-    display:
-        block;
+drawingCanvas.addEventListener(
+    "pointercancel",
+    stopDrawing
+);
 
-    width:
-        100%;
+drawingCanvas.addEventListener(
+    "pointerleave",
+    event => {
 
-    height:
-        auto;
+        if (
+            drawing &&
+            drawingCanvas.hasPointerCapture(
+                event.pointerId
+            )
+        ) {
 
-    pointer-events:
-        none;
+            return;
 
-    image-rendering:
-        auto;
+        }
 
-}
+    }
+);
 
 
-.image-object.pixel-mode img,
-.sticker.pixel-mode img {
+document.addEventListener(
+    "pointerup",
+    stopDrawing
+);
 
-    image-rendering:
-        pixelated;
 
-    image-rendering:
-        crisp-edges;
+function getCanvasPosition(event) {
+
+    const rect =
+        board.getBoundingClientRect();
+
+    return {
+
+        x:
+            (
+                event.clientX -
+                rect.left -
+                cameraX
+            ) / zoom,
+
+        y:
+            (
+                event.clientY -
+                rect.top -
+                cameraY
+            ) / zoom
+
+    };
 
 }
 
 
 /* =========================================================
-   STICKERS
+   PEN SETTINGS
 ========================================================= */
 
-.sticker {
+penColor.addEventListener(
+    "input",
+    () => {
 
-    user-select:
-        none;
+        stylePenColor.value =
+            penColor.value;
 
-}
+    }
+);
 
 
-.sticker img {
+stylePenColor.addEventListener(
+    "input",
+    () => {
 
-    display:
-        block;
+        penColor.value =
+            stylePenColor.value;
 
-    width:
-        180px;
+    }
+);
 
-    height:
-        auto;
 
-    pointer-events:
-        none;
+penSizeInput.addEventListener(
+    "input",
+    () => {
+
+        penSize =
+            clamp(
+                parseInt(
+                    penSizeInput.value,
+                    10
+                ) || 4,
+                1,
+                100
+            );
+
+        penSizeInput.value =
+            penSize;
+
+    }
+);
+
+
+eraserSizeInput.addEventListener(
+    "input",
+    () => {
+
+        eraserSize =
+            clamp(
+                parseInt(
+                    eraserSizeInput.value,
+                    10
+                ) || 30,
+                1,
+                200
+            );
+
+        eraserSizeInput.value =
+            eraserSize;
+
+    }
+);
+
+
+/* =========================================================
+   CREATE NOTE
+========================================================= */
+
+function createNote(
+    x,
+    y,
+    title = null,
+    content = "Type something...",
+    styles = null,
+    autoSelect = true
+) {
+
+    const note =
+        document.createElement("div");
+
+    note.className =
+        "note board-object";
+
+    note.style.left =
+        x + "px";
+
+    note.style.top =
+        y + "px";
+
+    note.innerHTML = `
+
+        <div class="note-title">
+            ${escapeHTML(
+                title ||
+                "Note " +
+                objectNumber
+            )}
+        </div>
+
+        <div class="note-content">
+            ${escapeHTML(content)}
+        </div>
+
+        <div class="resize-handle"></div>
+
+    `;
+
+    workspace.appendChild(
+        note
+    );
+
+    objectNumber++;
+
+    setupObject(
+        note
+    );
+
+    if (styles) {
+
+        applyObjectStyles(
+            note,
+            styles
+        );
+
+    }
+
+    if (autoSelect) {
+
+        selectObject(
+            note
+        );
+
+    }
+
+    return note;
 
 }
 
 
 /* =========================================================
-   RESIZE
+   IMAGE
 ========================================================= */
 
-.resize-handle {
+imageButton.addEventListener(
+    "click",
+    event => {
 
-    position:
-        absolute;
+        event.preventDefault();
 
-    right:
-        -6px;
+        currentImageType =
+            "image";
 
-    bottom:
-        -6px;
+        imageInput.click();
 
-    width:
-        12px;
+    }
+);
 
-    height:
-        12px;
 
-    background:
-        white;
+stickerButton.addEventListener(
+    "click",
+    event => {
 
-    border:
-        2px solid var(--accent);
+        event.preventDefault();
 
-    cursor:
-        nwse-resize;
+        currentImageType =
+            "sticker";
 
-    display:
-        none;
+        imageInput.click();
 
-    z-index:
-        20;
+    }
+);
+
+
+imageInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            imageInput.files[0];
+
+        if (!file) {
+
+            return;
+
+        }
+
+        const reader =
+            new FileReader();
+
+        reader.onload =
+            event => {
+
+                const position =
+                    getDefaultObjectPosition();
+
+                if (
+                    currentImageType ===
+                    "image"
+                ) {
+
+                    createImage(
+                        event.target.result,
+                        position.x,
+                        position.y
+                    );
+
+                } else {
+
+                    createSticker(
+                        event.target.result,
+                        position.x,
+                        position.y
+                    );
+
+                }
+
+            };
+
+        reader.readAsDataURL(
+            file
+        );
+
+        imageInput.value =
+            "";
+
+    }
+);
+
+
+/* =========================================================
+   CREATE IMAGE
+========================================================= */
+
+function createImage(
+    imageData,
+    x,
+    y,
+    title = null,
+    width = 260,
+    pixel = false,
+    styles = null,
+    autoSelect = true
+) {
+
+    const object =
+        document.createElement("div");
+
+    object.className =
+        "image-object board-object";
+
+    object.style.left =
+        x + "px";
+
+    object.style.top =
+        y + "px";
+
+    object.style.width =
+        width + "px";
+
+    if (pixel) {
+
+        object.classList.add(
+            "pixel-mode"
+        );
+
+    }
+
+    object.innerHTML = `
+
+        <div class="image-title">
+            ${escapeHTML(
+                title ||
+                "Image " +
+                objectNumber
+            )}
+        </div>
+
+        <div class="image-content">
+
+            <img src="${imageData}">
+
+        </div>
+
+        <div class="resize-handle"></div>
+
+    `;
+
+    workspace.appendChild(
+        object
+    );
+
+    objectNumber++;
+
+    setupObject(
+        object
+    );
+
+    if (styles) {
+
+        applyObjectStyles(
+            object,
+            styles
+        );
+
+    }
+
+    if (autoSelect) {
+
+        selectObject(
+            object
+        );
+
+    }
+
+    return object;
 
 }
 
 
-.board-object.selected .resize-handle {
+/* =========================================================
+   CREATE STICKER
+========================================================= */
 
-    display:
-        block;
+function createSticker(
+    imageData,
+    x,
+    y,
+    width = 180,
+    pixel = false,
+    autoSelect = true
+) {
+
+    const object =
+        document.createElement("div");
+
+    object.className =
+        "sticker board-object";
+
+    object.style.left =
+        x + "px";
+
+    object.style.top =
+        y + "px";
+
+    if (pixel) {
+
+        object.classList.add(
+            "pixel-mode"
+        );
+
+    }
+
+    object.innerHTML = `
+
+        <img
+            src="${imageData}"
+            style="width:${width}px"
+        >
+
+        <div class="resize-handle"></div>
+
+    `;
+
+    workspace.appendChild(
+        object
+    );
+
+    setupObject(
+        object
+    );
+
+    if (autoSelect) {
+
+        selectObject(
+            object
+        );
+
+    }
+
+    return object;
 
 }
+
+
+/* =========================================================
+   OBJECT SETUP
+========================================================= */
+
+function setupObject(object) {
+
+    object.addEventListener(
+        "mousedown",
+        event => {
+
+            if (
+                drawingMode ===
+                "select"
+            ) {
+
+                selectObject(
+                    object
+                );
+
+            }
+
+        }
+    );
+
+
+    object.addEventListener(
+        "contextmenu",
+        event => {
+
+            event.preventDefault();
+
+            selectObject(
+                object
+            );
+
+            updatePixelMenu();
+
+            contextMenu.style.display =
+                "block";
+
+            contextMenu.style.left =
+                event.clientX + "px";
+
+            contextMenu.style.top =
+                event.clientY + "px";
+
+        }
+    );
+
+
+    setupEditing(
+        object
+    );
+
+    setupDragging(
+        object
+    );
+
+    setupResizing(
+        object
+    );
+
+}
+
+
+/* =========================================================
+   SELECT OBJECT
+========================================================= */
+
+function selectObject(object) {
+
+    if (
+        selectedObject &&
+        selectedObject !== object
+    ) {
+
+        selectedObject.classList.remove(
+            "selected"
+        );
+
+    }
+
+    selectedObject =
+        object || null;
+
+    if (selectedObject) {
+
+        selectedObject.classList.add(
+            "selected"
+        );
+
+    }
+
+    updateStylePanel();
+
+}
+
+
+/* =========================================================
+   EMPTY BOARD CLICK
+========================================================= */
+
+board.addEventListener(
+    "mousedown",
+    event => {
+
+        if (
+            drawingMode !==
+            "select"
+        ) {
+
+            return;
+
+        }
+
+        if (
+            event.target === board ||
+            event.target === workspace
+        ) {
+
+            selectObject(
+                null
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   EDITING
+========================================================= */
+
+function setupEditing(object) {
+
+    const title =
+        object.querySelector(
+            ".note-title, .image-title"
+        );
+
+    const content =
+        object.querySelector(
+            ".note-content"
+        );
+
+
+    if (title) {
+
+        title.addEventListener(
+            "dblclick",
+            event => {
+
+                event.stopPropagation();
+
+                title.contentEditable =
+                    "true";
+
+                title.classList.add(
+                    "editing"
+                );
+
+                title.focus();
+
+                placeCursorAtEnd(
+                    title
+                );
+
+            }
+        );
+
+
+        title.addEventListener(
+            "blur",
+            () => {
+
+                title.contentEditable =
+                    "false";
+
+                title.classList.remove(
+                    "editing"
+                );
+
+            }
+        );
+
+    }
+
+
+    if (content) {
+
+        content.addEventListener(
+            "dblclick",
+            event => {
+
+                event.stopPropagation();
+
+                content.contentEditable =
+                    "true";
+
+                content.classList.add(
+                    "editing"
+                );
+
+                content.focus();
+
+                placeCursorAtEnd(
+                    content
+                );
+
+            }
+        );
+
+
+        content.addEventListener(
+            "blur",
+            () => {
+
+                content.contentEditable =
+                    "false";
+
+                content.classList.remove(
+                    "editing"
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   EDIT BUTTONS
+========================================================= */
+
+editTitleButton.addEventListener(
+    "click",
+    event => {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+        const title =
+            selectedObject.querySelector(
+                ".note-title, .image-title"
+            );
+
+        if (!title) {
+
+            return;
+
+        }
+
+        title.contentEditable =
+            "true";
+
+        title.classList.add(
+            "editing"
+        );
+
+        title.focus();
+
+        placeCursorAtEnd(
+            title
+        );
+
+    }
+);
+
+
+editBodyButton.addEventListener(
+    "click",
+    event => {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+        const body =
+            selectedObject.querySelector(
+                ".note-content"
+            );
+
+        if (!body) {
+
+            return;
+
+        }
+
+        body.contentEditable =
+            "true";
+
+        body.classList.add(
+            "editing"
+        );
+
+        body.focus();
+
+        placeCursorAtEnd(
+            body
+        );
+
+    }
+);
+
+
+/* =========================================================
+   OBJECT STYLING
+========================================================= */
+
+const objectControls =
+    [
+        editTitleButton,
+        editBodyButton,
+        objectHeaderColor,
+        objectBodyColor,
+        objectBorderColor,
+        objectHeaderText,
+        objectBodyText,
+        objectFont,
+        objectHeaderSize,
+        objectBodySize,
+        objectBorderWidth,
+        objectShadow,
+        objectShadowSize
+    ];
+
+
+objectControls.forEach(control => {
+
+    control.addEventListener(
+        "input",
+        applySelectedObjectStyle
+    );
+
+    control.addEventListener(
+        "change",
+        applySelectedObjectStyle
+    );
+
+});
+
+
+function applySelectedObjectStyle() {
+
+    if (!selectedObject) {
+
+        return;
+
+    }
+
+    if (
+        selectedObject.classList.contains(
+            "sticker"
+        )
+    ) {
+
+        return;
+
+    }
+
+    const title =
+        selectedObject.querySelector(
+            ".note-title, .image-title"
+        );
+
+    const body =
+        selectedObject.querySelector(
+            ".note-content, .image-content"
+        );
+
+
+    selectedObject.style.borderColor =
+        objectBorderColor.value;
+
+    selectedObject.style.borderWidth =
+        (
+            clamp(
+                parseInt(
+                    objectBorderWidth.value,
+                    10
+                ) || 0,
+                0,
+                20
+            )
+        ) + "px";
+
+
+    const shadowSize =
+        clamp(
+            parseInt(
+                objectShadowSize.value,
+                10
+            ) || 0,
+            0,
+            30
+        );
+
+
+    if (
+        objectShadow.checked
+    ) {
+
+        selectedObject.style.boxShadow =
+            `${shadowSize}px ${shadowSize}px 0 #9aa7b2`;
+
+    } else {
+
+        selectedObject.style.boxShadow =
+            "none";
+
+    }
+
+
+    if (title) {
+
+        title.style.backgroundColor =
+            objectHeaderColor.value;
+
+        title.style.color =
+            objectHeaderText.value;
+
+        title.style.fontFamily =
+            objectFont.value;
+
+        title.style.fontSize =
+            (
+                clamp(
+                    parseInt(
+                        objectHeaderSize.value,
+                        10
+                    ) || 13,
+                    8,
+                    48
+                )
+            ) + "px";
+
+    }
+
+
+    if (body) {
+
+        body.style.backgroundColor =
+            objectBodyColor.value;
+
+        body.style.color =
+            objectBodyText.value;
+
+        body.style.fontFamily =
+            objectFont.value;
+
+        body.style.fontSize =
+            (
+                clamp(
+                    parseInt(
+                        objectBodySize.value,
+                        10
+                    ) || 14,
+                    8,
+                    48
+                )
+            ) + "px";
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD OBJECT STYLE INTO PANEL
+========================================================= */
+
+function updateStylePanel() {
+
+    const hasObject =
+        !!selectedObject;
+
+    const isSticker =
+        hasObject &&
+        selectedObject.classList.contains(
+            "sticker"
+        );
+
+
+    objectStyleMessage.textContent =
+        !hasObject
+            ? "Select a note or image first."
+            : isSticker
+                ? "Sticker selected. Text controls are disabled."
+                : "Editing selected object.";
+
+
+    objectControls.forEach(
+        control => {
+
+            control.disabled =
+                !hasObject ||
+                (
+                    isSticker &&
+                    control !== editTitleButton &&
+                    control !== editBodyButton
+                );
+
+        }
+    );
+
+
+    if (!hasObject) {
+
+        return;
+
+    }
+
+
+    if (isSticker) {
+
+        return;
+
+    }
+
+
+    const title =
+        selectedObject.querySelector(
+            ".note-title, .image-title"
+        );
+
+    const body =
+        selectedObject.querySelector(
+            ".note-content, .image-content"
+        );
+
+
+    const objectStyle =
+        getComputedStyle(
+            selectedObject
+        );
+
+
+    const titleStyle =
+        title
+            ? getComputedStyle(title)
+            : null;
+
+    const bodyStyle =
+        body
+            ? getComputedStyle(body)
+            : null;
+
+
+    objectBorderColor.value =
+        normalizeColor(
+            objectStyle.borderColor,
+            "#6b7c8c"
+        );
+
+
+    objectBorderWidth.value =
+        parseInt(
+            objectStyle.borderWidth,
+            10
+        ) || 2;
+
+
+    if (titleStyle) {
+
+        objectHeaderColor.value =
+            normalizeColor(
+                titleStyle.backgroundColor,
+                "#316ac5"
+            );
+
+        objectHeaderText.value =
+            normalizeColor(
+                titleStyle.color,
+                "#ffffff"
+            );
+
+        objectHeaderSize.value =
+            parseInt(
+                titleStyle.fontSize,
+                10
+            ) || 13;
+
+    }
+
+
+    if (bodyStyle) {
+
+        objectBodyColor.value =
+            normalizeColor(
+                bodyStyle.backgroundColor,
+                "#fffff0"
+            );
+
+        objectBodyText.value =
+            normalizeColor(
+                bodyStyle.color,
+                "#222222"
+            );
+
+        objectBodySize.value =
+            parseInt(
+                bodyStyle.fontSize,
+                10
+            ) || 14;
+
+    }
+
+
+    objectFont.value =
+        objectStyle.fontFamily ||
+        "Tahoma, Arial, sans-serif";
+
+
+    const shadow =
+        objectStyle.boxShadow;
+
+    objectShadow.checked =
+        shadow !== "none";
+
+
+    if (shadow !== "none") {
+
+        const match =
+            shadow.match(
+                /(-?\d+(?:\.\d+)?)px/
+            );
+
+        if (match) {
+
+            objectShadowSize.value =
+                Math.abs(
+                    parseInt(
+                        match[1],
+                        10
+                    )
+                );
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE OBJECT STYLE
+========================================================= */
+
+function getObjectStyles(object) {
+
+    const title =
+        object.querySelector(
+            ".note-title, .image-title"
+        );
+
+    const body =
+        object.querySelector(
+            ".note-content, .image-content"
+        );
+
+
+    return {
+
+        borderColor:
+            object.style.borderColor ||
+            "#6b7c8c",
+
+        borderWidth:
+            object.style.borderWidth ||
+            "2px",
+
+        boxShadow:
+            object.style.boxShadow ||
+            "4px 4px 0 #9aa7b2",
+
+        headerColor:
+            title
+                ? title.style.backgroundColor ||
+                  "#316ac5"
+                : "#316ac5",
+
+        headerText:
+            title
+                ? title.style.color ||
+                  "#ffffff"
+                : "#ffffff",
+
+        bodyColor:
+            body
+                ? body.style.backgroundColor ||
+                  "#fffff0"
+                : "#fffff0",
+
+        bodyText:
+            body
+                ? body.style.color ||
+                  "#222222"
+                : "#222222",
+
+        font:
+            title
+                ? title.style.fontFamily ||
+                  "Tahoma, Arial, sans-serif"
+                : "Tahoma, Arial, sans-serif",
+
+        headerSize:
+            title
+                ? title.style.fontSize ||
+                  "13px"
+                : "13px",
+
+        bodySize:
+            body
+                ? body.style.fontSize ||
+                  "14px"
+                : "14px"
+
+    };
+
+}
+
+
+/* =========================================================
+   APPLY SAVED OBJECT STYLE
+========================================================= */
+
+function applyObjectStyles(
+    object,
+    styles
+) {
+
+    if (!styles) {
+
+        return;
+
+    }
+
+
+    const title =
+        object.querySelector(
+            ".note-title, .image-title"
+        );
+
+    const body =
+        object.querySelector(
+            ".note-content, .image-content"
+        );
+
+
+    if (styles.borderColor) {
+
+        object.style.borderColor =
+            styles.borderColor;
+
+    }
+
+
+    if (styles.borderWidth) {
+
+        object.style.borderWidth =
+            styles.borderWidth;
+
+    }
+
+
+    if (
+        styles.boxShadow !== undefined
+    ) {
+
+        object.style.boxShadow =
+            styles.boxShadow;
+
+    }
+
+
+    if (title) {
+
+        if (styles.headerColor) {
+
+            title.style.backgroundColor =
+                styles.headerColor;
+
+        }
+
+        if (styles.headerText) {
+
+            title.style.color =
+                styles.headerText;
+
+        }
+
+        if (styles.font) {
+
+            title.style.fontFamily =
+                styles.font;
+
+        }
+
+        if (styles.headerSize) {
+
+            title.style.fontSize =
+                styles.headerSize;
+
+        }
+
+    }
+
+
+    if (body) {
+
+        if (styles.bodyColor) {
+
+            body.style.backgroundColor =
+                styles.bodyColor;
+
+        }
+
+        if (styles.bodyText) {
+
+            body.style.color =
+                styles.bodyText;
+
+        }
+
+        if (styles.font) {
+
+            body.style.fontFamily =
+                styles.font;
+
+        }
+
+        if (styles.bodySize) {
+
+            body.style.fontSize =
+                styles.bodySize;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   DRAGGING
+========================================================= */
+
+function setupDragging(object) {
+
+    let handle =
+        object.querySelector(
+            ".note-title, .image-title"
+        );
+
+
+    if (!handle) {
+
+        handle =
+            object;
+
+    }
+
+
+    handle.addEventListener(
+        "mousedown",
+        event => {
+
+            if (
+                drawingMode !==
+                "select"
+            ) {
+
+                return;
+
+            }
+
+            if (
+                event.button !==
+                0
+            ) {
+
+                return;
+
+            }
+
+            if (
+                event.target.closest(
+                    ".resize-handle"
+                )
+            ) {
+
+                return;
+
+            }
+
+            if (
+                handle.classList.contains(
+                    "editing"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            selectObject(
+                object
+            );
+
+
+            const startX =
+                event.clientX;
+
+            const startY =
+                event.clientY;
+
+            const originalX =
+                object.offsetLeft;
+
+            const originalY =
+                object.offsetTop;
+
+
+            function move(moveEvent) {
+
+                const dx =
+                    (
+                        moveEvent.clientX -
+                        startX
+                    ) / zoom;
+
+                const dy =
+                    (
+                        moveEvent.clientY -
+                        startY
+                    ) / zoom;
+
+
+                object.style.left =
+                    (
+                        originalX +
+                        dx
+                    ) + "px";
+
+                object.style.top =
+                    (
+                        originalY +
+                        dy
+                    ) + "px";
+
+            }
+
+
+            function stop() {
+
+                document.removeEventListener(
+                    "mousemove",
+                    move
+                );
+
+                document.removeEventListener(
+                    "mouseup",
+                    stop
+                );
+
+            }
+
+
+            document.addEventListener(
+                "mousemove",
+                move
+            );
+
+            document.addEventListener(
+                "mouseup",
+                stop
+            );
+
+
+            event.preventDefault();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   RESIZING
+========================================================= */
+
+function setupResizing(object) {
+
+    const handle =
+        object.querySelector(
+            ".resize-handle"
+        );
+
+
+    if (!handle) {
+
+        return;
+
+    }
+
+
+    handle.addEventListener(
+        "mousedown",
+        event => {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            if (
+                drawingMode !==
+                "select"
+            ) {
+
+                return;
+
+            }
+
+
+            selectObject(
+                object
+            );
+
+
+            const startX =
+                event.clientX;
+
+            const startWidth =
+                object.offsetWidth;
+
+
+            function resize(moveEvent) {
+
+                const change =
+                    (
+                        moveEvent.clientX -
+                        startX
+                    ) / zoom;
+
+
+                let newWidth =
+                    startWidth +
+                    change;
+
+
+                newWidth =
+                    Math.max(
+                        80,
+                        Math.min(
+                            1000,
+                            newWidth
+                        )
+                    );
+
+
+                if (
+                    object.classList.contains(
+                        "sticker"
+                    )
+                ) {
+
+                    object.querySelector(
+                        "img"
+                    ).style.width =
+                        newWidth + "px";
+
+                } else {
+
+                    object.style.width =
+                        newWidth + "px";
+
+                }
+
+            }
+
+
+            function stop() {
+
+                document.removeEventListener(
+                    "mousemove",
+                    resize
+                );
+
+                document.removeEventListener(
+                    "mouseup",
+                    stop
+                );
+
+            }
+
+
+            document.addEventListener(
+                "mousemove",
+                resize
+            );
+
+            document.addEventListener(
+                "mouseup",
+                stop
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   PIXEL MODE
+========================================================= */
+
+function updatePixelMenu() {
+
+    if (!selectedObject) {
+
+        pixelObject.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    const isImage =
+        selectedObject.classList.contains(
+            "image-object"
+        );
+
+    const isSticker =
+        selectedObject.classList.contains(
+            "sticker"
+        );
+
+
+    if (
+        !isImage &&
+        !isSticker
+    ) {
+
+        pixelObject.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    pixelObject.style.display =
+        "block";
+
+
+    pixelObject.textContent =
+        selectedObject.classList.contains(
+            "pixel-mode"
+        )
+            ? "Pixel Mode: ON"
+            : "Pixel Mode: OFF";
+
+}
+
+
+pixelObject.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+
+            closeContextMenu();
+
+            return;
+
+        }
+
+
+        selectedObject.classList.toggle(
+            "pixel-mode"
+        );
+
+
+        updatePixelMenu();
+
+        closeContextMenu();
+
+    }
+);
+
+
+/* =========================================================
+   DELETE
+========================================================= */
+
+deleteObject.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (selectedObject) {
+
+            selectedObject.remove();
+
+            selectedObject =
+                null;
+
+            updateStylePanel();
+
+        }
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+/* =========================================================
+   DUPLICATE
+========================================================= */
+
+duplicateObject.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        if (!selectedObject) {
+
+            closeContextMenu();
+
+            return;
+
+        }
+
+
+        const copy =
+            selectedObject.cloneNode(
+                true
+            );
+
+
+        copy.style.left =
+            (
+                selectedObject.offsetLeft +
+                30
+            ) + "px";
+
+
+        copy.style.top =
+            (
+                selectedObject.offsetTop +
+                30
+            ) + "px";
+
+
+        copy.classList.remove(
+            "selected"
+        );
+
+
+        workspace.appendChild(
+            copy
+        );
+
+
+        setupObject(
+            copy
+        );
+
+
+        selectObject(
+            copy
+        );
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+/* =========================================================
+   Z ORDER
+========================================================= */
+
+bringFront.addEventListener(
+    "click",
+    () => {
+
+        if (!selectedObject) {
+
+            closeContextMenu();
+
+            return;
+
+        }
+
+
+        let highest =
+            0;
+
+
+        workspace
+            .querySelectorAll(
+                ".board-object"
+            )
+            .forEach(
+                object => {
+
+                    highest =
+                        Math.max(
+                            highest,
+                            parseInt(
+                                object.style.zIndex ||
+                                "0",
+                                10
+                            )
+                        );
+
+                }
+            );
+
+
+        selectedObject.style.zIndex =
+            highest + 1;
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+bringForward.addEventListener(
+    "click",
+    () => {
+
+        if (!selectedObject) {
+
+            closeContextMenu();
+
+            return;
+
+        }
+
+
+        const current =
+            parseInt(
+                selectedObject.style.zIndex ||
+                "0",
+                10
+            );
+
+
+        selectedObject.style.zIndex =
+            current + 1;
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+sendBackward.addEventListener(
+    "click",
+    () => {
+
+        if (!selectedObject) {
+
+            closeContextMenu();
+
+            return;
+
+        }
+
+
+        const current =
+            parseInt(
+                selectedObject.style.zIndex ||
+                "0",
+                10
+            );
+
+
+        selectedObject.style.zIndex =
+            current - 1;
+
+
+        closeContextMenu();
+
+    }
+);
+
+
+sendBack.addEventListener(
+    "click",
+    () => {
+
+        if (!selectedObject) {
+
+            closeContextMenu();
+
+            return;
+
+        }
+
+
+        selectedObject.style.zIndex =
+            -100;
+
+
+        closeContextMenu();
+
+    }
+);
 
 
 /* =========================================================
    CONTEXT MENU
 ========================================================= */
 
-#contextMenu {
+function closeContextMenu() {
 
-    position:
-        fixed;
-
-    display:
-        none;
-
-    width:
-        175px;
-
-    padding:
-        3px;
-
-    background:
-        var(--ui-color);
-
-    border-top:
-        2px solid var(--ui-light);
-
-    border-left:
-        2px solid var(--ui-light);
-
-    border-right:
-        2px solid var(--ui-darkest);
-
-    border-bottom:
-        2px solid var(--ui-darkest);
-
-    z-index:
-        2500;
+    contextMenu.style.display =
+        "none";
 
 }
 
 
-#contextMenu button {
+document.addEventListener(
+    "click",
+    event => {
 
-    display:
-        block;
+        if (
+            !event.target.closest(
+                "#contextMenu"
+            )
+        ) {
 
-    width:
-        100%;
+            closeContextMenu();
 
-    padding:
-        6px 10px;
+        }
 
-    text-align:
-        left;
-
-    border:
-        0;
-
-    background:
-        var(--ui-color);
-
-    color:
-        var(--ui-text);
-
-    font-family:
-        inherit;
-
-    cursor:
-        pointer;
-
-}
-
-
-#contextMenu button:hover {
-
-    color:
-        white;
-
-    background:
-        var(--accent);
-
-}
-
-
-.menu-divider {
-
-    height:
-        1px;
-
-    margin:
-        3px 0;
-
-    background:
-        var(--ui-dark);
-
-    border-bottom:
-        1px solid var(--ui-light);
-
-}
-
-
-/* =========================================================
-   STYLE SIDEBAR
-========================================================= */
-
-#stylePanel {
-
-    position:
-        fixed;
-
-    top:
-        44px;
-
-    right:
-        0;
-
-    bottom:
-        0;
-
-    width:
-        330px;
-
-    display:
-        none;
-
-    flex-direction:
-        column;
-
-    background:
-        var(--ui-color);
-
-    border-left:
-        3px solid var(--ui-dark);
-
-    box-shadow:
-        -4px 0 0 rgba(0, 0, 0, 0.12);
-
-    z-index:
-        1500;
-
-}
-
-
-#stylePanel.open {
-
-    display:
-        flex;
-
-}
-
-
-.style-header {
-
-    height:
-        34px;
-
-    flex:
-        0 0 34px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    padding:
-        0 6px 0 10px;
-
-    color:
-        white;
-
-    background:
-        var(--accent);
-
-    font-size:
-        12px;
-
-    font-weight:
-        bold;
-
-}
-
-
-#closeStyle {
-
-    margin-left:
-        auto;
-
-    width:
-        24px;
-
-    height:
-        24px;
-
-    padding:
-        0;
-
-    background:
-        var(--ui-color);
-
-    border-top:
-        2px solid var(--ui-light);
-
-    border-left:
-        2px solid var(--ui-light);
-
-    border-right:
-        2px solid var(--ui-darkest);
-
-    border-bottom:
-        2px solid var(--ui-darkest);
-
-    font-weight:
-        bold;
-
-    cursor:
-        pointer;
-
-}
-
-
-.style-scroll {
-
-    flex:
-        1;
-
-    overflow-y:
-        auto;
-
-    padding:
-        8px;
-
-}
-
-
-.style-section {
-
-    margin-bottom:
-        10px;
-
-    padding:
-        9px;
-
-    background:
-        #eeeeee;
-
-    border-top:
-        2px solid var(--ui-light);
-
-    border-left:
-        2px solid var(--ui-light);
-
-    border-right:
-        2px solid var(--ui-dark);
-
-    border-bottom:
-        2px solid var(--ui-dark);
-
-}
-
-
-.style-section h3 {
-
-    margin:
-        0 0 9px;
-
-    padding-bottom:
-        5px;
-
-    border-bottom:
-        1px solid #888888;
-
-    font-size:
-        12px;
-
-}
-
-
-.style-section h4 {
-
-    margin:
-        12px 0 6px;
-
-    font-size:
-        10px;
-
-}
-
-
-.style-section label {
-
-    display:
-        block;
-
-    margin-bottom:
-        8px;
-
-    font-size:
-        10px;
-
-    font-weight:
-        bold;
-
-}
-
-
-.style-section input[type="color"] {
-
-    display:
-        block;
-
-    width:
-        100%;
-
-    height:
-        30px;
-
-    margin-top:
-        3px;
-
-    padding:
-        2px;
-
-    background:
-        white;
-
-    border:
-        2px inset #dddddd;
-
-}
-
-
-.style-section input[type="number"],
-.style-section select {
-
-    width:
-        100%;
-
-    height:
-        29px;
-
-    margin-top:
-        3px;
-
-    padding:
-        3px;
-
-    background:
-        white;
-
-    border:
-        2px inset #dddddd;
-
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-
-}
-
-
-.two-column {
-
-    display:
-        grid;
-
-    grid-template-columns:
-        1fr 1fr;
-
-    gap:
-        7px;
-
-}
-
-
-.two-column label {
-
-    margin-bottom:
-        0;
-
-}
-
-
-.number-row {
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        4px;
-
-}
-
-
-.number-row input {
-
-    flex:
-        1;
-
-}
-
-
-.number-row span {
-
-    font-size:
-        10px;
-
-}
-
-
-.small-help {
-
-    margin:
-        8px 0 0;
-
-    font-size:
-        10px;
-
-    line-height:
-        1.4;
-
-    color:
-        #555555;
-
-}
-
-
-.style-buttons {
-
-    display:
-        flex;
-
-    gap:
-        5px;
-
-}
-
-
-.style-buttons button,
-.wide-button {
-
-    flex:
-        1;
-
-    min-height:
-        30px;
-
-    padding:
-        5px;
-
-    background:
-        var(--ui-color);
-
-    border-top:
-        2px solid var(--ui-light);
-
-    border-left:
-        2px solid var(--ui-light);
-
-    border-right:
-        2px solid var(--ui-dark);
-
-    border-bottom:
-        2px solid var(--ui-dark);
-
-    font-family:
-        inherit;
-
-    font-size:
-        10px;
-
-    cursor:
-        pointer;
-
-}
-
-
-.style-buttons button:active,
-.wide-button:active {
-
-    border-top:
-        2px solid var(--ui-dark);
-
-    border-left:
-        2px solid var(--ui-dark);
-
-    border-right:
-        2px solid var(--ui-light);
-
-    border-bottom:
-        2px solid var(--ui-light);
-
-}
-
-
-#backgroundStatus {
-
-    margin-top:
-        7px;
-
-    padding:
-        6px;
-
-    background:
-        white;
-
-    border:
-        1px solid #888888;
-
-    font-size:
-        10px;
-
-    overflow:
-        hidden;
-
-    text-overflow:
-        ellipsis;
-
-    white-space:
-        nowrap;
-
-}
-
-
-#noObjectMessage {
-
-    padding:
-        9px;
-
-    background:
-        #ffffe1;
-
-    border:
-        1px solid #999999;
-
-    font-size:
-        11px;
-
-    line-height:
-        1.4;
-
-}
-
-
-#objectStyleControls {
-
-    display:
-        none;
-
-}
+    }
+);
 
 
 /* =========================================================
    HELP
 ========================================================= */
 
-#helpWindow {
+helpButton.addEventListener(
+    "click",
+    event => {
 
-    position:
-        fixed;
+        event.preventDefault();
 
-    left:
-        0;
+        event.stopPropagation();
 
-    top:
-        0;
+        helpWindow.style.display =
+            "flex";
 
-    width:
-        100%;
+    }
+);
 
-    height:
-        100%;
 
-    display:
-        none;
+closeHelp.addEventListener(
+    "click",
+    event => {
 
-    align-items:
-        center;
+        event.preventDefault();
 
-    justify-content:
-        center;
+        event.stopPropagation();
 
-    background:
-        rgba(0, 0, 0, 0.25);
+        helpWindow.style.display =
+            "none";
 
-    z-index:
-        3000;
+    }
+);
+
+
+helpWindow.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target ===
+            helpWindow
+        ) {
+
+            helpWindow.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   NEW BOARD
+========================================================= */
+
+newButton.addEventListener(
+    "click",
+    () => {
+
+        if (
+            !confirm(
+                "Start a new board?"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        workspace.innerHTML =
+            "";
+
+
+        drawingContext.clearRect(
+            0,
+            0,
+            drawingCanvas.width,
+            drawingCanvas.height
+        );
+
+
+        selectedObject =
+            null;
+
+
+        objectNumber =
+            1;
+
+
+        boardName =
+            "Untitled Board";
+
+
+        currentFileHandle =
+            null;
+
+
+        backgroundImageData =
+            null;
+
+
+        boardWidth =
+            3000;
+
+        boardHeight =
+            2000;
+
+
+        boardWidthInput.value =
+            boardWidth;
+
+        boardHeightInput.value =
+            boardHeight;
+
+
+        boardColor.value =
+            "#ffffff";
+
+
+        backgroundRepeat.value =
+            "repeat";
+
+
+        backgroundScale.value =
+            256;
+
+
+        applyBoardDimensions();
+
+        setCanvasSize(
+            boardWidth,
+            boardHeight,
+            false
+        );
+
+        applyBackground();
+
+        centerBoard();
+
+        updateStylePanel();
+
+    }
+);
+
+
+/* =========================================================
+   SAVE
+========================================================= */
+
+async function saveBoard() {
+
+    if (
+        currentFileHandle
+    ) {
+
+        try {
+
+            await writeToFile(
+                currentFileHandle
+            );
+
+            return;
+
+        } catch {
+
+            currentFileHandle =
+                null;
+
+        }
+
+    }
+
+
+    await saveAsBoard();
 
 }
 
 
-.help-box {
-
-    width:
-        430px;
-
-    max-width:
-        calc(100vw - 30px);
-
-    max-height:
-        80vh;
-
-    background:
-        var(--ui-color);
-
-    border-top:
-        3px solid var(--ui-light);
-
-    border-left:
-        3px solid var(--ui-light);
-
-    border-right:
-        3px solid var(--ui-darkest);
-
-    border-bottom:
-        3px solid var(--ui-darkest);
-
-}
+saveButton.addEventListener(
+    "click",
+    saveBoard
+);
 
 
-.window-title {
-
-    height:
-        30px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    padding-left:
-        8px;
-
-    color:
-        white;
-
-    background:
-        var(--accent);
-
-    font-weight:
-        bold;
-
-}
+saveAsButton.addEventListener(
+    "click",
+    saveAsBoard
+);
 
 
-.window-title button {
+async function saveAsBoard() {
 
-    margin-left:
-        auto;
-
-    margin-right:
-        4px;
-
-    width:
-        22px;
-
-    height:
-        22px;
-
-    padding:
-        0;
-
-    background:
-        var(--ui-color);
-
-    border-top:
-        2px solid var(--ui-light);
-
-    border-left:
-        2px solid var(--ui-light);
-
-    border-right:
-        2px solid var(--ui-darkest);
-
-    border-bottom:
-        2px solid var(--ui-darkest);
-
-    font-weight:
-        bold;
-
-    cursor:
-        pointer;
-
-}
+    const name =
+        prompt(
+            "Board name:",
+            boardName
+        );
 
 
-.help-content {
+    if (!name) {
 
-    max-height:
-        calc(80vh - 30px);
+        return;
 
-    overflow-y:
-        auto;
+    }
 
-    padding:
-        10px 18px;
 
-    font-size:
-        13px;
+    boardName =
+        name;
+
+
+    if (
+        window.showSaveFilePicker
+    ) {
+
+        try {
+
+            const handle =
+                await window.showSaveFilePicker({
+
+                    suggestedName:
+                        boardName +
+                        ".json",
+
+                    types: [
+
+                        {
+
+                            description:
+                                "Pickdel Board",
+
+                            accept: {
+
+                                "application/json":
+                                    [".json"]
+
+                            }
+
+                        }
+
+                    ]
+
+                });
+
+
+            currentFileHandle =
+                handle;
+
+
+            await writeToFile(
+                handle
+            );
+
+
+            return;
+
+        } catch (error) {
+
+            if (
+                error.name ===
+                "AbortError"
+            ) {
+
+                return;
+
+            }
+
+        }
+
+    }
+
+
+    downloadBoard();
 
 }
 
 
-.help-content p {
+async function writeToFile(handle) {
 
-    margin:
-        12px 0;
+    const data =
+        getBoardData();
+
+
+    const json =
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+
+    const writable =
+        await handle.createWritable();
+
+
+    await writable.write(
+        json
+    );
+
+
+    await writable.close();
+
+}
+
+
+function downloadBoard() {
+
+    const data =
+        getBoardData();
+
+
+    const json =
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+
+    const blob =
+        new Blob(
+            [json],
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+    link.download =
+        boardName +
+        ".json";
+
+
+    document.body.appendChild(
+        link
+    );
+
+    link.click();
+
+    link.remove();
+
+
+    setTimeout(
+        () => {
+
+            URL.revokeObjectURL(
+                url
+            );
+
+        },
+        1000
+    );
 
 }
 
 
 /* =========================================================
-   MOBILE
+   LOAD
 ========================================================= */
 
-@media (max-width: 700px) {
+loadButton.addEventListener(
+    "click",
+    () => {
 
-    #stylePanel {
-
-        width:
-            280px;
+        boardInput.click();
 
     }
+);
+
+
+boardInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            boardInput.files[0];
+
+
+        if (!file) {
+
+            return;
+
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            event => {
+
+                try {
+
+                    const data =
+                        JSON.parse(
+                            event.target.result
+                        );
+
+
+                    loadBoard(
+                        data
+                    );
+
+
+                } catch {
+
+                    alert(
+                        "Could not load this board."
+                    );
+
+                }
+
+            };
+
+
+        reader.readAsText(
+            file
+        );
+
+
+        boardInput.value =
+            "";
+
+    }
+);
+
+
+/* =========================================================
+   BOARD DATA
+========================================================= */
+
+function getBoardData() {
+
+    const objects =
+        [];
+
+
+    workspace
+        .querySelectorAll(
+            ".board-object"
+        )
+        .forEach(
+            object => {
+
+                const image =
+                    object.querySelector(
+                        "img"
+                    );
+
+
+                const title =
+                    object.querySelector(
+                        ".note-title, .image-title"
+                    );
+
+
+                const content =
+                    object.querySelector(
+                        ".note-content"
+                    );
+
+
+                let width =
+                    object.offsetWidth;
+
+
+                if (
+                    object.classList.contains(
+                        "sticker"
+                    ) &&
+                    image
+                ) {
+
+                    width =
+                        image.offsetWidth;
+
+                }
+
+
+                objects.push({
+
+                    type:
+                        getObjectType(
+                            object
+                        ),
+
+                    x:
+                        object.offsetLeft,
+
+                    y:
+                        object.offsetTop,
+
+                    width:
+                        width,
+
+                    zIndex:
+                        parseInt(
+                            object.style.zIndex ||
+                            "0",
+                            10
+                        ),
+
+                    pixel:
+                        object.classList.contains(
+                            "pixel-mode"
+                        ),
+
+                    title:
+                        title
+                            ? title.textContent
+                            : undefined,
+
+                    content:
+                        content
+                            ? content.textContent
+                            : undefined,
+
+                    image:
+                        image
+                            ? image.src
+                            : undefined,
+
+                    styles:
+                        getObjectStyles(
+                            object
+                        )
+
+                });
+
+            }
+        );
+
+
+    return {
+
+        version:
+            10,
+
+        name:
+            boardName,
+
+        boardWidth:
+            boardWidth,
+
+        boardHeight:
+            boardHeight,
+
+        backgroundColor:
+            boardColor.value,
+
+        background:
+            boardColor.value,
+
+        backgroundImage:
+            backgroundImageData,
+
+        backgroundRepeat:
+            backgroundRepeat.value,
+
+        backgroundScale:
+            parseInt(
+                backgroundScale.value,
+                10
+            ) || 256,
+
+        penColor:
+            penColor.value,
+
+        penSize:
+            penSize,
+
+        eraserSize:
+            eraserSize,
+
+        uiTheme: {
+
+            bg:
+                uiBg.value,
+
+            accent:
+                uiAccent.value,
+
+            darkAccent:
+                uiDarkAccent.value,
+
+            buttonHover:
+                uiButtonHover.value,
+
+            text:
+                uiText.value,
+
+            font:
+                uiFont.value
+
+        },
+
+        objects:
+            objects,
+
+        drawing:
+            drawingCanvas.toDataURL()
+
+    };
+
+}
+
+
+/* =========================================================
+   OBJECT TYPE
+========================================================= */
+
+function getObjectType(object) {
+
+    if (
+        object.classList.contains(
+            "note"
+        )
+    ) {
+
+        return "note";
+
+    }
+
+
+    if (
+        object.classList.contains(
+            "image-object"
+        )
+    ) {
+
+        return "image";
+
+    }
+
+
+    if (
+        object.classList.contains(
+            "sticker"
+        )
+    ) {
+
+        return "sticker";
+
+    }
+
+
+    return "unknown";
+
+}
+
+
+/* =========================================================
+   LOAD BOARD
+========================================================= */
+
+function loadBoard(data) {
+
+    workspace.innerHTML =
+        "";
+
+
+    selectedObject =
+        null;
+
+
+    boardName =
+        data.name ||
+        "Untitled Board";
+
+
+    boardWidth =
+        clamp(
+            parseInt(
+                data.boardWidth ||
+                10000,
+                10
+            ),
+            500,
+            12000
+        );
+
+
+    boardHeight =
+        clamp(
+            parseInt(
+                data.boardHeight ||
+                10000,
+                10
+            ),
+            500,
+            12000
+        );
+
+
+    boardWidthInput.value =
+        boardWidth;
+
+    boardHeightInput.value =
+        boardHeight;
+
+
+    applyBoardDimensions();
+
+
+    setCanvasSize(
+        boardWidth,
+        boardHeight,
+        false
+    );
+
+
+    /* =========================
+       BACKGROUND
+    ========================== */
+
+    boardColor.value =
+        data.backgroundColor ||
+        data.background ||
+        "#ffffff";
+
+
+    backgroundImageData =
+        data.backgroundImage ||
+        null;
+
+
+    backgroundRepeat.value =
+        data.backgroundRepeat ||
+        "repeat";
+
+
+    backgroundScale.value =
+        data.backgroundScale ||
+        256;
+
+
+    applyBackground();
+
+
+    /* =========================
+       PEN
+    ========================== */
+
+    if (data.penColor) {
+
+        penColor.value =
+            data.penColor;
+
+        stylePenColor.value =
+            data.penColor;
+
+    }
+
+
+    penSize =
+        data.penSize ||
+        4;
+
+    eraserSize =
+        data.eraserSize ||
+        30;
+
+
+    penSizeInput.value =
+        penSize;
+
+    eraserSizeInput.value =
+        eraserSize;
+
+
+    /* =========================
+       UI THEME
+    ========================== */
+
+    if (data.uiTheme) {
+
+        uiBg.value =
+            data.uiTheme.bg ||
+            "#d4d0c8";
+
+        uiAccent.value =
+            data.uiTheme.accent ||
+            "#316ac5";
+
+        uiDarkAccent.value =
+            data.uiTheme.darkAccent ||
+            "#234a8c";
+
+        uiButtonHover.value =
+            data.uiTheme.buttonHover ||
+            "#eeeeee";
+
+        uiText.value =
+            data.uiTheme.text ||
+            "#000000";
+
+        uiFont.value =
+            data.uiTheme.font ||
+            "Tahoma, Arial, sans-serif";
+
+        applyUITheme();
+
+    }
+
+
+    /* =========================
+       OBJECTS
+    ========================== */
+
+    if (
+        Array.isArray(
+            data.objects
+        )
+    ) {
+
+        data.objects.forEach(
+            objectData => {
+
+                let created =
+                    null;
+
+
+                if (
+                    objectData.type ===
+                    "note"
+                ) {
+
+                    created =
+                        createNote(
+                            objectData.x || 0,
+                            objectData.y || 0,
+                            objectData.title,
+                            objectData.content,
+                            objectData.styles,
+                            false
+                        );
+
+                }
+
+
+                if (
+                    objectData.type ===
+                    "image"
+                ) {
+
+                    created =
+                        createImage(
+                            objectData.image,
+                            objectData.x || 0,
+                            objectData.y || 0,
+                            objectData.title,
+                            objectData.width || 260,
+                            objectData.pixel,
+                            objectData.styles,
+                            false
+                        );
+
+                }
+
+
+                if (
+                    objectData.type ===
+                    "sticker"
+                ) {
+
+                    created =
+                        createSticker(
+                            objectData.image,
+                            objectData.x || 0,
+                            objectData.y || 0,
+                            objectData.width || 180,
+                            objectData.pixel,
+                            false
+                        );
+
+                }
+
+
+                if (created) {
+
+                    created.style.zIndex =
+                        objectData.zIndex || 0;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================
+       DRAWING
+    ========================== */
+
+    if (data.drawing) {
+
+        const image =
+            new Image();
+
+
+        image.onload =
+            () => {
+
+                drawingContext.clearRect(
+                    0,
+                    0,
+                    drawingCanvas.width,
+                    drawingCanvas.height
+                );
+
+
+                drawingContext.drawImage(
+                    image,
+                    0,
+                    0,
+                    boardWidth,
+                    boardHeight
+                );
+
+            };
+
+
+        image.src =
+            data.drawing;
+
+    }
+
+
+    objectNumber =
+        workspace.querySelectorAll(
+            ".board-object"
+        ).length + 1;
+
+
+    updateStylePanel();
+
+    centerBoard();
+
+}
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+function centerBoard() {
+
+    const viewportWidth =
+        board.clientWidth;
+
+    const viewportHeight =
+        board.clientHeight;
+
+
+    cameraX =
+        (
+            viewportWidth -
+            boardWidth * zoom
+        ) / 2;
+
+
+    cameraY =
+        (
+            viewportHeight -
+            boardHeight * zoom
+        ) / 2;
+
+
+    clampCamera();
+
+    updateCamera();
+
+}
+
+
+function clampCamera() {
+
+    const viewportWidth =
+        board.clientWidth;
+
+    const viewportHeight =
+        board.clientHeight;
+
+
+    const scaledWidth =
+        boardWidth * zoom;
+
+    const scaledHeight =
+        boardHeight * zoom;
+
+
+    const margin =
+        200;
+
+
+    const minX =
+        viewportWidth -
+        scaledWidth -
+        margin;
+
+
+    const maxX =
+        margin;
+
+
+    const minY =
+        viewportHeight -
+        scaledHeight -
+        margin;
+
+
+    const maxY =
+        margin;
+
+
+    cameraX =
+        clamp(
+            cameraX,
+            Math.min(
+                minX,
+                maxX
+            ),
+            Math.max(
+                minX,
+                maxX
+            )
+        );
+
+
+    cameraY =
+        clamp(
+            cameraY,
+            Math.min(
+                minY,
+                maxY
+            ),
+            Math.max(
+                minY,
+                maxY
+            )
+        );
+
+}
+
+
+function updateCamera() {
+
+    clampCamera();
+
+
+    const transform =
+        `translate(${cameraX}px, ${cameraY}px) scale(${zoom})`;
+
+
+    workspace.style.transform =
+        transform;
+
+
+    drawingCanvas.style.transform =
+        transform;
+
+
+    zoomDisplay.textContent =
+        Math.round(
+            zoom * 100
+        ) + "%";
+
+}
+
+
+/* =========================================================
+   PAN
+========================================================= */
+
+board.addEventListener(
+    "mousedown",
+    event => {
+
+        if (
+            drawingMode !==
+            "select"
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            event.button === 1 ||
+            (
+                event.button === 0 &&
+                event.shiftKey
+            )
+        ) {
+
+            panning =
+                true;
+
+
+            panStartX =
+                event.clientX;
+
+            panStartY =
+                event.clientY;
+
+
+            cameraStartX =
+                cameraX;
+
+            cameraStartY =
+                cameraY;
+
+
+            board.style.cursor =
+                "grabbing";
+
+
+            event.preventDefault();
+
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "mousemove",
+    event => {
+
+        if (!panning) {
+
+            return;
+
+        }
+
+
+        cameraX =
+            cameraStartX +
+            (
+                event.clientX -
+                panStartX
+            );
+
+
+        cameraY =
+            cameraStartY +
+            (
+                event.clientY -
+                panStartY
+            );
+
+
+        updateCamera();
+
+    }
+);
+
+
+document.addEventListener(
+    "mouseup",
+    () => {
+
+        panning =
+            false;
+
+
+        if (
+            drawingMode ===
+            "select"
+        ) {
+
+            board.style.cursor =
+                "default";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ZOOM
+========================================================= */
+
+board.addEventListener(
+    "wheel",
+    event => {
+
+        if (
+            drawingMode !==
+            "select"
+        ) {
+
+            return;
+
+        }
+
+
+        event.preventDefault();
+
+
+        const rect =
+            board.getBoundingClientRect();
+
+
+        const mouseX =
+            event.clientX -
+            rect.left;
+
+
+        const mouseY =
+            event.clientY -
+            rect.top;
+
+
+        const worldX =
+            (
+                mouseX -
+                cameraX
+            ) / zoom;
+
+
+        const worldY =
+            (
+                mouseY -
+                cameraY
+            ) / zoom;
+
+
+        if (
+            event.deltaY < 0
+        ) {
+
+            zoom +=
+                0.1;
+
+        } else {
+
+            zoom -=
+                0.1;
+
+        }
+
+
+        zoom =
+            clamp(
+                zoom,
+                0.3,
+                3
+            );
+
+
+        cameraX =
+            mouseX -
+            worldX * zoom;
+
+
+        cameraY =
+            mouseY -
+            worldY * zoom;
+
+
+        updateCamera();
+
+    },
+    {
+        passive:
+            false
+    }
+);
+
+
+/* =========================================================
+   KEYBOARD MOVEMENT
+========================================================= */
+
+function isTypingTarget() {
+
+    const active =
+        document.activeElement;
+
+
+    if (!active) {
+
+        return false;
+
+    }
+
+
+    return (
+        active.tagName === "INPUT" ||
+        active.tagName === "TEXTAREA" ||
+        active.tagName === "SELECT" ||
+        active.isContentEditable
+    );
+
+}
+
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            isTypingTarget()
+        ) {
+
+            return;
+
+        }
+
+
+        const key =
+            event.key.toLowerCase();
+
+
+        if (
+            [
+                "w",
+                "a",
+                "s",
+                "d",
+                "arrowup",
+                "arrowdown",
+                "arrowleft",
+                "arrowright"
+            ].includes(key)
+        ) {
+
+            keys.add(
+                key
+            );
+
+            event.preventDefault();
+
+        }
+
+
+        if (
+            event.key ===
+            "Home"
+        ) {
+
+            event.preventDefault();
+
+            centerBoard();
+
+        }
+
+
+        if (
+            event.ctrlKey &&
+            key === "s"
+        ) {
+
+            event.preventDefault();
+
+            saveBoard();
+
+        }
+
+
+        if (
+            event.ctrlKey &&
+            key === "o"
+        ) {
+
+            event.preventDefault();
+
+            loadButton.click();
+
+        }
+
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            setTool(
+                "select"
+            );
+
+            helpWindow.style.display =
+                "none";
+
+            stylePanel.classList.remove(
+                "open"
+            );
+
+            styleButton.classList.remove(
+                "active"
+            );
+
+        }
+
+
+        if (
+            event.key ===
+            "Delete" &&
+            selectedObject &&
+            drawingMode ===
+            "select"
+        ) {
+
+            selectedObject.remove();
+
+            selectedObject =
+                null;
+
+            updateStylePanel();
+
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "keyup",
+    event => {
+
+        keys.delete(
+            event.key.toLowerCase()
+        );
+
+    }
+);
+
+
+function keyboardLoop() {
+
+    if (
+        !isTypingTarget()
+    ) {
+
+        const speed =
+            10;
+
+
+        if (
+            keys.has("w") ||
+            keys.has("arrowup")
+        ) {
+
+            cameraY +=
+                speed;
+
+        }
+
+
+        if (
+            keys.has("s") ||
+            keys.has("arrowdown")
+        ) {
+
+            cameraY -=
+                speed;
+
+        }
+
+
+        if (
+            keys.has("a") ||
+            keys.has("arrowleft")
+        ) {
+
+            cameraX +=
+                speed;
+
+        }
+
+
+        if (
+            keys.has("d") ||
+            keys.has("arrowright")
+        ) {
+
+            cameraX -=
+                speed;
+
+        }
+
+
+        if (
+            keys.size > 0
+        ) {
+
+            updateCamera();
+
+        }
+
+    }
+
+
+    requestAnimationFrame(
+        keyboardLoop
+    );
+
+}
+
+
+keyboardLoop();
+
+
+/* =========================================================
+   WINDOW RESIZE
+========================================================= */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        clampCamera();
+
+        updateCamera();
+
+    }
+);
+
+
+/* =========================================================
+   CURSOR
+========================================================= */
+
+function placeCursorAtEnd(
+    element
+) {
+
+    const range =
+        document.createRange();
+
+    const selection =
+        window.getSelection();
+
+
+    range.selectNodeContents(
+        element
+    );
+
+
+    range.collapse(
+        false
+    );
+
+
+    selection.removeAllRanges();
+
+    selection.addRange(
+        range
+    );
+
+}
+
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+function clamp(
+    value,
+    min,
+    max
+) {
+
+    return Math.max(
+        min,
+        Math.min(
+            max,
+            value
+        )
+    );
+
+}
+
+
+function normalizeColor(
+    color,
+    fallback
+) {
+
+    if (
+        !color ||
+        color === "transparent"
+    ) {
+
+        return fallback;
+
+    }
+
+
+    const match =
+        color.match(
+            /rgba?\((\d+),\s*(\d+),\s*(\d+)/
+        );
+
+
+    if (!match) {
+
+        if (
+            color.startsWith("#")
+        ) {
+
+            return color;
+
+        }
+
+        return fallback;
+
+    }
+
+
+    return (
+        "#" +
+        [1, 2, 3]
+            .map(
+                index =>
+                    parseInt(
+                        match[index],
+                        10
+                    )
+                    .toString(16)
+                    .padStart(
+                        2,
+                        "0"
+                    )
+            )
+            .join("")
+    );
+
+}
+
+
+function escapeHTML(
+    text
+) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        text || "";
+
+
+    return div.innerHTML;
 
 }
