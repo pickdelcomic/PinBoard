@@ -1,25 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Pickdel Board</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-
 
 <!-- =========================
      TOOLBAR
@@ -27,187 +18,37 @@
 
 <div id="toolbar">
 
-    <button id="selectButton">
-        SELECT
-    </button>
-
-    <button id="textButton">
-        TEXT
-    </button>
-
-    <button id="imageButton">
-        IMAGE
-    </button>
-
-    <button id="stickerButton">
-        STICKER
-    </button>
-
+    <button id="selectButton">SELECT</button>
+    <button id="textButton">TEXT</button>
+    <button id="imageButton">IMAGE</button>
+    <button id="stickerButton">STICKER</button>
 
     <div class="toolbar-divider"></div>
 
-
-    <button id="drawButton">
-        DRAW
-    </button>
-
-    <button id="eraserButton">
-        ERASER
-    </button>
-
+    <button id="drawButton">DRAW</button>
+    <button id="eraserButton">ERASER</button>
 
     <label class="color-control">
-
         PEN
-
-        <input
-            type="color"
-            id="penColor"
-            value="#000000"
-        >
-
+        <input type="color" id="penColor" value="#000000">
     </label>
-
 
     <div class="toolbar-divider"></div>
 
+    <button id="newButton">NEW</button>
+    <button id="saveButton">SAVE</button>
+    <button id="saveAsButton">SAVE AS</button>
+    <button id="loadButton">LOAD</button>
 
-    <label class="color-control">
+    <button id="styleButton">STYLE</button>
 
-        BG
-
-        <input
-            type="color"
-            id="backgroundColor"
-            value="#ffffff"
-        >
-
-    </label>
-
-
-    <button id="backgroundImageButton">
-        BG IMAGE
-    </button>
-
-    <button id="clearBackgroundButton">
-        CLEAR BG
-    </button>
-
-
-    <label class="select-control">
-
-        BG MODE
-
-        <select id="backgroundMode">
-
-            <option value="cover">
-                FIT
-            </option>
-
-            <option value="repeat">
-                TILE
-            </option>
-
-            <option value="stretch">
-                STRETCH
-            </option>
-
-        </select>
-
-    </label>
-
-
-    <div class="toolbar-divider"></div>
-
-
-    <label class="select-control">
-
-        FONT
-
-        <select id="fontFamily">
-
-            <option value="Tahoma">
-                Tahoma
-            </option>
-
-            <option value="Arial">
-                Arial
-            </option>
-
-            <option value="Verdana">
-                Verdana
-            </option>
-
-            <option value="Georgia">
-                Georgia
-            </option>
-
-            <option value="Courier New">
-                Courier New
-            </option>
-
-            <option value="Comic Sans MS">
-                Comic Sans
-            </option>
-
-        </select>
-
-    </label>
-
-
-    <label class="color-control">
-
-        TEXT
-
-        <input
-            type="color"
-            id="textColor"
-            value="#222222"
-        >
-
-    </label>
-
-
-    <div class="toolbar-divider"></div>
-
-
-    <button id="newButton">
-        NEW
-    </button>
-
-    <button id="saveButton">
-        SAVE
-    </button>
-
-    <button id="saveAsButton">
-        SAVE AS
-    </button>
-
-    <button id="loadButton">
-        LOAD
-    </button>
-
-
-    <button id="resetViewButton">
-        RESET VIEW
-    </button>
-
-
-    <button
-        id="helpButton"
-        class="help-button"
-    >
-        ?
-    </button>
-
+    <button id="helpButton" class="help-button">?</button>
 
     <div class="toolbar-spacer"></div>
-
 
     <div id="pickdel">
         PICKDEL
     </div>
-
 
     <span id="zoomDisplay">
         100%
@@ -216,19 +57,19 @@
 </div>
 
 
-
 <!-- =========================
      BOARD
 ========================= -->
 
 <div id="board">
 
+    <div id="backgroundLayer"></div>
+
     <div id="workspace"></div>
 
     <canvas id="drawingCanvas"></canvas>
 
 </div>
-
 
 
 <!-- =========================
@@ -242,15 +83,6 @@
     hidden
 >
 
-
-<input
-    type="file"
-    id="backgroundImageInput"
-    accept="image/*"
-    hidden
->
-
-
 <input
     type="file"
     id="boardInput"
@@ -258,6 +90,12 @@
     hidden
 >
 
+<input
+    type="file"
+    id="backgroundInput"
+    accept="image/*"
+    hidden
+>
 
 
 <!-- =========================
@@ -274,17 +112,13 @@
         Duplicate
     </button>
 
-
     <div class="menu-divider"></div>
-
 
     <button id="pixelObject">
         Pixel Mode
     </button>
 
-
     <div class="menu-divider"></div>
-
 
     <button id="bringFront">
         Bring to Front
@@ -305,23 +139,334 @@
 </div>
 
 
-
 <!-- =========================
-     HELP
+     STYLE WINDOW
 ========================= -->
 
-<div
-    id="helpWindow"
-    class="help-window"
->
+<div id="styleWindow" class="modal-window">
+
+    <div class="style-box">
+
+        <div class="style-title">
+
+            PICKDEL STYLE
+
+            <button id="closeStyle">
+                X
+            </button>
+
+        </div>
+
+
+        <div class="style-content">
+
+            <h3>BOARD</h3>
+
+            <label class="style-row">
+                UI Color
+                <input
+                    type="color"
+                    id="uiColor"
+                    value="#316ac5"
+                >
+            </label>
+
+
+            <label class="style-row">
+                Background Color
+                <input
+                    type="color"
+                    id="styleBackgroundColor"
+                    value="#ffffff"
+                >
+            </label>
+
+
+            <div class="style-row">
+
+                Background Image
+
+                <button id="backgroundImageButton">
+                    CHOOSE
+                </button>
+
+                <button id="removeBackgroundButton">
+                    REMOVE
+                </button>
+
+            </div>
+
+
+            <label class="style-row">
+
+                Background Scale
+
+                <select id="backgroundScale">
+
+                    <option value="cover">
+                        Cover
+                    </option>
+
+                    <option value="contain">
+                        Contain
+                    </option>
+
+                    <option value="100px 100px">
+                        100px
+                    </option>
+
+                    <option value="200px 200px">
+                        200px
+                    </option>
+
+                    <option value="300px 300px">
+                        300px
+                    </option>
+
+                    <option value="500px 500px">
+                        500px
+                    </option>
+
+                    <option value="800px 800px">
+                        800px
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <label class="style-row">
+
+                Background Repeat
+
+                <select id="backgroundRepeat">
+
+                    <option value="no-repeat">
+                        No Repeat
+                    </option>
+
+                    <option value="repeat">
+                        Repeat
+                    </option>
+
+                    <option value="repeat-x">
+                        Repeat X
+                    </option>
+
+                    <option value="repeat-y">
+                        Repeat Y
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <label class="style-row">
+
+                Background Position
+
+                <select id="backgroundPosition">
+
+                    <option value="center">
+                        Center
+                    </option>
+
+                    <option value="top left">
+                        Top Left
+                    </option>
+
+                    <option value="top center">
+                        Top Center
+                    </option>
+
+                    <option value="top right">
+                        Top Right
+                    </option>
+
+                    <option value="center left">
+                        Center Left
+                    </option>
+
+                    <option value="center right">
+                        Center Right
+                    </option>
+
+                    <option value="bottom left">
+                        Bottom Left
+                    </option>
+
+                    <option value="bottom center">
+                        Bottom Center
+                    </option>
+
+                    <option value="bottom right">
+                        Bottom Right
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <hr>
+
+
+            <h3>SELECTED OBJECT</h3>
+
+            <div id="noSelectionMessage">
+
+                Select a note or image to customize it.
+
+            </div>
+
+
+            <div id="objectStyleControls">
+
+                <label class="style-row">
+
+                    Font
+
+                    <select id="objectFont">
+
+                        <option value="Tahoma">
+                            Tahoma
+                        </option>
+
+                        <option value="Arial">
+                            Arial
+                        </option>
+
+                        <option value="Verdana">
+                            Verdana
+                        </option>
+
+                        <option value="Georgia">
+                            Georgia
+                        </option>
+
+                        <option value="Courier New">
+                            Courier New
+                        </option>
+
+                        <option value="Times New Roman">
+                            Times New Roman
+                        </option>
+
+                        <option value="Trebuchet MS">
+                            Trebuchet MS
+                        </option>
+
+                    </select>
+
+                </label>
+
+
+                <label class="style-row">
+
+                    Font Size
+
+                    <input
+                        type="number"
+                        id="objectFontSize"
+                        min="8"
+                        max="72"
+                        value="14"
+                    >
+
+                </label>
+
+
+                <label class="style-row">
+
+                    Text Color
+
+                    <input
+                        type="color"
+                        id="objectTextColor"
+                        value="#222222"
+                    >
+
+                </label>
+
+
+                <label class="style-row">
+
+                    Header Color
+
+                    <input
+                        type="color"
+                        id="objectHeaderColor"
+                        value="#316ac5"
+                    >
+
+                </label>
+
+
+                <label class="style-row">
+
+                    Box Color
+
+                    <input
+                        type="color"
+                        id="objectBackgroundColor"
+                        value="#fffff0"
+                    >
+
+                </label>
+
+
+                <label class="style-row">
+
+                    Border Color
+
+                    <input
+                        type="color"
+                        id="objectBorderColor"
+                        value="#6b7c8c"
+                    >
+
+                </label>
+
+            </div>
+
+
+            <hr>
+
+
+            <h3>KEYBOARD</h3>
+
+            <p class="style-help">
+
+                <b>W A S D</b> or
+                <b>Arrow Keys</b> move around the board.
+
+                <br><br>
+
+                Hold <b>Shift</b> while using the keys
+                to move faster.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     HELP WINDOW
+========================= -->
+
+<div id="helpWindow" class="modal-window">
 
     <div class="help-box">
-
 
         <div class="help-title">
 
             PICKDEL BOARD
-
 
             <button id="closeHelp">
                 X
@@ -332,114 +477,94 @@
 
         <div class="help-content">
 
-
-            <h3>
-                Controls
-            </h3>
-
+            <h3>Controls</h3>
 
             <p>
                 <b>SELECT</b><br>
                 Select and move objects.
             </p>
 
-
             <p>
                 <b>TEXT</b><br>
                 Creates a new note.
             </p>
-
 
             <p>
                 <b>IMAGE</b><br>
                 Adds an image with a title.
             </p>
 
-
             <p>
                 <b>STICKER</b><br>
                 Adds an image without a title or border.
             </p>
-
 
             <p>
                 <b>DRAW</b><br>
                 Draw on the board.
             </p>
 
-
             <p>
                 <b>ERASER</b><br>
                 Erase drawings.
             </p>
 
-
             <p>
-                <b>WASD / ARROW KEYS</b><br>
+                <b>W A S D</b><br>
                 Move around the board.
             </p>
 
+            <p>
+                <b>ARROW KEYS</b><br>
+                Also move around the board.
+            </p>
+
+            <p>
+                <b>SHIFT + W A S D</b><br>
+                Move faster.
+            </p>
 
             <p>
                 <b>SHIFT + DRAG</b><br>
                 Move around the board with the mouse.
             </p>
 
-
             <p>
                 <b>MOUSE WHEEL</b><br>
                 Zoom in and out.
             </p>
-
 
             <p>
                 <b>CLICK EMPTY SPACE</b><br>
                 Deselect the current object.
             </p>
 
-
             <p>
                 <b>RIGHT CLICK</b><br>
                 Open object options.
             </p>
 
-
             <p>
                 <b>PIXEL MODE</b><br>
-                Makes pixel-art images use crisp nearest-neighbor scaling.
+                Makes pixel-art images use crisp
+                nearest-neighbor scaling.
             </p>
 
+            <p>
+                <b>STYLE</b><br>
+                Customize the board and selected objects.
+            </p>
 
             <p>
                 <b>DELETE</b><br>
                 Delete the selected object.
             </p>
 
-
-            <p>
-                <b>BG IMAGE</b><br>
-                Add an image behind the board.
-            </p>
-
-
-            <p>
-                <b>BG MODE</b><br>
-                Choose FIT, TILE, or STRETCH.
-            </p>
-
-
-            <p>
-                <b>FONT / TEXT</b><br>
-                Change the board's default font and text color.
-            </p>
-
-
         </div>
 
     </div>
 
 </div>
-
 
 
 <script src="app.js"></script>
