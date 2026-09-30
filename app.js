@@ -1,3 +1,7 @@
+/* =========================
+   ELEMENTS
+========================= */
+
 const board =
     document.getElementById("board");
 
@@ -45,17 +49,8 @@ const saveAsButton =
 const loadButton =
     document.getElementById("loadButton");
 
-const shareButton =
-    document.getElementById("shareButton");
-
 const resetViewButton =
     document.getElementById("resetViewButton");
-
-const backgroundImageButton =
-    document.getElementById("backgroundImageButton");
-
-const tileBackgroundButton =
-    document.getElementById("tileBackgroundButton");
 
 
 /* =========================
@@ -73,7 +68,7 @@ const closeHelp =
 
 
 /* =========================
-   COLORS / CUSTOMIZATION
+   COLORS / STYLE
 ========================= */
 
 const penColor =
@@ -85,8 +80,11 @@ const backgroundColor =
 const textColor =
     document.getElementById("textColor");
 
-const fontSelect =
-    document.getElementById("fontSelect");
+const fontFamily =
+    document.getElementById("fontFamily");
+
+const backgroundMode =
+    document.getElementById("backgroundMode");
 
 
 /* =========================
@@ -103,6 +101,21 @@ const backgroundImageInput =
 
 const boardInput =
     document.getElementById("boardInput");
+
+
+/* =========================
+   BACKGROUND BUTTONS
+========================= */
+
+const backgroundImageButton =
+    document.getElementById(
+        "backgroundImageButton"
+    );
+
+const clearBackgroundButton =
+    document.getElementById(
+        "clearBackgroundButton"
+    );
 
 
 /* =========================
@@ -159,6 +172,11 @@ let drawingMode =
 let drawing =
     false;
 
+
+/* =========================
+   CAMERA
+========================= */
+
 let cameraX =
     0;
 
@@ -168,11 +186,16 @@ let cameraY =
 let zoom =
     1;
 
-let backgroundImage =
-    "";
 
-let backgroundTiled =
-    true;
+/* =========================
+   BACKGROUND STATE
+========================= */
+
+let backgroundImage =
+    null;
+
+let backgroundImageMode =
+    "cover";
 
 
 /* =========================
@@ -184,166 +207,6 @@ drawingCanvas.width =
 
 drawingCanvas.height =
     10000;
-
-
-/* =========================
-   CUSTOMIZATION
-========================= */
-
-function updateCustomization() {
-
-    workspace.style.setProperty(
-        "--board-font",
-        fontSelect.value
-    );
-
-    workspace.style.setProperty(
-        "--board-text-color",
-        textColor.value
-    );
-
-    workspace.style.backgroundColor =
-        backgroundColor.value;
-
-    board.style.backgroundColor =
-        backgroundColor.value;
-
-}
-
-
-backgroundColor.addEventListener(
-    "input",
-    updateCustomization
-);
-
-
-textColor.addEventListener(
-    "input",
-    updateCustomization
-);
-
-
-fontSelect.addEventListener(
-    "change",
-    updateCustomization
-);
-
-
-/* =========================
-   BACKGROUND IMAGE
-========================= */
-
-backgroundImageButton.addEventListener(
-    "click",
-    () => {
-
-        backgroundImageInput.click();
-
-    }
-);
-
-
-backgroundImageInput.addEventListener(
-    "change",
-    () => {
-
-        const file =
-            backgroundImageInput.files[0];
-
-
-        if (!file) {
-
-            return;
-
-        }
-
-
-        const reader =
-            new FileReader();
-
-
-        reader.onload =
-            event => {
-
-                backgroundImage =
-                    event.target.result;
-
-                updateBackground();
-
-            };
-
-
-        reader.readAsDataURL(file);
-
-
-        backgroundImageInput.value =
-            "";
-
-    }
-);
-
-
-function updateBackground() {
-
-    workspace.style.backgroundColor =
-        backgroundColor.value;
-
-
-    board.style.backgroundColor =
-        backgroundColor.value;
-
-
-    if (backgroundImage) {
-
-        workspace.style.backgroundImage =
-            `url("${backgroundImage}")`;
-
-    } else {
-
-        workspace.style.backgroundImage =
-            "none";
-
-    }
-
-
-    if (backgroundTiled) {
-
-        workspace.style.backgroundRepeat =
-            "repeat";
-
-        workspace.style.backgroundSize =
-            "auto";
-
-    } else {
-
-        workspace.style.backgroundRepeat =
-            "no-repeat";
-
-        workspace.style.backgroundSize =
-            "cover";
-
-    }
-
-
-    tileBackgroundButton.textContent =
-        backgroundTiled
-            ? "BG TILE: ON"
-            : "BG TILE: OFF";
-
-}
-
-
-tileBackgroundButton.addEventListener(
-    "click",
-    () => {
-
-        backgroundTiled =
-            !backgroundTiled;
-
-        updateBackground();
-
-    }
-);
 
 
 /* =========================
@@ -468,7 +331,7 @@ function setTool(tool) {
 
 
 /* =========================
-   SELECT
+   SELECT BUTTON
 ========================= */
 
 selectButton.addEventListener(
@@ -539,6 +402,224 @@ eraserButton.addEventListener(
 
 
 /* =========================
+   BACKGROUND COLOR
+========================= */
+
+backgroundColor.addEventListener(
+    "input",
+    () => {
+
+        applyBackground();
+
+    }
+);
+
+
+/* =========================
+   BACKGROUND IMAGE
+========================= */
+
+backgroundImageButton.addEventListener(
+    "click",
+    () => {
+
+        backgroundImageInput.click();
+
+    }
+);
+
+
+backgroundImageInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            backgroundImageInput.files[0];
+
+
+        if (!file) {
+
+            return;
+
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            event => {
+
+                backgroundImage =
+                    event.target.result;
+
+                applyBackground();
+
+            };
+
+
+        reader.readAsDataURL(file);
+
+
+        backgroundImageInput.value =
+            "";
+
+    }
+);
+
+
+/* =========================
+   BACKGROUND MODE
+========================= */
+
+backgroundMode.addEventListener(
+    "change",
+    () => {
+
+        backgroundImageMode =
+            backgroundMode.value;
+
+        applyBackground();
+
+    }
+);
+
+
+/* =========================
+   CLEAR BACKGROUND
+========================= */
+
+clearBackgroundButton.addEventListener(
+    "click",
+    () => {
+
+        backgroundImage =
+            null;
+
+        applyBackground();
+
+    }
+);
+
+
+/* =========================
+   APPLY BACKGROUND
+========================= */
+
+function applyBackground() {
+
+    workspace.style.backgroundColor =
+        backgroundColor.value;
+
+    board.style.backgroundColor =
+        backgroundColor.value;
+
+
+    if (!backgroundImage) {
+
+        workspace.style.backgroundImage =
+            "none";
+
+        return;
+
+    }
+
+
+    workspace.style.backgroundImage =
+        `url("${backgroundImage}")`;
+
+
+    if (
+        backgroundImageMode ===
+        "repeat"
+    ) {
+
+        workspace.style.backgroundRepeat =
+            "repeat";
+
+        workspace.style.backgroundSize =
+            "auto";
+
+    }
+
+
+    if (
+        backgroundImageMode ===
+        "cover"
+    ) {
+
+        workspace.style.backgroundRepeat =
+            "no-repeat";
+
+        workspace.style.backgroundSize =
+            "cover";
+
+    }
+
+
+    if (
+        backgroundImageMode ===
+        "stretch"
+    ) {
+
+        workspace.style.backgroundRepeat =
+            "no-repeat";
+
+        workspace.style.backgroundSize =
+            "100% 100%";
+
+    }
+
+}
+
+
+/* =========================
+   FONT
+========================= */
+
+fontFamily.addEventListener(
+    "change",
+    () => {
+
+        applyStyleSettings();
+
+    }
+);
+
+
+/* =========================
+   TEXT COLOR
+========================= */
+
+textColor.addEventListener(
+    "input",
+    () => {
+
+        applyStyleSettings();
+
+    }
+);
+
+
+/* =========================
+   APPLY STYLE SETTINGS
+========================= */
+
+function applyStyleSettings() {
+
+    workspace.style.fontFamily =
+        fontFamily.value;
+
+    workspace.style.setProperty(
+        "--board-text-color",
+        textColor.value
+    );
+
+}
+
+
+/* =========================
    DRAWING
 ========================= */
 
@@ -588,7 +669,8 @@ drawingCanvas.addEventListener(
 
 
         if (
-            drawingMode === "erase"
+            drawingMode ===
+            "erase"
         ) {
 
             drawingContext.globalCompositeOperation =
@@ -642,9 +724,15 @@ document.addEventListener(
         drawing =
             false;
 
+        drawingContext.closePath();
+
     }
 );
 
+
+/* =========================
+   CANVAS POSITION
+========================= */
 
 function getCanvasPosition(event) {
 
@@ -1563,53 +1651,6 @@ deleteObject.addEventListener(
    DUPLICATE
 ========================= */
 
-function duplicateSelectedObject() {
-
-    if (!selectedObject) {
-
-        return;
-
-    }
-
-
-    const copy =
-        selectedObject.cloneNode(
-            true
-        );
-
-
-    copy.style.left =
-        (
-            selectedObject.offsetLeft +
-            30
-        ) + "px";
-
-
-    copy.style.top =
-        (
-            selectedObject.offsetTop +
-            30
-        ) + "px";
-
-
-    copy.classList.remove(
-        "selected"
-    );
-
-
-    workspace.appendChild(
-        copy
-    );
-
-
-    setupObject(copy);
-
-
-    selectObject(copy);
-
-}
-
-
 duplicateObject.addEventListener(
     "click",
     event => {
@@ -1617,7 +1658,47 @@ duplicateObject.addEventListener(
         event.stopPropagation();
 
 
-        duplicateSelectedObject();
+        if (!selectedObject) {
+
+            return;
+
+        }
+
+
+        const copy =
+            selectedObject.cloneNode(
+                true
+            );
+
+
+        copy.style.left =
+            (
+                selectedObject.offsetLeft +
+                30
+            ) + "px";
+
+
+        copy.style.top =
+            (
+                selectedObject.offsetTop +
+                30
+            ) + "px";
+
+
+        copy.classList.remove(
+            "selected"
+        );
+
+
+        workspace.appendChild(
+            copy
+        );
+
+
+        setupObject(copy);
+
+
+        selectObject(copy);
 
 
         closeContextMenu();
@@ -1790,26 +1871,13 @@ document.addEventListener(
     "click",
     event => {
 
-        closeContextMenu();
-
-    }
-);
-
-
-/* =========================
-   EMPTY BOARD DESELECT
-========================= */
-
-board.addEventListener(
-    "mousedown",
-    event => {
-
         if (
-            event.target === board ||
-            event.target === workspace
+            !contextMenu.contains(
+                event.target
+            )
         ) {
 
-            deselectObject();
+            closeContextMenu();
 
         }
 
@@ -1865,6 +1933,29 @@ helpWindow.addEventListener(
 
 
 /* =========================
+   RESET VIEW
+========================= */
+
+resetViewButton.addEventListener(
+    "click",
+    () => {
+
+        cameraX =
+            0;
+
+        cameraY =
+            0;
+
+        zoom =
+            1;
+
+        updateCamera();
+
+    }
+);
+
+
+/* =========================
    NEW BOARD
 ========================= */
 
@@ -1895,8 +1986,7 @@ newButton.addEventListener(
         );
 
 
-        selectedObject =
-            null;
+        deselectObject();
 
 
         objectNumber =
@@ -1912,11 +2002,7 @@ newButton.addEventListener(
 
 
         backgroundImage =
-            "";
-
-
-        backgroundTiled =
-            true;
+            null;
 
 
         backgroundColor.value =
@@ -1931,25 +2017,27 @@ newButton.addEventListener(
             "#222222";
 
 
-        fontSelect.value =
-            "Tahoma, Arial, sans-serif";
+        fontFamily.value =
+            "Tahoma";
+
+
+        backgroundMode.value =
+            "cover";
 
 
         cameraX =
             0;
 
-
         cameraY =
             0;
-
 
         zoom =
             1;
 
 
-        updateCustomization();
+        applyBackground();
 
-        updateBackground();
+        applyStyleSettings();
 
         updateCamera();
 
@@ -2164,7 +2252,15 @@ function downloadBoard() {
         ".json";
 
 
+    document.body.appendChild(
+        link
+    );
+
+
     link.click();
+
+
+    link.remove();
 
 
     URL.revokeObjectURL(
@@ -2172,104 +2268,6 @@ function downloadBoard() {
     );
 
 }
-
-
-/* =========================
-   SHARE BOARD
-========================= */
-
-async function shareBoard() {
-
-    const data =
-        getBoardData();
-
-
-    const json =
-        JSON.stringify(
-            data,
-            null,
-            2
-        );
-
-
-    const blob =
-        new Blob(
-            [json],
-            {
-                type:
-                    "application/json"
-            }
-        );
-
-
-    const file =
-        new File(
-            [blob],
-            boardName + ".json",
-            {
-                type:
-                    "application/json"
-            }
-        );
-
-
-    if (
-        navigator.share &&
-        navigator.canShare &&
-        navigator.canShare({
-            files: [file]
-        })
-    ) {
-
-        try {
-
-            await navigator.share({
-
-                title:
-                    boardName,
-
-                text:
-                    "Pickdel Board",
-
-                files:
-                    [file]
-
-            });
-
-            return;
-
-        }
-
-        catch (error) {
-
-            if (
-                error.name ===
-                "AbortError"
-            ) {
-
-                return;
-
-            }
-
-        }
-
-    }
-
-
-    downloadBoard();
-
-
-    alert(
-        "Your Pickdel board was downloaded as a JSON file. You can send that file to someone else and they can LOAD it in Pickdel."
-    );
-
-}
-
-
-shareButton.addEventListener(
-    "click",
-    shareBoard
-);
 
 
 /* =========================
@@ -2322,7 +2320,12 @@ boardInput.addEventListener(
 
                 }
 
-                catch {
+                catch (error) {
+
+                    console.error(
+                        error
+                    );
+
 
                     alert(
                         "Could not load this board."
@@ -2466,20 +2469,20 @@ function getBoardData() {
         background:
             backgroundColor.value,
 
+        backgroundImage:
+            backgroundImage,
+
+        backgroundMode:
+            backgroundImageMode,
+
         penColor:
             penColor.value,
 
         textColor:
             textColor.value,
 
-        font:
-            fontSelect.value,
-
-        backgroundImage:
-            backgroundImage,
-
-        backgroundTiled:
-            backgroundTiled,
+        fontFamily:
+            fontFamily.value,
 
         objects,
 
@@ -2529,6 +2532,9 @@ function getObjectType(object) {
 
     }
 
+
+    return null;
+
 }
 
 
@@ -2542,14 +2548,17 @@ function loadBoard(data) {
         "";
 
 
-    selectedObject =
-        null;
+    deselectObject();
 
 
     boardName =
         data.name ||
         "Untitled Board";
 
+
+    /* =====================
+       BACKGROUND
+    ===================== */
 
     if (data.background) {
 
@@ -2559,6 +2568,24 @@ function loadBoard(data) {
     }
 
 
+    backgroundImage =
+        data.backgroundImage ||
+        null;
+
+
+    backgroundImageMode =
+        data.backgroundMode ||
+        "cover";
+
+
+    backgroundMode.value =
+        backgroundImageMode;
+
+
+    /* =====================
+       PEN
+    ===================== */
+
     if (data.penColor) {
 
         penColor.value =
@@ -2566,6 +2593,10 @@ function loadBoard(data) {
 
     }
 
+
+    /* =====================
+       FONT
+    ===================== */
 
     if (data.textColor) {
 
@@ -2575,30 +2606,25 @@ function loadBoard(data) {
     }
 
 
-    if (data.font) {
+    if (data.fontFamily) {
 
-        fontSelect.value =
-            data.font;
+        fontFamily.value =
+            data.fontFamily;
 
     }
 
 
-    backgroundImage =
-        data.backgroundImage ||
-        "";
+    applyBackground();
+
+    applyStyleSettings();
 
 
-    backgroundTiled =
-        data.backgroundTiled !== false;
+    /* =====================
+       OBJECTS
+    ===================== */
 
-
-    updateCustomization();
-
-    updateBackground();
-
-
-    objectNumber =
-        1;
+    let largestObjectNumber =
+        0;
 
 
     if (
@@ -2609,6 +2635,10 @@ function loadBoard(data) {
 
         data.objects.forEach(
             object => {
+
+                let createdObject =
+                    null;
+
 
                 if (
                     object.type ===
@@ -2621,6 +2651,10 @@ function loadBoard(data) {
                         object.title,
                         object.content
                     );
+
+
+                    createdObject =
+                        selectedObject;
 
                 }
 
@@ -2639,6 +2673,10 @@ function loadBoard(data) {
                         object.pixel
                     );
 
+
+                    createdObject =
+                        selectedObject;
+
                 }
 
 
@@ -2655,16 +2693,33 @@ function loadBoard(data) {
                         object.pixel
                     );
 
+
+                    createdObject =
+                        selectedObject;
+
                 }
 
 
-                if (
-                    selectedObject
-                ) {
+                if (createdObject) {
 
-                    selectedObject.style.zIndex =
+                    createdObject.style.zIndex =
                         object.zIndex ||
                         0;
+
+
+                    const title =
+                        createdObject.querySelector(
+                            ".note-title, .image-title"
+                        );
+
+
+                    if (title) {
+
+                        title.contentEditable =
+                            "false";
+
+                    }
+
 
                     selectedObject =
                         null;
@@ -2675,6 +2730,18 @@ function loadBoard(data) {
         );
 
     }
+
+
+    /* =====================
+       DRAWING
+    ===================== */
+
+    drawingContext.clearRect(
+        0,
+        0,
+        drawingCanvas.width,
+        drawingCanvas.height
+    );
 
 
     if (data.drawing) {
@@ -2694,6 +2761,10 @@ function loadBoard(data) {
                 );
 
 
+                drawingContext.globalCompositeOperation =
+                    "source-over";
+
+
                 drawingContext.drawImage(
                     image,
                     0,
@@ -2708,6 +2779,27 @@ function loadBoard(data) {
 
     }
 
+
+    updateObjectNumber();
+
+}
+
+
+/* =========================
+   OBJECT NUMBER
+========================= */
+
+function updateObjectNumber() {
+
+    const objects =
+        workspace.querySelectorAll(
+            ".board-object"
+        );
+
+
+    objectNumber =
+        objects.length + 1;
+
 }
 
 
@@ -2719,19 +2811,30 @@ document.addEventListener(
     "keydown",
     event => {
 
-        const activeElement =
+        const active =
             document.activeElement;
 
 
-        const isTyping =
-            activeElement &&
+        const editing =
+            active &&
             (
-                activeElement.isContentEditable ||
-                activeElement.tagName === "INPUT" ||
-                activeElement.tagName === "TEXTAREA" ||
-                activeElement.tagName === "SELECT"
+                active.isContentEditable ||
+                active.tagName === "INPUT" ||
+                active.tagName === "TEXTAREA" ||
+                active.tagName === "SELECT"
             );
 
+
+        if (editing) {
+
+            return;
+
+        }
+
+
+        /* =====================
+           SAVE
+        ===================== */
 
         if (
             event.ctrlKey &&
@@ -2748,6 +2851,10 @@ document.addEventListener(
         }
 
 
+        /* =====================
+           OPEN
+        ===================== */
+
         if (
             event.ctrlKey &&
             event.key.toLowerCase() ===
@@ -2763,24 +2870,9 @@ document.addEventListener(
         }
 
 
-        if (
-            event.ctrlKey &&
-            event.key.toLowerCase() ===
-            "d"
-        ) {
-
-            if (!isTyping) {
-
-                event.preventDefault();
-
-                duplicateSelectedObject();
-
-            }
-
-            return;
-
-        }
-
+        /* =====================
+           ESCAPE
+        ===================== */
 
         if (
             event.key ===
@@ -2798,20 +2890,14 @@ document.addEventListener(
 
             closeContextMenu();
 
-
             return;
 
         }
 
 
-        if (
-            isTyping
-        ) {
-
-            return;
-
-        }
-
+        /* =====================
+           DELETE
+        ===================== */
 
         if (
             event.key ===
@@ -2831,90 +2917,86 @@ document.addEventListener(
         }
 
 
+        /* =====================
+           WASD / ARROWS
+        ===================== */
+
         if (
             drawingMode ===
             "select"
         ) {
 
-            let moveX =
-                0;
-
-            let moveY =
-                0;
+            const key =
+                event.key.toLowerCase();
 
 
-            const moveAmount =
-                event.shiftKey
-                    ? 50
-                    : 20;
+            const movement =
+                50;
 
 
-            if (
-                event.key.toLowerCase() ===
-                "w" ||
-                event.key ===
-                "ArrowUp"
-            ) {
-
-                moveY =
-                    moveAmount;
-
-            }
+            let moved =
+                false;
 
 
             if (
-                event.key.toLowerCase() ===
-                "s" ||
-                event.key ===
-                "ArrowDown"
+                key === "w" ||
+                key === "arrowup"
             ) {
-
-                moveY =
-                    -moveAmount;
-
-            }
-
-
-            if (
-                event.key.toLowerCase() ===
-                "a" ||
-                event.key ===
-                "ArrowLeft"
-            ) {
-
-                moveX =
-                    moveAmount;
-
-            }
-
-
-            if (
-                event.key.toLowerCase() ===
-                "d" ||
-                event.key ===
-                "ArrowRight"
-            ) {
-
-                moveX =
-                    -moveAmount;
-
-            }
-
-
-            if (
-                moveX !== 0 ||
-                moveY !== 0
-            ) {
-
-                event.preventDefault();
-
-
-                cameraX +=
-                    moveX;
 
                 cameraY +=
-                    moveY;
+                    movement;
 
+                moved =
+                    true;
+
+            }
+
+
+            if (
+                key === "s" ||
+                key === "arrowdown"
+            ) {
+
+                cameraY -=
+                    movement;
+
+                moved =
+                    true;
+
+            }
+
+
+            if (
+                key === "a" ||
+                key === "arrowleft"
+            ) {
+
+                cameraX +=
+                    movement;
+
+                moved =
+                    true;
+
+            }
+
+
+            if (
+                key === "d" ||
+                key === "arrowright"
+            ) {
+
+                cameraX -=
+                    movement;
+
+                moved =
+                    true;
+
+            }
+
+
+            if (moved) {
+
+                event.preventDefault();
 
                 updateCamera();
 
@@ -2927,7 +3009,7 @@ document.addEventListener(
 
 
 /* =========================
-   PAN
+   PAN WITH MOUSE
 ========================= */
 
 let panning =
@@ -3056,6 +3138,39 @@ document.addEventListener(
 
 
 /* =========================
+   DESELECT BY CLICKING EMPTY
+========================= */
+
+board.addEventListener(
+    "mousedown",
+    event => {
+
+        if (
+            drawingMode !==
+            "select"
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            event.target ===
+            board ||
+            event.target ===
+            workspace
+        ) {
+
+            deselectObject();
+
+        }
+
+    }
+);
+
+
+/* =========================
    ZOOM
 ========================= */
 
@@ -3106,29 +3221,6 @@ board.addEventListener(
     },
     {
         passive: false
-    }
-);
-
-
-/* =========================
-   RESET VIEW
-========================= */
-
-resetViewButton.addEventListener(
-    "click",
-    () => {
-
-        cameraX =
-            0;
-
-        cameraY =
-            0;
-
-        zoom =
-            1;
-
-        updateCamera();
-
     }
 );
 
@@ -3220,9 +3312,9 @@ function escapeHTML(text) {
    START
 ========================= */
 
-updateCustomization();
+applyBackground();
 
-updateBackground();
+applyStyleSettings();
 
 setTool(
     "select"
