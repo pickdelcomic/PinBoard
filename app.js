@@ -45,6 +45,18 @@ const saveAsButton =
 const loadButton =
     document.getElementById("loadButton");
 
+const shareButton =
+    document.getElementById("shareButton");
+
+const resetViewButton =
+    document.getElementById("resetViewButton");
+
+const backgroundImageButton =
+    document.getElementById("backgroundImageButton");
+
+const tileBackgroundButton =
+    document.getElementById("tileBackgroundButton");
+
 
 /* =========================
    HELP
@@ -61,7 +73,7 @@ const closeHelp =
 
 
 /* =========================
-   COLORS
+   COLORS / CUSTOMIZATION
 ========================= */
 
 const penColor =
@@ -70,6 +82,12 @@ const penColor =
 const backgroundColor =
     document.getElementById("backgroundColor");
 
+const textColor =
+    document.getElementById("textColor");
+
+const fontSelect =
+    document.getElementById("fontSelect");
+
 
 /* =========================
    INPUTS
@@ -77,6 +95,11 @@ const backgroundColor =
 
 const imageInput =
     document.getElementById("imageInput");
+
+const backgroundImageInput =
+    document.getElementById(
+        "backgroundImageInput"
+    );
 
 const boardInput =
     document.getElementById("boardInput");
@@ -145,6 +168,12 @@ let cameraY =
 let zoom =
     1;
 
+let backgroundImage =
+    "";
+
+let backgroundTiled =
+    true;
+
 
 /* =========================
    CANVAS
@@ -155,6 +184,166 @@ drawingCanvas.width =
 
 drawingCanvas.height =
     10000;
+
+
+/* =========================
+   CUSTOMIZATION
+========================= */
+
+function updateCustomization() {
+
+    workspace.style.setProperty(
+        "--board-font",
+        fontSelect.value
+    );
+
+    workspace.style.setProperty(
+        "--board-text-color",
+        textColor.value
+    );
+
+    workspace.style.backgroundColor =
+        backgroundColor.value;
+
+    board.style.backgroundColor =
+        backgroundColor.value;
+
+}
+
+
+backgroundColor.addEventListener(
+    "input",
+    updateCustomization
+);
+
+
+textColor.addEventListener(
+    "input",
+    updateCustomization
+);
+
+
+fontSelect.addEventListener(
+    "change",
+    updateCustomization
+);
+
+
+/* =========================
+   BACKGROUND IMAGE
+========================= */
+
+backgroundImageButton.addEventListener(
+    "click",
+    () => {
+
+        backgroundImageInput.click();
+
+    }
+);
+
+
+backgroundImageInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            backgroundImageInput.files[0];
+
+
+        if (!file) {
+
+            return;
+
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            event => {
+
+                backgroundImage =
+                    event.target.result;
+
+                updateBackground();
+
+            };
+
+
+        reader.readAsDataURL(file);
+
+
+        backgroundImageInput.value =
+            "";
+
+    }
+);
+
+
+function updateBackground() {
+
+    workspace.style.backgroundColor =
+        backgroundColor.value;
+
+
+    board.style.backgroundColor =
+        backgroundColor.value;
+
+
+    if (backgroundImage) {
+
+        workspace.style.backgroundImage =
+            `url("${backgroundImage}")`;
+
+    } else {
+
+        workspace.style.backgroundImage =
+            "none";
+
+    }
+
+
+    if (backgroundTiled) {
+
+        workspace.style.backgroundRepeat =
+            "repeat";
+
+        workspace.style.backgroundSize =
+            "auto";
+
+    } else {
+
+        workspace.style.backgroundRepeat =
+            "no-repeat";
+
+        workspace.style.backgroundSize =
+            "cover";
+
+    }
+
+
+    tileBackgroundButton.textContent =
+        backgroundTiled
+            ? "BG TILE: ON"
+            : "BG TILE: OFF";
+
+}
+
+
+tileBackgroundButton.addEventListener(
+    "click",
+    () => {
+
+        backgroundTiled =
+            !backgroundTiled;
+
+        updateBackground();
+
+    }
+);
 
 
 /* =========================
@@ -183,6 +372,27 @@ function selectObject(object) {
         );
 
     }
+
+}
+
+
+/* =========================
+   DESELECT
+========================= */
+
+function deselectObject() {
+
+    if (selectedObject) {
+
+        selectedObject.classList.remove(
+            "selected"
+        );
+
+    }
+
+
+    selectedObject =
+        null;
 
 }
 
@@ -323,24 +533,6 @@ eraserButton.addEventListener(
     () => {
 
         setTool("erase");
-
-    }
-);
-
-
-/* =========================
-   BACKGROUND
-========================= */
-
-backgroundColor.addEventListener(
-    "input",
-    () => {
-
-        workspace.style.backgroundColor =
-            backgroundColor.value;
-
-        board.style.backgroundColor =
-            backgroundColor.value;
 
     }
 );
@@ -796,7 +988,7 @@ function setupObject(object) {
 
     object.addEventListener(
         "mousedown",
-        () => {
+        event => {
 
             if (
                 drawingMode ===
@@ -1371,6 +1563,53 @@ deleteObject.addEventListener(
    DUPLICATE
 ========================= */
 
+function duplicateSelectedObject() {
+
+    if (!selectedObject) {
+
+        return;
+
+    }
+
+
+    const copy =
+        selectedObject.cloneNode(
+            true
+        );
+
+
+    copy.style.left =
+        (
+            selectedObject.offsetLeft +
+            30
+        ) + "px";
+
+
+    copy.style.top =
+        (
+            selectedObject.offsetTop +
+            30
+        ) + "px";
+
+
+    copy.classList.remove(
+        "selected"
+    );
+
+
+    workspace.appendChild(
+        copy
+    );
+
+
+    setupObject(copy);
+
+
+    selectObject(copy);
+
+}
+
+
 duplicateObject.addEventListener(
     "click",
     event => {
@@ -1378,47 +1617,7 @@ duplicateObject.addEventListener(
         event.stopPropagation();
 
 
-        if (!selectedObject) {
-
-            return;
-
-        }
-
-
-        const copy =
-            selectedObject.cloneNode(
-                true
-            );
-
-
-        copy.style.left =
-            (
-                selectedObject.offsetLeft +
-                30
-            ) + "px";
-
-
-        copy.style.top =
-            (
-                selectedObject.offsetTop +
-                30
-            ) + "px";
-
-
-        copy.classList.remove(
-            "selected"
-        );
-
-
-        workspace.appendChild(
-            copy
-        );
-
-
-        setupObject(copy);
-
-
-        selectObject(copy);
+        duplicateSelectedObject();
 
 
         closeContextMenu();
@@ -1589,9 +1788,30 @@ function closeContextMenu() {
 
 document.addEventListener(
     "click",
-    () => {
+    event => {
 
         closeContextMenu();
+
+    }
+);
+
+
+/* =========================
+   EMPTY BOARD DESELECT
+========================= */
+
+board.addEventListener(
+    "mousedown",
+    event => {
+
+        if (
+            event.target === board ||
+            event.target === workspace
+        ) {
+
+            deselectObject();
+
+        }
 
     }
 );
@@ -1689,6 +1909,49 @@ newButton.addEventListener(
 
         currentFileHandle =
             null;
+
+
+        backgroundImage =
+            "";
+
+
+        backgroundTiled =
+            true;
+
+
+        backgroundColor.value =
+            "#ffffff";
+
+
+        penColor.value =
+            "#000000";
+
+
+        textColor.value =
+            "#222222";
+
+
+        fontSelect.value =
+            "Tahoma, Arial, sans-serif";
+
+
+        cameraX =
+            0;
+
+
+        cameraY =
+            0;
+
+
+        zoom =
+            1;
+
+
+        updateCustomization();
+
+        updateBackground();
+
+        updateCamera();
 
     }
 );
@@ -1912,6 +2175,104 @@ function downloadBoard() {
 
 
 /* =========================
+   SHARE BOARD
+========================= */
+
+async function shareBoard() {
+
+    const data =
+        getBoardData();
+
+
+    const json =
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+
+    const blob =
+        new Blob(
+            [json],
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+
+    const file =
+        new File(
+            [blob],
+            boardName + ".json",
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+
+    if (
+        navigator.share &&
+        navigator.canShare &&
+        navigator.canShare({
+            files: [file]
+        })
+    ) {
+
+        try {
+
+            await navigator.share({
+
+                title:
+                    boardName,
+
+                text:
+                    "Pickdel Board",
+
+                files:
+                    [file]
+
+            });
+
+            return;
+
+        }
+
+        catch (error) {
+
+            if (
+                error.name ===
+                "AbortError"
+            ) {
+
+                return;
+
+            }
+
+        }
+
+    }
+
+
+    downloadBoard();
+
+
+    alert(
+        "Your Pickdel board was downloaded as a JSON file. You can send that file to someone else and they can LOAD it in Pickdel."
+    );
+
+}
+
+
+shareButton.addEventListener(
+    "click",
+    shareBoard
+);
+
+
+/* =========================
    LOAD
 ========================= */
 
@@ -2097,7 +2458,7 @@ function getBoardData() {
     return {
 
         version:
-            6,
+            7,
 
         name:
             boardName,
@@ -2107,6 +2468,18 @@ function getBoardData() {
 
         penColor:
             penColor.value,
+
+        textColor:
+            textColor.value,
+
+        font:
+            fontSelect.value,
+
+        backgroundImage:
+            backgroundImage,
+
+        backgroundTiled:
+            backgroundTiled,
 
         objects,
 
@@ -2183,14 +2556,6 @@ function loadBoard(data) {
         backgroundColor.value =
             data.background;
 
-
-        workspace.style.backgroundColor =
-            data.background;
-
-
-        board.style.backgroundColor =
-            data.background;
-
     }
 
 
@@ -2200,6 +2565,40 @@ function loadBoard(data) {
             data.penColor;
 
     }
+
+
+    if (data.textColor) {
+
+        textColor.value =
+            data.textColor;
+
+    }
+
+
+    if (data.font) {
+
+        fontSelect.value =
+            data.font;
+
+    }
+
+
+    backgroundImage =
+        data.backgroundImage ||
+        "";
+
+
+    backgroundTiled =
+        data.backgroundTiled !== false;
+
+
+    updateCustomization();
+
+    updateBackground();
+
+
+    objectNumber =
+        1;
 
 
     if (
@@ -2320,6 +2719,20 @@ document.addEventListener(
     "keydown",
     event => {
 
+        const activeElement =
+            document.activeElement;
+
+
+        const isTyping =
+            activeElement &&
+            (
+                activeElement.isContentEditable ||
+                activeElement.tagName === "INPUT" ||
+                activeElement.tagName === "TEXTAREA" ||
+                activeElement.tagName === "SELECT"
+            );
+
+
         if (
             event.ctrlKey &&
             event.key.toLowerCase() ===
@@ -2329,6 +2742,8 @@ document.addEventListener(
             event.preventDefault();
 
             saveBoard();
+
+            return;
 
         }
 
@@ -2342,6 +2757,27 @@ document.addEventListener(
             event.preventDefault();
 
             loadButton.click();
+
+            return;
+
+        }
+
+
+        if (
+            event.ctrlKey &&
+            event.key.toLowerCase() ===
+            "d"
+        ) {
+
+            if (!isTyping) {
+
+                event.preventDefault();
+
+                duplicateSelectedObject();
+
+            }
+
+            return;
 
         }
 
@@ -2359,6 +2795,21 @@ document.addEventListener(
             helpWindow.style.display =
                 "none";
 
+
+            closeContextMenu();
+
+
+            return;
+
+        }
+
+
+        if (
+            isTyping
+        ) {
+
+            return;
+
         }
 
 
@@ -2374,6 +2825,100 @@ document.addEventListener(
 
             selectedObject =
                 null;
+
+            return;
+
+        }
+
+
+        if (
+            drawingMode ===
+            "select"
+        ) {
+
+            let moveX =
+                0;
+
+            let moveY =
+                0;
+
+
+            const moveAmount =
+                event.shiftKey
+                    ? 50
+                    : 20;
+
+
+            if (
+                event.key.toLowerCase() ===
+                "w" ||
+                event.key ===
+                "ArrowUp"
+            ) {
+
+                moveY =
+                    moveAmount;
+
+            }
+
+
+            if (
+                event.key.toLowerCase() ===
+                "s" ||
+                event.key ===
+                "ArrowDown"
+            ) {
+
+                moveY =
+                    -moveAmount;
+
+            }
+
+
+            if (
+                event.key.toLowerCase() ===
+                "a" ||
+                event.key ===
+                "ArrowLeft"
+            ) {
+
+                moveX =
+                    moveAmount;
+
+            }
+
+
+            if (
+                event.key.toLowerCase() ===
+                "d" ||
+                event.key ===
+                "ArrowRight"
+            ) {
+
+                moveX =
+                    -moveAmount;
+
+            }
+
+
+            if (
+                moveX !== 0 ||
+                moveY !== 0
+            ) {
+
+                event.preventDefault();
+
+
+                cameraX +=
+                    moveX;
+
+                cameraY +=
+                    moveY;
+
+
+                updateCamera();
+
+            }
 
         }
 
@@ -2566,6 +3111,29 @@ board.addEventListener(
 
 
 /* =========================
+   RESET VIEW
+========================= */
+
+resetViewButton.addEventListener(
+    "click",
+    () => {
+
+        cameraX =
+            0;
+
+        cameraY =
+            0;
+
+        zoom =
+            1;
+
+        updateCamera();
+
+    }
+);
+
+
+/* =========================
    CAMERA
 ========================= */
 
@@ -2652,9 +3220,12 @@ function escapeHTML(text) {
    START
 ========================= */
 
+updateCustomization();
+
+updateBackground();
+
 setTool(
     "select"
 );
-
 
 updateCamera();
