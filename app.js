@@ -1,5 +1,6 @@
 "use strict";
 
+
 /* =========================================================
    ELEMENTS
 ========================================================= */
@@ -26,6 +27,9 @@ const eraserButton = document.getElementById("eraserButton");
 
 const styleButton = document.getElementById("styleButton");
 
+const undoButton = document.getElementById("undoButton");
+const redoButton = document.getElementById("redoButton");
+
 const newButton = document.getElementById("newButton");
 const saveButton = document.getElementById("saveButton");
 const saveAsButton = document.getElementById("saveAsButton");
@@ -34,6 +38,8 @@ const loadButton = document.getElementById("loadButton");
 const helpButton = document.getElementById("helpButton");
 
 const penColor = document.getElementById("penColor");
+
+const saveStatus = document.getElementById("saveStatus");
 
 
 /* =========================================================
@@ -187,6 +193,22 @@ const closeHelp =
 
 
 /* =========================================================
+   CONSTANTS
+========================================================= */
+
+const APP_VERSION = 12;
+
+const AUTOSAVE_KEY =
+    "pickdel-board-autosave";
+
+const AUTOSAVE_DELAY =
+    1200;
+
+const HISTORY_LIMIT =
+    25;
+
+
+/* =========================================================
    STATE
 ========================================================= */
 
@@ -230,6 +252,24 @@ let panStartY = 0;
 let cameraStartX = 0;
 let cameraStartY = 0;
 
+let objectDragActive = false;
+
+let objectResizeActive = false;
+
+let autosaveTimer = null;
+
+let saveStatusTimer = null;
+
+let history = [];
+
+let historyIndex = -1;
+
+let historyBusy = false;
+
+let lastSavedSnapshot = null;
+
+let lastAutosaveSnapshot = null;
+
 const keys = new Set();
 
 
@@ -265,10 +305,20 @@ function startup() {
 
     updateStylePanel();
 
+    updateHistoryButtons();
+
+    initializeHistory();
+
+    checkForAutosave();
+
     keyboardLoop();
 
 }
 
+
+/* =========================================================
+   CANVAS
+========================================================= */
 
 function setupCanvas() {
 
@@ -281,17 +331,104 @@ function setupCanvas() {
 }
 
 
+function setCanvasSize(
+    width,
+    height,
+    preserve
+) {
+
+    let oldImage = null;
+
+
+    if (
+        preserve &&
+        drawingCanvas.width > 0 &&
+        drawingCanvas.height > 0
+    ) {
+
+        try {
+
+            oldImage =
+                drawingCanvas.toDataURL();
+
+        } catch {
+
+            oldImage =
+                null;
+
+        }
+
+    }
+
+
+    drawingCanvas.width =
+        width;
+
+    drawingCanvas.height =
+        height;
+
+
+    drawingCanvas.style.width =
+        width + "px";
+
+    drawingCanvas.style.height =
+        height + "px";
+
+
+    drawingContext.setTransform(
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+    );
+
+
+    drawingContext.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    if (oldImage) {
+
+        const image =
+            new Image();
+
+        image.onload =
+            () => {
+
+                drawingContext.drawImage(
+                    image,
+                    0,
+                    0
+                );
+
+            };
+
+        image.src =
+            oldImage;
+
+    }
+
+
+    workspace.style.width =
+        width + "px";
+
+    workspace.style.height =
+        height + "px";
+
+}
+
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
 function setupToolbar() {
-
-    /*
-        ONE toolbar listener.
-
-        This is intentional.
-
-        Instead of having dozens of separate
-        listeners that can get interrupted,
-        every toolbar button is handled here.
-    */
 
     toolbar.addEventListener(
         "click",
@@ -310,8 +447,11 @@ function setupToolbar() {
 
 
             if (button === selectButton) {
+
                 setTool("select");
+
                 return;
+
             }
 
 
@@ -328,6 +468,7 @@ function setupToolbar() {
                 setTool("select");
 
                 return;
+
             }
 
 
@@ -339,6 +480,7 @@ function setupToolbar() {
                 imageInput.click();
 
                 return;
+
             }
 
 
@@ -350,6 +492,7 @@ function setupToolbar() {
                 imageInput.click();
 
                 return;
+
             }
 
 
@@ -358,6 +501,7 @@ function setupToolbar() {
                 setTool("draw");
 
                 return;
+
             }
 
 
@@ -366,6 +510,7 @@ function setupToolbar() {
                 setTool("erase");
 
                 return;
+
             }
 
 
@@ -374,6 +519,25 @@ function setupToolbar() {
                 toggleStylePanel();
 
                 return;
+
+            }
+
+
+            if (button === undoButton) {
+
+                undo();
+
+                return;
+
+            }
+
+
+            if (button === redoButton) {
+
+                redo();
+
+                return;
+
             }
 
 
@@ -382,6 +546,7 @@ function setupToolbar() {
                 newBoard();
 
                 return;
+
             }
 
 
@@ -390,6 +555,7 @@ function setupToolbar() {
                 saveBoard();
 
                 return;
+
             }
 
 
@@ -398,6 +564,7 @@ function setupToolbar() {
                 saveAsBoard();
 
                 return;
+
             }
 
 
@@ -406,6 +573,7 @@ function setupToolbar() {
                 boardInput.click();
 
                 return;
+
             }
 
 
@@ -415,15 +583,12 @@ function setupToolbar() {
                     "flex";
 
                 return;
+
             }
 
         }
     );
 
-
-    /*
-        Pen color is outside the button system.
-    */
 
     penColor.addEventListener(
         "input",
@@ -431,6 +596,21 @@ function setupToolbar() {
 
             stylePenColor.value =
                 penColor.value;
+
+            scheduleAutosave();
+
+        }
+    );
+
+
+    stylePenColor.addEventListener(
+        "change",
+        () => {
+
+            penColor.value =
+                stylePenColor.value;
+
+            scheduleAutosave();
 
         }
     );
@@ -511,12 +691,24 @@ function setupStylePanel() {
 
             control.addEventListener(
                 "input",
-                applyUITheme
+                () => {
+
+                    applyUITheme();
+
+                    scheduleAutosave();
+
+                }
             );
 
             control.addEventListener(
                 "change",
-                applyUITheme
+                () => {
+
+                    applyUITheme();
+
+                    scheduleAutosave();
+
+                }
             );
 
         }
@@ -529,6 +721,10 @@ function setupStylePanel() {
 
             event.preventDefault();
 
+            const before =
+                createSnapshot();
+
+
             const width =
                 clamp(
                     parseInt(
@@ -538,6 +734,7 @@ function setupStylePanel() {
                     500,
                     12000
                 );
+
 
             const height =
                 clamp(
@@ -575,25 +772,47 @@ function setupStylePanel() {
 
             updateCamera();
 
+            commitHistoryIfChanged(
+                before
+            );
+
         }
     );
 
 
     boardColor.addEventListener(
         "input",
-        applyBackground
+        () => {
+
+            applyBackground();
+
+            scheduleAutosave();
+
+        }
     );
 
 
     backgroundRepeat.addEventListener(
         "change",
-        applyBackground
+        () => {
+
+            applyBackground();
+
+            scheduleAutosave();
+
+        }
     );
 
 
     backgroundScale.addEventListener(
         "input",
-        applyBackground
+        () => {
+
+            applyBackground();
+
+            scheduleAutosave();
+
+        }
     );
 
 
@@ -609,16 +828,73 @@ function setupStylePanel() {
     );
 
 
+    backgroundImageInput.addEventListener(
+        "change",
+        () => {
+
+            const file =
+                backgroundImageInput.files[0];
+
+            if (!file) {
+                return;
+            }
+
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                event => {
+
+                    const before =
+                        createSnapshot();
+
+                    backgroundImageData =
+                        event.target.result;
+
+                    applyBackground();
+
+                    commitHistoryIfChanged(
+                        before
+                    );
+
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
+
+
+            backgroundImageInput.value =
+                "";
+
+        }
+    );
+
+
     clearBackgroundImage.addEventListener(
         "click",
         event => {
 
             event.preventDefault();
 
+
+            const before =
+                createSnapshot();
+
+
             backgroundImageData =
                 null;
 
+
             applyBackground();
+
+
+            commitHistoryIfChanged(
+                before
+            );
 
         }
     );
@@ -639,17 +915,6 @@ function setupStylePanel() {
     setupObjectStyleControls();
 
 
-    stylePenColor.addEventListener(
-        "input",
-        () => {
-
-            penColor.value =
-                stylePenColor.value;
-
-        }
-    );
-
-
     penSizeInput.addEventListener(
         "input",
         () => {
@@ -666,6 +931,8 @@ function setupStylePanel() {
 
             penSizeInput.value =
                 penSize;
+
+            scheduleAutosave();
 
         }
     );
@@ -688,6 +955,8 @@ function setupStylePanel() {
             eraserSizeInput.value =
                 eraserSize;
 
+            scheduleAutosave();
+
         }
     );
 
@@ -698,6 +967,7 @@ function applyUITheme() {
 
     const root =
         document.documentElement;
+
 
     root.style.setProperty(
         "--ui-bg",
@@ -892,6 +1162,7 @@ function setupBoard() {
                 return;
             }
 
+
             cameraX =
                 cameraStartX +
                 (
@@ -906,6 +1177,7 @@ function setupBoard() {
                     panStartY
                 );
 
+
             updateCamera();
 
         }
@@ -916,11 +1188,18 @@ function setupBoard() {
         "mouseup",
         () => {
 
-            panning =
-                false;
+            if (panning) {
+
+                panning =
+                    false;
+
+            }
+
 
             if (
-                drawingMode === "select"
+                drawingMode === "select" &&
+                !objectDragActive &&
+                !objectResizeActive
             ) {
 
                 board.style.cursor =
@@ -939,9 +1218,11 @@ function zoomBoard(event) {
     const rect =
         board.getBoundingClientRect();
 
+
     const mouseX =
         event.clientX -
         rect.left;
+
 
     const mouseY =
         event.clientY -
@@ -954,11 +1235,16 @@ function zoomBoard(event) {
             cameraX
         ) / zoom;
 
+
     const worldY =
         (
             mouseY -
             cameraY
         ) / zoom;
+
+
+    const oldZoom =
+        zoom;
 
 
     if (
@@ -978,15 +1264,21 @@ function zoomBoard(event) {
 
     zoom =
         clamp(
-            zoom,
+            Math.round(zoom * 10) / 10,
             0.3,
             3
         );
 
 
+    if (zoom === oldZoom) {
+        return;
+    }
+
+
     cameraX =
         mouseX -
         worldX * zoom;
+
 
     cameraY =
         mouseY -
@@ -1031,6 +1323,10 @@ function applyBackground() {
         );
 
 
+    backgroundScale.value =
+        scale;
+
+
     workspace.style.backgroundSize =
         scale + "px auto";
 
@@ -1050,104 +1346,6 @@ function applyBackground() {
             "none";
 
     }
-
-}
-
-
-/* =========================================================
-   CANVAS
-========================================================= */
-
-function setCanvasSize(
-    width,
-    height,
-    preserve
-) {
-
-    let oldImage =
-        null;
-
-
-    if (
-        preserve &&
-        drawingCanvas.width > 0 &&
-        drawingCanvas.height > 0
-    ) {
-
-        try {
-
-            oldImage =
-                drawingCanvas.toDataURL();
-
-        } catch {
-
-            oldImage =
-                null;
-
-        }
-
-    }
-
-
-    drawingCanvas.width =
-        width;
-
-    drawingCanvas.height =
-        height;
-
-
-    drawingCanvas.style.width =
-        width + "px";
-
-    drawingCanvas.style.height =
-        height + "px";
-
-
-    drawingContext.setTransform(
-        1,
-        0,
-        0,
-        1,
-        0,
-        0
-    );
-
-
-    drawingContext.clearRect(
-        0,
-        0,
-        width,
-        height
-    );
-
-
-    if (oldImage) {
-
-        const image =
-            new Image();
-
-        image.onload =
-            () => {
-
-                drawingContext.drawImage(
-                    image,
-                    0,
-                    0
-                );
-
-            };
-
-        image.src =
-            oldImage;
-
-    }
-
-
-    workspace.style.width =
-        width + "px";
-
-    workspace.style.height =
-        height + "px";
 
 }
 
@@ -1189,7 +1387,9 @@ function setupDrawing() {
                 );
 
             } catch {
-                /* ignore */
+
+                /* Ignore unsupported capture. */
+
             }
 
 
@@ -1311,6 +1511,9 @@ function stopDrawing() {
     drawingContext.globalCompositeOperation =
         "source-over";
 
+
+    pushHistory();
+
 }
 
 
@@ -1372,7 +1575,8 @@ function createNote(
     title = null,
     content = "Type something...",
     styles = null,
-    autoSelect = true
+    autoSelect = true,
+    skipHistory = false
 ) {
 
     const note =
@@ -1384,29 +1588,48 @@ function createNote(
 
 
     note.style.left =
-        x + "px";
+        safeNumber(x, 0) + "px";
 
     note.style.top =
-        y + "px";
+        safeNumber(y, 0) + "px";
 
 
-    note.innerHTML = `
+    const titleElement =
+        document.createElement("div");
 
-        <div class="note-title">
-            ${escapeHTML(
-                title ||
-                "Note " +
-                objectNumber
-            )}
-        </div>
+    titleElement.className =
+        "note-title";
 
-        <div class="note-content">
-            ${escapeHTML(content)}
-        </div>
+    titleElement.textContent =
+        title ||
+        "Note " +
+        objectNumber;
 
-        <div class="resize-handle"></div>
 
-    `;
+    const contentElement =
+        document.createElement("div");
+
+    contentElement.className =
+        "note-content";
+
+    contentElement.textContent =
+        normalizeText(
+            content ?? "Type something..."
+        );
+
+
+    const resizeHandle =
+        document.createElement("div");
+
+    resizeHandle.className =
+        "resize-handle";
+
+
+    note.append(
+        titleElement,
+        contentElement,
+        resizeHandle
+    );
 
 
     workspace.appendChild(
@@ -1441,6 +1664,13 @@ function createNote(
     }
 
 
+    if (!skipHistory) {
+
+        pushHistory();
+
+    }
+
+
     return note;
 
 }
@@ -1460,6 +1690,20 @@ imageInput.addEventListener(
 
         if (!file) {
             return;
+        }
+
+
+        if (!file.type.startsWith("image/")) {
+
+            alert(
+                "Please choose an image file."
+            );
+
+            imageInput.value =
+                "";
+
+            return;
+
         }
 
 
@@ -1518,8 +1762,14 @@ function createImage(
     width = 260,
     pixel = false,
     styles = null,
-    autoSelect = true
+    autoSelect = true,
+    skipHistory = false
 ) {
+
+    if (!imageData) {
+        return null;
+    }
+
 
     const object =
         document.createElement("div");
@@ -1530,13 +1780,17 @@ function createImage(
 
 
     object.style.left =
-        x + "px";
+        safeNumber(x, 0) + "px";
 
     object.style.top =
-        y + "px";
+        safeNumber(y, 0) + "px";
 
     object.style.width =
-        width + "px";
+        clamp(
+            safeNumber(width, 260),
+            80,
+            1000
+        ) + "px";
 
 
     if (pixel) {
@@ -1548,25 +1802,52 @@ function createImage(
     }
 
 
-    object.innerHTML = `
+    const titleElement =
+        document.createElement("div");
 
-        <div class="image-title">
-            ${escapeHTML(
-                title ||
-                "Image " +
-                objectNumber
-            )}
-        </div>
+    titleElement.className =
+        "image-title";
 
-        <div class="image-content">
+    titleElement.textContent =
+        title ||
+        "Image " +
+        objectNumber;
 
-            <img src="${imageData}">
 
-        </div>
+    const imageContent =
+        document.createElement("div");
 
-        <div class="resize-handle"></div>
+    imageContent.className =
+        "image-content";
 
-    `;
+
+    const image =
+        document.createElement("img");
+
+    image.src =
+        imageData;
+
+    image.alt =
+        "";
+
+
+    const resizeHandle =
+        document.createElement("div");
+
+    resizeHandle.className =
+        "resize-handle";
+
+
+    imageContent.append(
+        image
+    );
+
+
+    object.append(
+        titleElement,
+        imageContent,
+        resizeHandle
+    );
 
 
     workspace.appendChild(
@@ -1601,6 +1882,13 @@ function createImage(
     }
 
 
+    if (!skipHistory) {
+
+        pushHistory();
+
+    }
+
+
     return object;
 
 }
@@ -1612,8 +1900,14 @@ function createSticker(
     y,
     width = 180,
     pixel = false,
-    autoSelect = true
+    autoSelect = true,
+    skipHistory = false
 ) {
+
+    if (!imageData) {
+        return null;
+    }
+
 
     const object =
         document.createElement("div");
@@ -1624,10 +1918,10 @@ function createSticker(
 
 
     object.style.left =
-        x + "px";
+        safeNumber(x, 0) + "px";
 
     object.style.top =
-        y + "px";
+        safeNumber(y, 0) + "px";
 
 
     if (pixel) {
@@ -1639,16 +1933,34 @@ function createSticker(
     }
 
 
-    object.innerHTML = `
+    const image =
+        document.createElement("img");
 
-        <img
-            src="${imageData}"
-            style="width:${width}px"
-        >
+    image.src =
+        imageData;
 
-        <div class="resize-handle"></div>
+    image.alt =
+        "";
 
-    `;
+    image.style.width =
+        clamp(
+            safeNumber(width, 180),
+            80,
+            1000
+        ) + "px";
+
+
+    const resizeHandle =
+        document.createElement("div");
+
+    resizeHandle.className =
+        "resize-handle";
+
+
+    object.append(
+        image,
+        resizeHandle
+    );
 
 
     workspace.appendChild(
@@ -1670,6 +1982,13 @@ function createSticker(
     }
 
 
+    if (!skipHistory) {
+
+        pushHistory();
+
+    }
+
+
     return object;
 
 }
@@ -1686,7 +2005,10 @@ function setupObject(object) {
         event => {
 
             if (
-                drawingMode === "select"
+                drawingMode === "select" &&
+                !event.target.closest(
+                    ".note-content.editing, .note-title.editing, .image-title.editing"
+                )
             ) {
 
                 selectObject(
@@ -1705,23 +2027,21 @@ function setupObject(object) {
 
             event.preventDefault();
 
+            event.stopPropagation();
+
+
             selectObject(
                 object
             );
 
+
             updatePixelMenu();
 
 
-            contextMenu.style.display =
-                "block";
-
-
-            contextMenu.style.left =
-                event.clientX + "px";
-
-
-            contextMenu.style.top =
-                event.clientY + "px";
+            positionContextMenu(
+                event.clientX,
+                event.clientY
+            );
 
         }
     );
@@ -1778,6 +2098,26 @@ function selectObject(object) {
 }
 
 
+function getSelectedObject() {
+
+    if (
+        selectedObject &&
+        selectedObject.isConnected
+    ) {
+
+        return selectedObject;
+
+    }
+
+
+    selectedObject =
+        null;
+
+    return null;
+
+}
+
+
 /* =========================================================
    EDITING
 ========================================================= */
@@ -1804,17 +2144,9 @@ function setupEditing(object) {
 
                 event.stopPropagation();
 
-                title.contentEditable =
-                    "true";
-
-                title.classList.add(
-                    "editing"
-                );
-
-                title.focus();
-
-                placeCursorAtEnd(
-                    title
+                startEditing(
+                    title,
+                    true
                 );
 
             }
@@ -1825,12 +2157,25 @@ function setupEditing(object) {
             "blur",
             () => {
 
-                title.contentEditable =
-                    "false";
-
-                title.classList.remove(
-                    "editing"
+                finishEditing(
+                    title
                 );
+
+            }
+        );
+
+
+        title.addEventListener(
+            "keydown",
+            event => {
+
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+
+                    title.blur();
+
+                }
 
             }
         );
@@ -1846,17 +2191,9 @@ function setupEditing(object) {
 
                 event.stopPropagation();
 
-                body.contentEditable =
-                    "true";
-
-                body.classList.add(
-                    "editing"
-                );
-
-                body.focus();
-
-                placeCursorAtEnd(
-                    body
+                startEditing(
+                    body,
+                    false
                 );
 
             }
@@ -1867,17 +2204,118 @@ function setupEditing(object) {
             "blur",
             () => {
 
-                body.contentEditable =
-                    "false";
-
-                body.classList.remove(
-                    "editing"
+                finishEditing(
+                    body
                 );
 
             }
         );
 
     }
+
+}
+
+
+function startEditing(
+    element,
+    singleLine
+) {
+
+    if (!element) {
+        return;
+    }
+
+
+    selectObject(
+        element.closest(
+            ".board-object"
+        )
+    );
+
+
+    element.contentEditable =
+        "plaintext-only";
+
+
+    element.classList.add(
+        "editing"
+    );
+
+
+    if (singleLine) {
+
+        element.dataset.singleLine =
+            "true";
+
+    } else {
+
+        element.dataset.singleLine =
+            "false";
+
+    }
+
+
+    element.focus();
+
+
+    placeCursorAtEnd(
+        element
+    );
+
+}
+
+
+function finishEditing(element) {
+
+    if (!element) {
+        return;
+    }
+
+
+    const wasEditing =
+        element.classList.contains(
+            "editing"
+        );
+
+
+    if (!wasEditing) {
+        return;
+    }
+
+
+    if (
+        element.dataset.singleLine ===
+        "true"
+    ) {
+
+        element.textContent =
+            normalizeSingleLine(
+                element.textContent
+            );
+
+    } else {
+
+        element.textContent =
+            normalizeText(
+                element.innerText
+            );
+
+    }
+
+
+    element.contentEditable =
+        "false";
+
+
+    element.classList.remove(
+        "editing"
+    );
+
+
+    delete element.dataset.singleLine;
+
+
+    pushHistory();
 
 }
 
@@ -1928,6 +2366,15 @@ function setupDragging(object) {
             }
 
 
+            if (
+                event.target.isContentEditable
+            ) {
+
+                return;
+
+            }
+
+
             selectObject(
                 object
             );
@@ -1939,11 +2386,25 @@ function setupDragging(object) {
             const startY =
                 event.clientY;
 
+
             const originalX =
                 object.offsetLeft;
 
             const originalY =
                 object.offsetTop;
+
+
+            const before =
+                createSnapshot();
+
+
+            objectDragActive =
+                true;
+
+
+            object.classList.add(
+                "dragging"
+            );
 
 
             function move(moveEvent) {
@@ -1984,6 +2445,20 @@ function setupDragging(object) {
                     stop
                 );
 
+
+                objectDragActive =
+                    false;
+
+
+                object.classList.remove(
+                    "dragging"
+                );
+
+
+                commitHistoryIfChanged(
+                    before
+                );
+
             }
 
 
@@ -1991,6 +2466,7 @@ function setupDragging(object) {
                 "mousemove",
                 move
             );
+
 
             document.addEventListener(
                 "mouseup",
@@ -2046,11 +2522,29 @@ function setupResizing(object) {
             );
 
 
+            const before =
+                createSnapshot();
+
+
             const startX =
                 event.clientX;
 
+
             const startWidth =
-                object.offsetWidth;
+                object.classList.contains(
+                    "sticker"
+                )
+                    ? object.querySelector("img")?.offsetWidth || 180
+                    : object.offsetWidth;
+
+
+            objectResizeActive =
+                true;
+
+
+            object.classList.add(
+                "resizing"
+            );
 
 
             function resize(moveEvent) {
@@ -2082,6 +2576,7 @@ function setupResizing(object) {
                             "img"
                         );
 
+
                     if (image) {
 
                         image.style.width =
@@ -2111,6 +2606,20 @@ function setupResizing(object) {
                     stop
                 );
 
+
+                objectResizeActive =
+                    false;
+
+
+                object.classList.remove(
+                    "resizing"
+                );
+
+
+                commitHistoryIfChanged(
+                    before
+                );
+
             }
 
 
@@ -2118,6 +2627,7 @@ function setupResizing(object) {
                 "mousemove",
                 resize
             );
+
 
             document.addEventListener(
                 "mouseup",
@@ -2158,12 +2668,24 @@ function setupObjectStyleControls() {
 
             control.addEventListener(
                 "input",
-                applySelectedObjectStyle
+                () => {
+
+                    applySelectedObjectStyle();
+
+                    scheduleAutosave();
+
+                }
             );
 
             control.addEventListener(
                 "change",
-                applySelectedObjectStyle
+                () => {
+
+                    applySelectedObjectStyle();
+
+                    pushHistory();
+
+                }
             );
 
         }
@@ -2176,13 +2698,18 @@ function setupObjectStyleControls() {
 
             event.preventDefault();
 
-            if (!selectedObject) {
+
+            const object =
+                getSelectedObject();
+
+
+            if (!object) {
                 return;
             }
 
 
             const title =
-                selectedObject.querySelector(
+                object.querySelector(
                     ".note-title, .image-title"
                 );
 
@@ -2192,17 +2719,9 @@ function setupObjectStyleControls() {
             }
 
 
-            title.contentEditable =
-                "true";
-
-            title.classList.add(
-                "editing"
-            );
-
-            title.focus();
-
-            placeCursorAtEnd(
-                title
+            startEditing(
+                title,
+                true
             );
 
         }
@@ -2215,13 +2734,18 @@ function setupObjectStyleControls() {
 
             event.preventDefault();
 
-            if (!selectedObject) {
+
+            const object =
+                getSelectedObject();
+
+
+            if (!object) {
                 return;
             }
 
 
             const body =
-                selectedObject.querySelector(
+                object.querySelector(
                     ".note-content"
                 );
 
@@ -2231,17 +2755,9 @@ function setupObjectStyleControls() {
             }
 
 
-            body.contentEditable =
-                "true";
-
-            body.classList.add(
-                "editing"
-            );
-
-            body.focus();
-
-            placeCursorAtEnd(
-                body
+            startEditing(
+                body,
+                false
             );
 
         }
@@ -2252,13 +2768,17 @@ function setupObjectStyleControls() {
 
 function applySelectedObjectStyle() {
 
-    if (!selectedObject) {
+    const object =
+        getSelectedObject();
+
+
+    if (!object) {
         return;
     }
 
 
     if (
-        selectedObject.classList.contains(
+        object.classList.contains(
             "sticker"
         )
     ) {
@@ -2269,22 +2789,22 @@ function applySelectedObjectStyle() {
 
 
     const title =
-        selectedObject.querySelector(
+        object.querySelector(
             ".note-title, .image-title"
         );
 
 
     const body =
-        selectedObject.querySelector(
+        object.querySelector(
             ".note-content, .image-content"
         );
 
 
-    selectedObject.style.borderColor =
+    object.style.borderColor =
         objectBorderColor.value;
 
 
-    selectedObject.style.borderWidth =
+    object.style.borderWidth =
         clamp(
             parseInt(
                 objectBorderWidth.value,
@@ -2308,12 +2828,12 @@ function applySelectedObjectStyle() {
             );
 
 
-        selectedObject.style.boxShadow =
+        object.style.boxShadow =
             `${size}px ${size}px 0 #9aa7b2`;
 
     } else {
 
-        selectedObject.style.boxShadow =
+        object.style.boxShadow =
             "none";
 
     }
@@ -2371,7 +2891,11 @@ function applySelectedObjectStyle() {
 
 function updateStylePanel() {
 
-    if (!selectedObject) {
+    const object =
+        getSelectedObject();
+
+
+    if (!object) {
 
         objectStyleMessage.textContent =
             "Select a note or image first.";
@@ -2386,7 +2910,7 @@ function updateStylePanel() {
 
 
     if (
-        selectedObject.classList.contains(
+        object.classList.contains(
             "sticker"
         )
     ) {
@@ -2412,20 +2936,20 @@ function updateStylePanel() {
 
 
     const title =
-        selectedObject.querySelector(
+        object.querySelector(
             ".note-title, .image-title"
         );
 
 
     const body =
-        selectedObject.querySelector(
+        object.querySelector(
             ".note-content, .image-content"
         );
 
 
     const objectStyle =
         getComputedStyle(
-            selectedObject
+            object
         );
 
 
@@ -2473,7 +2997,9 @@ function updateStylePanel() {
 
 
         objectFont.value =
-            titleStyle.fontFamily;
+            getMatchingFontValue(
+                titleStyle.fontFamily
+            );
 
     }
 
@@ -2511,6 +3037,71 @@ function updateStylePanel() {
 
     objectShadow.checked =
         objectStyle.boxShadow !== "none";
+
+
+    const shadowMatch =
+        objectStyle.boxShadow.match(
+            /^(-?\d+(?:\.\d+)?)px/
+        );
+
+
+    if (shadowMatch) {
+
+        objectShadowSize.value =
+            Math.round(
+                parseFloat(
+                    shadowMatch[1]
+                )
+            );
+
+    }
+
+}
+
+
+function getMatchingFontValue(fontFamily) {
+
+    const options =
+        Array.from(
+            objectFont.options
+        );
+
+
+    const exact =
+        options.find(
+            option =>
+                option.value ===
+                fontFamily
+        );
+
+
+    if (exact) {
+        return exact.value;
+    }
+
+
+    const lower =
+        String(
+            fontFamily
+        ).toLowerCase();
+
+
+    const match =
+        options.find(
+            option =>
+                lower.includes(
+                    option.value
+                        .split(",")[0]
+                        .replaceAll("'", "")
+                        .replaceAll('"', "")
+                        .toLowerCase()
+                )
+        );
+
+
+    return match
+        ? match.value
+        : options[0].value;
 
 }
 
@@ -2627,43 +3218,60 @@ function applyObjectStyles(
 
 
     if (styles.borderColor) {
+
         object.style.borderColor =
             styles.borderColor;
+
     }
 
 
     if (styles.borderWidth) {
+
         object.style.borderWidth =
             styles.borderWidth;
+
     }
 
 
     if (styles.boxShadow !== undefined) {
+
         object.style.boxShadow =
             styles.boxShadow;
+
     }
 
 
     if (title) {
 
         if (styles.headerColor) {
+
             title.style.backgroundColor =
                 styles.headerColor;
+
         }
+
 
         if (styles.headerText) {
+
             title.style.color =
                 styles.headerText;
+
         }
+
 
         if (styles.font) {
+
             title.style.fontFamily =
                 styles.font;
+
         }
 
+
         if (styles.headerSize) {
+
             title.style.fontSize =
                 styles.headerSize;
+
         }
 
     }
@@ -2672,23 +3280,34 @@ function applyObjectStyles(
     if (body) {
 
         if (styles.bodyColor) {
+
             body.style.backgroundColor =
                 styles.bodyColor;
+
         }
+
 
         if (styles.bodyText) {
+
             body.style.color =
                 styles.bodyText;
+
         }
+
 
         if (styles.font) {
+
             body.style.fontFamily =
                 styles.font;
+
         }
 
+
         if (styles.bodySize) {
+
             body.style.fontSize =
                 styles.bodySize;
+
         }
 
     }
@@ -2706,16 +3325,7 @@ function setupContextMenu() {
         "click",
         () => {
 
-            if (selectedObject) {
-
-                selectedObject.remove();
-
-                selectedObject =
-                    null;
-
-                updateStylePanel();
-
-            }
+            deleteSelectedObject();
 
             closeContextMenu();
 
@@ -2727,48 +3337,7 @@ function setupContextMenu() {
         "click",
         () => {
 
-            if (!selectedObject) {
-                return;
-            }
-
-
-            const copy =
-                selectedObject.cloneNode(
-                    true
-                );
-
-
-            copy.style.left =
-                selectedObject.offsetLeft +
-                30 +
-                "px";
-
-
-            copy.style.top =
-                selectedObject.offsetTop +
-                30 +
-                "px";
-
-
-            copy.classList.remove(
-                "selected"
-            );
-
-
-            workspace.appendChild(
-                copy
-            );
-
-
-            setupObject(
-                copy
-            );
-
-
-            selectObject(
-                copy
-            );
-
+            duplicateSelectedObject();
 
             closeContextMenu();
 
@@ -2780,13 +3349,27 @@ function setupContextMenu() {
         "click",
         () => {
 
-            if (selectedObject) {
+            const object =
+                getSelectedObject();
 
-                selectedObject.classList.toggle(
+
+            if (object) {
+
+                const before =
+                    createSnapshot();
+
+
+                object.classList.toggle(
                     "pixel-mode"
                 );
 
+
+                commitHistoryIfChanged(
+                    before
+                );
+
             }
+
 
             closeContextMenu();
 
@@ -2798,38 +3381,50 @@ function setupContextMenu() {
         "click",
         () => {
 
-            if (!selectedObject) {
-                return;
-            }
+            const object =
+                getSelectedObject();
 
 
-            let highest =
-                0;
+            if (object) {
+
+                const before =
+                    createSnapshot();
 
 
-            workspace
-                .querySelectorAll(
-                    ".board-object"
-                )
-                .forEach(
-                    object => {
+                let highest =
+                    0;
 
-                        highest =
-                            Math.max(
-                                highest,
-                                parseInt(
-                                    object.style.zIndex ||
-                                    "0",
-                                    10
-                                )
-                            );
 
-                    }
+                workspace
+                    .querySelectorAll(
+                        ".board-object"
+                    )
+                    .forEach(
+                        item => {
+
+                            highest =
+                                Math.max(
+                                    highest,
+                                    parseInt(
+                                        item.style.zIndex ||
+                                        "0",
+                                        10
+                                    )
+                                );
+
+                        }
+                    );
+
+
+                object.style.zIndex =
+                    highest + 1;
+
+
+                commitHistoryIfChanged(
+                    before
                 );
 
-
-            selectedObject.style.zIndex =
-                highest + 1;
+            }
 
 
             closeContextMenu();
@@ -2842,16 +3437,30 @@ function setupContextMenu() {
         "click",
         () => {
 
-            if (selectedObject) {
+            const object =
+                getSelectedObject();
 
-                selectedObject.style.zIndex =
+
+            if (object) {
+
+                const before =
+                    createSnapshot();
+
+
+                object.style.zIndex =
                     parseInt(
-                        selectedObject.style.zIndex ||
+                        object.style.zIndex ||
                         "0",
                         10
                     ) + 1;
 
+
+                commitHistoryIfChanged(
+                    before
+                );
+
             }
+
 
             closeContextMenu();
 
@@ -2863,16 +3472,30 @@ function setupContextMenu() {
         "click",
         () => {
 
-            if (selectedObject) {
+            const object =
+                getSelectedObject();
 
-                selectedObject.style.zIndex =
+
+            if (object) {
+
+                const before =
+                    createSnapshot();
+
+
+                object.style.zIndex =
                     parseInt(
-                        selectedObject.style.zIndex ||
+                        object.style.zIndex ||
                         "0",
                         10
                     ) - 1;
 
+
+                commitHistoryIfChanged(
+                    before
+                );
+
             }
+
 
             closeContextMenu();
 
@@ -2884,12 +3507,26 @@ function setupContextMenu() {
         "click",
         () => {
 
-            if (selectedObject) {
+            const object =
+                getSelectedObject();
 
-                selectedObject.style.zIndex =
+
+            if (object) {
+
+                const before =
+                    createSnapshot();
+
+
+                object.style.zIndex =
                     -100;
 
+
+                commitHistoryIfChanged(
+                    before
+                );
+
             }
+
 
             closeContextMenu();
 
@@ -2917,9 +3554,58 @@ function setupContextMenu() {
 }
 
 
+function positionContextMenu(
+    x,
+    y
+) {
+
+    contextMenu.style.display =
+        "block";
+
+
+    const width =
+        contextMenu.offsetWidth;
+
+    const height =
+        contextMenu.offsetHeight;
+
+
+    const maxX =
+        window.innerWidth -
+        width -
+        5;
+
+    const maxY =
+        window.innerHeight -
+        height -
+        5;
+
+
+    contextMenu.style.left =
+        clamp(
+            x,
+            5,
+            Math.max(5, maxX)
+        ) + "px";
+
+
+    contextMenu.style.top =
+        clamp(
+            y,
+            5,
+            Math.max(5, maxY)
+        ) + "px";
+
+}
+
+
 function updatePixelMenu() {
 
-    if (!selectedObject) {
+    const object =
+        getSelectedObject();
+
+
+    if (!object) {
 
         pixelObject.style.display =
             "none";
@@ -2930,10 +3616,10 @@ function updatePixelMenu() {
 
 
     const valid =
-        selectedObject.classList.contains(
+        object.classList.contains(
             "image-object"
         ) ||
-        selectedObject.classList.contains(
+        object.classList.contains(
             "sticker"
         );
 
@@ -2947,7 +3633,7 @@ function updatePixelMenu() {
     if (valid) {
 
         pixelObject.textContent =
-            selectedObject.classList.contains(
+            object.classList.contains(
                 "pixel-mode"
             )
                 ? "Pixel Mode: ON"
@@ -3091,6 +3777,20 @@ function newBoard() {
 
     updateStylePanel();
 
+
+    history =
+        [];
+
+    historyIndex =
+        -1;
+
+
+    initializeHistory();
+
+    clearAutosave();
+
+    markUnsaved();
+
 }
 
 
@@ -3100,6 +3800,11 @@ function newBoard() {
 
 async function saveBoard() {
 
+    setSaveStatus(
+        "SAVING..."
+    );
+
+
     if (currentFileHandle) {
 
         try {
@@ -3107,6 +3812,9 @@ async function saveBoard() {
             await writeToFile(
                 currentFileHandle
             );
+
+
+            markSaved();
 
             return;
 
@@ -3135,12 +3843,19 @@ async function saveAsBoard() {
 
 
     if (!name) {
+
+        setSaveStatus(
+            "SAVE CANCELLED"
+        );
+
         return;
+
     }
 
 
     boardName =
-        name;
+        name.trim() ||
+        "Untitled Board";
 
 
     if (
@@ -3153,7 +3868,9 @@ async function saveAsBoard() {
                 await window.showSaveFilePicker({
 
                     suggestedName:
-                        boardName +
+                        sanitizeFilename(
+                            boardName
+                        ) +
                         ".json",
 
                     types: [
@@ -3186,6 +3903,8 @@ async function saveAsBoard() {
             );
 
 
+            markSaved();
+
             return;
 
         } catch (error) {
@@ -3194,6 +3913,10 @@ async function saveAsBoard() {
                 error.name ===
                 "AbortError"
             ) {
+
+                setSaveStatus(
+                    "SAVE CANCELLED"
+                );
 
                 return;
 
@@ -3205,6 +3928,8 @@ async function saveAsBoard() {
 
 
     downloadBoard();
+
+    markSaved();
 
 }
 
@@ -3227,12 +3952,17 @@ async function writeToFile(handle) {
         await handle.createWritable();
 
 
-    await writable.write(
-        json
-    );
+    try {
 
+        await writable.write(
+            json
+        );
 
-    await writable.close();
+    } finally {
+
+        await writable.close();
+
+    }
 
 }
 
@@ -3277,13 +4007,16 @@ function downloadBoard() {
         url;
 
     link.download =
-        boardName +
+        sanitizeFilename(
+            boardName
+        ) +
         ".json";
 
 
     document.body.appendChild(
         link
     );
+
 
     link.click();
 
@@ -3332,14 +4065,36 @@ boardInput.addEventListener(
                         );
 
 
+                    if (
+                        !data ||
+                        typeof data !== "object"
+                    ) {
+
+                        throw new Error(
+                            "Invalid board."
+                        );
+
+                    }
+
+
                     loadBoard(
                         data
+                    );
+
+
+                    setSaveStatus(
+                        "LOADED"
                     );
 
                 } catch {
 
                     alert(
                         "Could not load this board."
+                    );
+
+
+                    setSaveStatus(
+                        "LOAD FAILED"
                     );
 
                 }
@@ -3439,20 +4194,35 @@ function getBoardData() {
                             "pixel-mode"
                         ),
 
+
+                    /*
+                     * textContent is used intentionally for
+                     * storage because it gives us plain text.
+                     *
+                     * Newlines are normalized before saving.
+                     */
+
                     title:
                         title
-                            ? title.textContent
+                            ? normalizeSingleLine(
+                                title.textContent
+                            )
                             : undefined,
 
                     content:
                         content
-                            ? content.textContent
+                            ? normalizeText(
+                                content.innerText ||
+                                content.textContent
+                            )
                             : undefined,
+
 
                     image:
                         image
                             ? image.src
                             : undefined,
+
 
                     styles:
                         getObjectStyles(
@@ -3468,7 +4238,7 @@ function getBoardData() {
     return {
 
         version:
-            11,
+            APP_VERSION,
 
         name:
             boardName,
@@ -3576,6 +4346,10 @@ function getObjectType(object) {
 
 function loadBoard(data) {
 
+    historyBusy =
+        true;
+
+
     workspace.innerHTML =
         "";
 
@@ -3585,17 +4359,17 @@ function loadBoard(data) {
 
 
     boardName =
-        data.name ||
-        "Untitled Board";
+        typeof data.name === "string"
+            ? data.name
+            : "Untitled Board";
 
 
     boardWidth =
         clamp(
             parseInt(
-                data.boardWidth ||
-                10000,
+                data.boardWidth,
                 10
-            ),
+            ) || 3000,
             500,
             12000
         );
@@ -3604,10 +4378,9 @@ function loadBoard(data) {
     boardHeight =
         clamp(
             parseInt(
-                data.boardHeight ||
-                10000,
+                data.boardHeight,
                 10
-            ),
+            ) || 2000,
             500,
             12000
         );
@@ -3639,13 +4412,20 @@ function loadBoard(data) {
 
 
     backgroundRepeat.value =
-        data.backgroundRepeat ||
-        "repeat";
+        validRepeat(
+            data.backgroundRepeat
+        );
 
 
     backgroundScale.value =
-        data.backgroundScale ||
-        256;
+        clamp(
+            parseInt(
+                data.backgroundScale,
+                10
+            ) || 256,
+            16,
+            3000
+        );
 
 
     applyBackground();
@@ -3661,13 +4441,25 @@ function loadBoard(data) {
 
 
     penSize =
-        data.penSize ||
-        4;
+        clamp(
+            parseInt(
+                data.penSize,
+                10
+            ) || 4,
+            1,
+            100
+        );
 
 
     eraserSize =
-        data.eraserSize ||
-        30;
+        clamp(
+            parseInt(
+                data.eraserSize,
+                10
+            ) || 30,
+            1,
+            200
+        );
 
 
     penSizeInput.value =
@@ -3718,6 +4510,16 @@ function loadBoard(data) {
         data.objects.forEach(
             item => {
 
+                if (
+                    !item ||
+                    typeof item !== "object"
+                ) {
+
+                    return;
+
+                }
+
+
                 let created =
                     null;
 
@@ -3728,48 +4530,63 @@ function loadBoard(data) {
 
                     created =
                         createNote(
-                            item.x || 0,
-                            item.y || 0,
+                            safeNumber(item.x, 0),
+                            safeNumber(item.y, 0),
                             item.title,
                             item.content,
                             item.styles,
-                            false
+                            false,
+                            true
                         );
 
                 }
 
 
                 if (
-                    item.type === "image"
+                    item.type === "image" &&
+                    item.image
                 ) {
 
                     created =
                         createImage(
                             item.image,
-                            item.x || 0,
-                            item.y || 0,
+                            safeNumber(item.x, 0),
+                            safeNumber(item.y, 0),
                             item.title,
-                            item.width || 260,
-                            item.pixel,
+                            safeNumber(
+                                item.width,
+                                260
+                            ),
+                            Boolean(
+                                item.pixel
+                            ),
                             item.styles,
-                            false
+                            false,
+                            true
                         );
 
                 }
 
 
                 if (
-                    item.type === "sticker"
+                    item.type === "sticker" &&
+                    item.image
                 ) {
 
                     created =
                         createSticker(
                             item.image,
-                            item.x || 0,
-                            item.y || 0,
-                            item.width || 180,
-                            item.pixel,
-                            false
+                            safeNumber(item.x, 0),
+                            safeNumber(item.y, 0),
+                            safeNumber(
+                                item.width,
+                                180
+                            ),
+                            Boolean(
+                                item.pixel
+                            ),
+                            false,
+                            true
                         );
 
                 }
@@ -3778,7 +4595,10 @@ function loadBoard(data) {
                 if (created) {
 
                     created.style.zIndex =
-                        item.zIndex || 0;
+                        safeNumber(
+                            item.zIndex,
+                            0
+                        );
 
                 }
 
@@ -3816,6 +4636,19 @@ function loadBoard(data) {
             };
 
 
+        image.onerror =
+            () => {
+
+                drawingContext.clearRect(
+                    0,
+                    0,
+                    drawingCanvas.width,
+                    drawingCanvas.height
+                );
+
+            };
+
+
         image.src =
             data.drawing;
 
@@ -3831,6 +4664,23 @@ function loadBoard(data) {
     centerBoard();
 
     updateStylePanel();
+
+
+    historyBusy =
+        false;
+
+
+    history =
+        [];
+
+    historyIndex =
+        -1;
+
+
+    initializeHistory();
+
+
+    scheduleAutosave();
 
 }
 
@@ -3924,7 +4774,7 @@ function updateCamera() {
 
 
     const transform =
-        `translate(${cameraX}px, ${cameraY}px) scale(${zoom})`;
+        `translate3d(${cameraX}px, ${cameraY}px, 0) scale(${zoom})`;
 
 
     workspace.style.transform =
@@ -3954,7 +4804,17 @@ function setupKeyboard() {
         event => {
 
             if (isTypingTarget()) {
+
+                if (
+                    event.key === "Escape"
+                ) {
+
+                    document.activeElement.blur();
+
+                }
+
                 return;
+
             }
 
 
@@ -3986,7 +4846,11 @@ function setupKeyboard() {
                 event.key === "Home"
             ) {
 
+                event.preventDefault();
+
                 centerBoard();
+
+                return;
 
             }
 
@@ -4008,21 +4872,57 @@ function setupKeyboard() {
                 helpWindow.style.display =
                     "none";
 
+                closeContextMenu();
+
+                return;
+
             }
 
 
             if (
-                event.key === "Delete" &&
-                selectedObject &&
-                drawingMode === "select"
+                event.ctrlKey &&
+                key === "z"
             ) {
 
-                selectedObject.remove();
+                event.preventDefault();
 
-                selectedObject =
-                    null;
+                undo();
 
-                updateStylePanel();
+                return;
+
+            }
+
+
+            if (
+                event.ctrlKey &&
+                (
+                    key === "y" ||
+                    (
+                        event.shiftKey &&
+                        key === "z"
+                    )
+                )
+            ) {
+
+                event.preventDefault();
+
+                redo();
+
+                return;
+
+            }
+
+
+            if (
+                event.ctrlKey &&
+                key === "d"
+            ) {
+
+                event.preventDefault();
+
+                duplicateSelectedObject();
+
+                return;
 
             }
 
@@ -4036,6 +4936,8 @@ function setupKeyboard() {
 
                 saveBoard();
 
+                return;
+
             }
 
 
@@ -4047,6 +4949,51 @@ function setupKeyboard() {
                 event.preventDefault();
 
                 boardInput.click();
+
+                return;
+
+            }
+
+
+            if (
+                (
+                    event.key === "Delete" ||
+                    event.key === "Backspace"
+                ) &&
+                selectedObject &&
+                drawingMode === "select"
+            ) {
+
+                event.preventDefault();
+
+                deleteSelectedObject();
+
+                return;
+
+            }
+
+
+            if (
+                selectedObject &&
+                drawingMode === "select" &&
+                [
+                    "ArrowUp",
+                    "ArrowDown",
+                    "ArrowLeft",
+                    "ArrowRight"
+                ].includes(
+                    event.key
+                )
+            ) {
+
+                event.preventDefault();
+
+                nudgeSelectedObject(
+                    event.key,
+                    event.shiftKey
+                        ? 10
+                        : 1
+                );
 
             }
 
@@ -4061,6 +5008,19 @@ function setupKeyboard() {
             keys.delete(
                 event.key.toLowerCase()
             );
+
+        }
+    );
+
+
+    window.addEventListener(
+        "blur",
+        () => {
+
+            keys.clear();
+
+            panning =
+                false;
 
         }
     );
@@ -4166,6 +5126,942 @@ function keyboardLoop() {
 
 
 /* =========================================================
+   OBJECT KEYBOARD ACTIONS
+========================================================= */
+
+function nudgeSelectedObject(
+    direction,
+    distance
+) {
+
+    const object =
+        getSelectedObject();
+
+
+    if (!object) {
+        return;
+    }
+
+
+    const before =
+        createSnapshot();
+
+
+    switch (direction) {
+
+        case "ArrowUp":
+
+            object.style.top =
+                object.offsetTop -
+                distance +
+                "px";
+
+            break;
+
+
+        case "ArrowDown":
+
+            object.style.top =
+                object.offsetTop +
+                distance +
+                "px";
+
+            break;
+
+
+        case "ArrowLeft":
+
+            object.style.left =
+                object.offsetLeft -
+                distance +
+                "px";
+
+            break;
+
+
+        case "ArrowRight":
+
+            object.style.left =
+                object.offsetLeft +
+                distance +
+                "px";
+
+            break;
+
+    }
+
+
+    commitHistoryIfChanged(
+        before
+    );
+
+}
+
+
+function deleteSelectedObject() {
+
+    const object =
+        getSelectedObject();
+
+
+    if (!object) {
+        return;
+    }
+
+
+    const before =
+        createSnapshot();
+
+
+    object.remove();
+
+
+    selectedObject =
+        null;
+
+
+    updateStylePanel();
+
+    commitHistoryIfChanged(
+        before
+    );
+
+}
+
+
+function duplicateSelectedObject() {
+
+    const object =
+        getSelectedObject();
+
+
+    if (!object) {
+        return null;
+    }
+
+
+    const before =
+        createSnapshot();
+
+
+    const copy =
+        object.cloneNode(
+            true
+        );
+
+
+    copy.classList.remove(
+        "selected"
+    );
+
+
+    copy.style.left =
+        object.offsetLeft +
+        30 +
+        "px";
+
+
+    copy.style.top =
+        object.offsetTop +
+        30 +
+        "px";
+
+
+    workspace.appendChild(
+        copy
+    );
+
+
+    setupObject(
+        copy
+    );
+
+
+    objectNumber++;
+
+
+    selectObject(
+        copy
+    );
+
+
+    commitHistoryIfChanged(
+        before
+    );
+
+
+    return copy;
+
+}
+
+
+/* =========================================================
+   HISTORY
+========================================================= */
+
+function initializeHistory() {
+
+    history =
+        [
+            createSnapshot()
+        ];
+
+    historyIndex =
+        0;
+
+
+    updateHistoryButtons();
+
+}
+
+
+function createSnapshot() {
+
+    try {
+
+        return JSON.stringify(
+            getBoardData()
+        );
+
+    } catch {
+
+        return "";
+
+    }
+
+}
+
+
+function pushHistory() {
+
+    if (historyBusy) {
+        return;
+    }
+
+
+    const snapshot =
+        createSnapshot();
+
+
+    if (!snapshot) {
+        return;
+    }
+
+
+    if (
+        historyIndex >= 0 &&
+        history[historyIndex] === snapshot
+    ) {
+
+        scheduleAutosave();
+
+        updateHistoryButtons();
+
+        return;
+
+    }
+
+
+    history =
+        history.slice(
+            0,
+            historyIndex + 1
+        );
+
+
+    history.push(
+        snapshot
+    );
+
+
+    if (
+        history.length >
+        HISTORY_LIMIT
+    ) {
+
+        history.shift();
+
+    }
+
+
+    historyIndex =
+        history.length - 1;
+
+
+    updateHistoryButtons();
+
+    scheduleAutosave();
+
+}
+
+
+function commitHistoryIfChanged(
+    before
+) {
+
+    if (!before) {
+
+        pushHistory();
+
+        return;
+
+    }
+
+
+    const after =
+        createSnapshot();
+
+
+    if (
+        before !== after
+    ) {
+
+        historyBusy =
+            false;
+
+        pushHistory();
+
+    } else {
+
+        scheduleAutosave();
+
+    }
+
+}
+
+
+function undo() {
+
+    if (
+        historyIndex <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    historyIndex--;
+
+    restoreSnapshot(
+        history[historyIndex]
+    );
+
+
+    updateHistoryButtons();
+
+}
+
+
+function redo() {
+
+    if (
+        historyIndex >=
+        history.length - 1
+    ) {
+
+        return;
+
+    }
+
+
+    historyIndex++;
+
+    restoreSnapshot(
+        history[historyIndex]
+    );
+
+
+    updateHistoryButtons();
+
+}
+
+
+function restoreSnapshot(
+    snapshot
+) {
+
+    if (!snapshot) {
+        return;
+    }
+
+
+    try {
+
+        const data =
+            JSON.parse(
+                snapshot
+            );
+
+
+        historyBusy =
+            true;
+
+
+        loadBoardWithoutHistory(
+            data
+        );
+
+
+        historyBusy =
+            false;
+
+
+        scheduleAutosave();
+
+    } catch {
+
+        historyBusy =
+            false;
+
+        setSaveStatus(
+            "UNDO FAILED"
+        );
+
+    }
+
+}
+
+
+function loadBoardWithoutHistory(
+    data
+) {
+
+    workspace.innerHTML =
+        "";
+
+
+    selectedObject =
+        null;
+
+
+    boardName =
+        data.name ||
+        "Untitled Board";
+
+
+    boardWidth =
+        clamp(
+            parseInt(
+                data.boardWidth,
+                10
+            ) || 3000,
+            500,
+            12000
+        );
+
+
+    boardHeight =
+        clamp(
+            parseInt(
+                data.boardHeight,
+                10
+            ) || 2000,
+            500,
+            12000
+        );
+
+
+    boardWidthInput.value =
+        boardWidth;
+
+    boardHeightInput.value =
+        boardHeight;
+
+
+    setCanvasSize(
+        boardWidth,
+        boardHeight,
+        false
+    );
+
+
+    boardColor.value =
+        data.backgroundColor ||
+        "#ffffff";
+
+
+    backgroundImageData =
+        data.backgroundImage ||
+        null;
+
+
+    backgroundRepeat.value =
+        validRepeat(
+            data.backgroundRepeat
+        );
+
+
+    backgroundScale.value =
+        clamp(
+            parseInt(
+                data.backgroundScale,
+                10
+            ) || 256,
+            16,
+            3000
+        );
+
+
+    applyBackground();
+
+
+    penColor.value =
+        data.penColor ||
+        "#000000";
+
+
+    stylePenColor.value =
+        penColor.value;
+
+
+    penSize =
+        clamp(
+            parseInt(
+                data.penSize,
+                10
+            ) || 4,
+            1,
+            100
+        );
+
+
+    eraserSize =
+        clamp(
+            parseInt(
+                data.eraserSize,
+                10
+            ) || 30,
+            1,
+            200
+        );
+
+
+    penSizeInput.value =
+        penSize;
+
+    eraserSizeInput.value =
+        eraserSize;
+
+
+    if (data.uiTheme) {
+
+        uiBg.value =
+            data.uiTheme.bg ||
+            "#d4d0c8";
+
+        uiAccent.value =
+            data.uiTheme.accent ||
+            "#316ac5";
+
+        uiDarkAccent.value =
+            data.uiTheme.darkAccent ||
+            "#234a8c";
+
+        uiButtonHover.value =
+            data.uiTheme.buttonHover ||
+            "#eeeeee";
+
+        uiText.value =
+            data.uiTheme.text ||
+            "#000000";
+
+        uiFont.value =
+            data.uiTheme.font ||
+            "Tahoma, Arial, sans-serif";
+
+
+        applyUITheme();
+
+    }
+
+
+    if (
+        Array.isArray(
+            data.objects
+        )
+    ) {
+
+        data.objects.forEach(
+            item => {
+
+                if (!item) {
+                    return;
+                }
+
+
+                let created =
+                    null;
+
+
+                if (
+                    item.type === "note"
+                ) {
+
+                    created =
+                        createNote(
+                            safeNumber(item.x, 0),
+                            safeNumber(item.y, 0),
+                            item.title,
+                            item.content,
+                            item.styles,
+                            false,
+                            true
+                        );
+
+                }
+
+
+                if (
+                    item.type === "image" &&
+                    item.image
+                ) {
+
+                    created =
+                        createImage(
+                            item.image,
+                            safeNumber(item.x, 0),
+                            safeNumber(item.y, 0),
+                            item.title,
+                            safeNumber(
+                                item.width,
+                                260
+                            ),
+                            Boolean(
+                                item.pixel
+                            ),
+                            item.styles,
+                            false,
+                            true
+                        );
+
+                }
+
+
+                if (
+                    item.type === "sticker" &&
+                    item.image
+                ) {
+
+                    created =
+                        createSticker(
+                            item.image,
+                            safeNumber(item.x, 0),
+                            safeNumber(item.y, 0),
+                            safeNumber(
+                                item.width,
+                                180
+                            ),
+                            Boolean(
+                                item.pixel
+                            ),
+                            false,
+                            true
+                        );
+
+                }
+
+
+                if (created) {
+
+                    created.style.zIndex =
+                        safeNumber(
+                            item.zIndex,
+                            0
+                        );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (data.drawing) {
+
+        const image =
+            new Image();
+
+
+        image.onload =
+            () => {
+
+                drawingContext.clearRect(
+                    0,
+                    0,
+                    drawingCanvas.width,
+                    drawingCanvas.height
+                );
+
+
+                drawingContext.drawImage(
+                    image,
+                    0,
+                    0,
+                    boardWidth,
+                    boardHeight
+                );
+
+            };
+
+
+        image.src =
+            data.drawing;
+
+    }
+
+
+    objectNumber =
+        workspace.querySelectorAll(
+            ".board-object"
+        ).length + 1;
+
+
+    updateStylePanel();
+
+}
+
+
+/* =========================================================
+   AUTOSAVE
+========================================================= */
+
+function scheduleAutosave() {
+
+    clearTimeout(
+        autosaveTimer
+    );
+
+
+    autosaveTimer =
+        setTimeout(
+            performAutosave,
+            AUTOSAVE_DELAY
+        );
+
+
+    markUnsaved();
+
+}
+
+
+function performAutosave() {
+
+    try {
+
+        const snapshot =
+            createSnapshot();
+
+
+        localStorage.setItem(
+            AUTOSAVE_KEY,
+            snapshot
+        );
+
+
+        lastAutosaveSnapshot =
+            snapshot;
+
+
+        setSaveStatus(
+            "AUTOSAVED"
+        );
+
+    } catch {
+
+        /*
+         * Large boards with large embedded images can exceed
+         * localStorage limits. Manual file saving still works.
+         */
+
+        setSaveStatus(
+            "LOCAL SAVE FULL"
+        );
+
+    }
+
+}
+
+
+function checkForAutosave() {
+
+    let snapshot = null;
+
+
+    try {
+
+        snapshot =
+            localStorage.getItem(
+                AUTOSAVE_KEY
+            );
+
+    } catch {
+
+        return;
+
+    }
+
+
+    if (!snapshot) {
+        return;
+    }
+
+
+    try {
+
+        const data =
+            JSON.parse(
+                snapshot
+            );
+
+
+        if (
+            !data ||
+            typeof data !== "object"
+        ) {
+
+            return;
+
+        }
+
+
+        const useAutosave =
+            confirm(
+                "Pickdel found an autosaved board. Load it?"
+            );
+
+
+        if (useAutosave) {
+
+            loadBoard(
+                data
+            );
+
+        }
+
+    } catch {
+
+        clearAutosave();
+
+    }
+
+}
+
+
+function clearAutosave() {
+
+    try {
+
+        localStorage.removeItem(
+            AUTOSAVE_KEY
+        );
+
+    } catch {
+
+        /* Ignore storage errors. */
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE STATUS
+========================================================= */
+
+function setSaveStatus(
+    message
+) {
+
+    if (!saveStatus) {
+        return;
+    }
+
+
+    saveStatus.textContent =
+        message;
+
+
+    clearTimeout(
+        saveStatusTimer
+    );
+
+
+    saveStatusTimer =
+        setTimeout(
+            () => {
+
+                if (
+                    saveStatus.textContent ===
+                    message
+                ) {
+
+                    saveStatus.textContent =
+                        "READY";
+
+                }
+
+            },
+            2500
+        );
+
+}
+
+
+function markUnsaved() {
+
+    setSaveStatus(
+        "UNSAVED"
+    );
+
+}
+
+
+function markSaved() {
+
+    lastSavedSnapshot =
+        createSnapshot();
+
+
+    clearTimeout(
+        autosaveTimer
+    );
+
+
+    setSaveStatus(
+        "SAVED"
+    );
+
+}
+
+
+/* =========================================================
+   HISTORY BUTTONS
+========================================================= */
+
+function updateHistoryButtons() {
+
+    if (undoButton) {
+
+        undoButton.disabled =
+            historyIndex <= 0;
+
+    }
+
+
+    if (redoButton) {
+
+        redoButton.disabled =
+            historyIndex >=
+            history.length - 1;
+
+    }
+
+}
+
+
+/* =========================================================
    UTILITIES
 ========================================================= */
 
@@ -4192,6 +6088,51 @@ function placeCursorAtEnd(element) {
     selection.addRange(
         range
     );
+
+}
+
+
+function normalizeText(text) {
+
+    if (
+        text === null ||
+        text === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(
+        text
+    )
+        .replace(
+            /\r\n/g,
+            "\n"
+        )
+        .replace(
+            /\r/g,
+            "\n"
+        )
+        .replace(
+            /\u00a0/g,
+            " "
+        );
+
+}
+
+
+function normalizeSingleLine(text) {
+
+    return normalizeText(
+        text
+    )
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .trim();
 
 }
 
@@ -4226,6 +6167,26 @@ function clamp(
             value
         )
     );
+
+}
+
+
+function safeNumber(
+    value,
+    fallback
+) {
+
+    const number =
+        Number(
+            value
+        );
+
+
+    return Number.isFinite(
+        number
+    )
+        ? number
+        : fallback;
 
 }
 
@@ -4284,6 +6245,42 @@ function normalizeColor(
             )
             .join("")
     );
+
+}
+
+
+function validRepeat(
+    value
+) {
+
+    return [
+        "repeat",
+        "no-repeat",
+        "repeat-x",
+        "repeat-y"
+    ].includes(
+        value
+    )
+        ? value
+        : "repeat";
+
+}
+
+
+function sanitizeFilename(
+    name
+) {
+
+    return String(
+        name ||
+        "Untitled Board"
+    )
+        .replace(
+            /[<>:"/\\|?*]/g,
+            "_"
+        )
+        .trim() ||
+        "Untitled Board";
 
 }
 
