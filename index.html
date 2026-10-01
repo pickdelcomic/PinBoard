@@ -38,6 +38,11 @@
 
         <div class="toolbar-divider"></div>
 
+        <button id="undoButton" title="Undo (Ctrl+Z)">UNDO</button>
+        <button id="redoButton" title="Redo (Ctrl+Y)">REDO</button>
+
+        <div class="toolbar-divider"></div>
+
         <button id="newButton">NEW</button>
         <button id="saveButton">SAVE</button>
         <button id="saveAsButton">SAVE AS</button>
@@ -46,6 +51,10 @@
         <button id="helpButton" class="help-button">?</button>
 
         <div class="toolbar-spacer"></div>
+
+        <span id="saveStatus">
+            READY
+        </span>
 
         <div id="pickdel">
             PICKDEL
@@ -92,7 +101,7 @@
     <input
         type="file"
         id="boardInput"
-        accept=".json"
+        accept=".json,application/json"
         hidden
     >
 
@@ -126,6 +135,7 @@
 
                 <label>
                     UI BACKGROUND
+
                     <input
                         type="color"
                         id="uiBg"
@@ -135,6 +145,7 @@
 
                 <label>
                     ACCENT
+
                     <input
                         type="color"
                         id="uiAccent"
@@ -144,6 +155,7 @@
 
                 <label>
                     DARK ACCENT
+
                     <input
                         type="color"
                         id="uiDarkAccent"
@@ -153,6 +165,7 @@
 
                 <label>
                     BUTTON HOVER
+
                     <input
                         type="color"
                         id="uiButtonHover"
@@ -162,6 +175,7 @@
 
                 <label>
                     UI TEXT
+
                     <input
                         type="color"
                         id="uiText"
@@ -722,8 +736,43 @@
                 </p>
 
                 <p>
-                    <b>DELETE</b><br>
+                    <b>DELETE / BACKSPACE</b><br>
                     Delete the selected object.
+                </p>
+
+                <p>
+                    <b>ARROW KEYS</b><br>
+                    Nudge the selected object.
+                </p>
+
+                <p>
+                    <b>SHIFT + ARROW</b><br>
+                    Move the selected object faster.
+                </p>
+
+                <p>
+                    <b>CTRL + D</b><br>
+                    Duplicate the selected object.
+                </p>
+
+                <p>
+                    <b>CTRL + Z</b><br>
+                    Undo the last board change.
+                </p>
+
+                <p>
+                    <b>CTRL + Y</b><br>
+                    Redo a board change.
+                </p>
+
+                <p>
+                    <b>CTRL + S</b><br>
+                    Save the board.
+                </p>
+
+                <p>
+                    <b>CTRL + O</b><br>
+                    Open a saved board.
                 </p>
 
             </div>
